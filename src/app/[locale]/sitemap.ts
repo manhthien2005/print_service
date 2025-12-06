@@ -8,8 +8,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   const sitemapEntries: MetadataRoute.Sitemap = [];
 
-  locales.forEach((locale) => {
-    routes.forEach((route) => {
+  locales.forEach(locale => {
+    routes.forEach(route => {
       sitemapEntries.push({
         url: `${baseUrl}/${locale}${route}`,
         lastModified: new Date(),
@@ -21,4 +21,3 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   return sitemapEntries;
 }
-

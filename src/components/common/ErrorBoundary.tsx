@@ -34,15 +34,15 @@ export class ErrorBoundary extends Component<Props, State> {
 
       return (
         <div className="flex min-h-screen flex-col items-center justify-center p-8">
-          <h2 className="text-2xl font-bold text-destructive mb-4">
+          <h2 className="mb-4 text-2xl font-bold text-destructive">
             Something went wrong
           </h2>
-          <p className="text-muted-foreground mb-4">
+          <p className="mb-4 text-muted-foreground">
             {this.state.error?.message || 'An unexpected error occurred'}
           </p>
           <button
             onClick={() => this.setState({ hasError: false, error: undefined })}
-            className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90"
+            className="hover:bg-primary/90 rounded-md bg-primary px-4 py-2 text-primary-foreground"
           >
             Try again
           </button>
@@ -53,4 +53,3 @@ export class ErrorBoundary extends Component<Props, State> {
     return this.props.children;
   }
 }
-

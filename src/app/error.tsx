@@ -15,12 +15,9 @@ export default function Error({
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center p-8">
-      <h2 className="text-2xl font-bold text-destructive mb-4">
-        {t('error')}
-      </h2>
-      <p className="text-muted-foreground mb-4">{error.message}</p>
+      <h2 className="mb-4 text-2xl font-bold text-destructive">{t('error')}</h2>
+      <p className="mb-4 text-muted-foreground">{error.message}</p>
       <Button onClick={reset}>{t('reset')}</Button>
     </div>
   );
 }
-

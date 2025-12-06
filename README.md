@@ -47,16 +47,16 @@ src/
 
 ## 📜 Scripts Có Sẵn
 
-| Lệnh | Mô tả |
-|------|-------|
-| `npm run dev` | Chạy development server |
-| `npm run build` | Build cho production |
-| `npm run start` | Chạy production server |
-| `npm run lint` | Chạy ESLint |
-| `npm run lint:fix` | Sửa lỗi ESLint |
-| `npm run format` | Format code với Prettier |
-| `npm run type-check` | Kiểm tra TypeScript |
-| `npm run sonar` | Chạy SonarQube analysis |
+| Lệnh                 | Mô tả                    |
+| -------------------- | ------------------------ |
+| `npm run dev`        | Chạy development server  |
+| `npm run build`      | Build cho production     |
+| `npm run start`      | Chạy production server   |
+| `npm run lint`       | Chạy ESLint              |
+| `npm run lint:fix`   | Sửa lỗi ESLint           |
+| `npm run format`     | Format code với Prettier |
+| `npm run type-check` | Kiểm tra TypeScript      |
+| `npm run sonar`      | Chạy SonarQube analysis  |
 
 ---
 

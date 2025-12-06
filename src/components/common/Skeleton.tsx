@@ -13,7 +13,13 @@ export function Skeleton({ className, ...props }: SkeletonProps) {
   );
 }
 
-export function SkeletonText({ lines = 3, className }: { lines?: number; className?: string }) {
+export function SkeletonText({
+  lines = 3,
+  className,
+}: {
+  lines?: number;
+  className?: string;
+}) {
   return (
     <div className={cn('space-y-2', className)}>
       {Array.from({ length: lines }).map((_, i) => (
@@ -29,9 +35,8 @@ export function SkeletonText({ lines = 3, className }: { lines?: number; classNa
 export function SkeletonCard({ className }: { className?: string }) {
   return (
     <div className={cn('rounded-lg border p-4', className)}>
-      <Skeleton className="h-4 w-1/4 mb-4" />
+      <Skeleton className="mb-4 h-4 w-1/4" />
       <SkeletonText lines={3} />
     </div>
   );
 }
-

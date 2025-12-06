@@ -18,4 +18,3 @@ export interface ApiError {
   code?: string;
   statusCode?: number;
 }
-

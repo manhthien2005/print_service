@@ -9,4 +9,3 @@ export const ROUTES = {
 export function getLocalizedRoute(route: string, locale: string): string {
   return `/${locale}${route === '/' ? '' : route}`;
 }
-

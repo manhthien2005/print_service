@@ -7,7 +7,11 @@ import {
 import { AxiosResponse } from 'axios';
 import { apiClient } from '../api/client';
 
-export function useApiMutation<TData = unknown, TVariables = unknown, TError = Error>(
+export function useApiMutation<
+  TData = unknown,
+  TVariables = unknown,
+  TError = Error,
+>(
   url: string,
   method: 'post' | 'put' | 'patch' | 'delete' = 'post',
   options?: Omit<
@@ -38,4 +42,3 @@ export function useApiMutation<TData = unknown, TVariables = unknown, TError = E
     ...options,
   });
 }
-

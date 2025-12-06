@@ -39,4 +39,3 @@ export function useInfiniteScroll(callback: () => void, hasMore: boolean) {
 
   return ref;
 }
-

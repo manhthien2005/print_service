@@ -1,4 +1,10 @@
-import { format, formatDistance, formatRelative, isDate, parseISO } from 'date-fns';
+import {
+  format,
+  formatDistance,
+  formatRelative,
+  isDate,
+  parseISO,
+} from 'date-fns';
 import { vi, enUS } from 'date-fns/locale';
 
 const locales = {
@@ -41,4 +47,3 @@ export function formatDateRelative(
 
   return formatRelative(dateObj, baseDate, { locale: locales[locale] });
 }
-

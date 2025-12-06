@@ -10,7 +10,7 @@ export function Header() {
 
   return (
     <header className="border-b">
-      <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+      <div className="container mx-auto flex items-center justify-between px-4 py-4">
         <Link href="/" className="text-xl font-bold">
           Print Service
         </Link>
@@ -23,4 +23,3 @@ export function Header() {
     </header>
   );
 }
-

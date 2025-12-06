@@ -9,4 +9,3 @@ export const passwordSchema = z
 export const requiredStringSchema = z.string().min(1, 'validation.required');
 
 export const optionalStringSchema = z.string().optional();
-

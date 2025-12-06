@@ -6,7 +6,7 @@ export function formatZodError(
 ) {
   const formattedErrors: Record<string, string> = {};
 
-  error.errors.forEach((err) => {
+  error.errors.forEach(err => {
     const path = err.path.join('.');
     const key = err.message;
     // ZodIssue doesn't have params, use empty object if needed
@@ -29,4 +29,3 @@ export function createZodResolver<T extends ZodSchema>(schema: T) {
     }
   };
 }
-
