@@ -86,20 +86,9 @@ jobs:
             exit 1
           fi
           echo "✅ SONAR_TOKEN is configured"
-          echo "Project Key: ThienPDM_print_service"
-          echo "Organization: ThienPDM"
-          echo "Branch: develop (will be set as main branch)"
-
-      - name: Configure SonarCloud for develop branch
-        run: |
-          # Thêm cấu hình branch vào sonar-project.properties
-          echo "" >> sonar-project.properties
-          echo "# Branch configuration" >> sonar-project.properties
-          echo "sonar.branch.name=develop" >> sonar-project.properties
-          # Set develop là main branch nếu đang scan develop
-          if [ "${{ github.ref }}" == "refs/heads/develop" ]; then
-            echo "sonar.branch.isMain=true" >> sonar-project.properties
-          fi
+          echo "Project Key: manhthien2005_print_service"
+          echo "Organization: manhthien2005"
+          echo "Branch: develop"
 
       - name: SonarCloud Scan
         uses: sonarsource/sonarqube-scan-action@master
@@ -112,15 +101,15 @@ jobs:
         if: failure()
         run: |
           echo "⚠️  SonarCloud scan failed. Possible reasons:"
-          echo "1. Project 'ThienPDM_print_service' does not exist on SonarCloud"
-          echo "2. Organization 'ThienPDM' is incorrect"
+          echo "1. Project 'manhthien2005_print_service' does not exist on SonarCloud"
+          echo "2. Organization 'manhthien2005' is incorrect"
           echo "3. SONAR_TOKEN does not have permission to access the project"
           echo "4. Free plan may not support branch analysis (develop branch)"
           echo ""
           echo "To fix this:"
           echo "1. Go to https://sonarcloud.io"
-          echo "2. Verify project key: ThienPDM_print_service"
-          echo "3. Ensure the organization is: ThienPDM"
+          echo "2. Verify project key: manhthien2005_print_service"
+          echo "3. Ensure the organization is: manhthien2005"
           echo "4. Set 'develop' as main branch in SonarCloud project settings"
           echo "5. Verify the SONAR_TOKEN has access to this project"
           echo "6. Note: Free plan may only analyze main branch. Consider upgrading for branch analysis."
