@@ -13,19 +13,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'npm'
-      
+
       - name: Install dependencies
         run: npm ci
-      
+
       - name: Run Prettier check
         run: npm run format:check
-      
+
       - name: Type check
         run: npm run type-check
 
@@ -36,21 +36,21 @@ jobs:
     # Chạy song song với check để tối ưu thời gian
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'npm'
-      
+
       - name: Install dependencies
         run: npm ci
-      
+
       - name: Build application
         run: npm run build
         env:
           NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL || 'http://localhost:3000' }}
-      
+
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -64,25 +64,66 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     if: github.ref == 'refs/heads/develop' || (github.event_name == 'pull_request' && github.base_ref == 'develop')
+    continue-on-error: true # Không fail pipeline nếu SonarCloud có lỗi
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Cần để SonarCloud phân tích đầy đủ
-      
+          fetch-depth: 0 # Cần để SonarCloud phân tích đầy đủ
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'npm'
-      
+
       - name: Install dependencies
         run: npm ci
-      
+
+      - name: Verify SonarCloud configuration
+        run: |
+          if [ -z "${{ secrets.SONAR_TOKEN }}" ]; then
+            echo "❌ SONAR_TOKEN is not set in GitHub secrets"
+            exit 1
+          fi
+          echo "✅ SONAR_TOKEN is configured"
+          echo "Project Key: ThienPDM_print_service"
+          echo "Organization: ThienPDM"
+          echo "Branch: develop (will be set as main branch)"
+
+      - name: Configure SonarCloud for develop branch
+        run: |
+          # Thêm cấu hình branch vào sonar-project.properties
+          echo "" >> sonar-project.properties
+          echo "# Branch configuration" >> sonar-project.properties
+          echo "sonar.branch.name=develop" >> sonar-project.properties
+          # Set develop là main branch nếu đang scan develop
+          if [ "${{ github.ref }}" == "refs/heads/develop" ]; then
+            echo "sonar.branch.isMain=true" >> sonar-project.properties
+          fi
+
       - name: SonarCloud Scan
         uses: sonarsource/sonarqube-scan-action@master
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        continue-on-error: true
+
+      - name: Check SonarCloud result
+        if: failure()
+        run: |
+          echo "⚠️  SonarCloud scan failed. Possible reasons:"
+          echo "1. Project 'ThienPDM_print_service' does not exist on SonarCloud"
+          echo "2. Organization 'ThienPDM' is incorrect"
+          echo "3. SONAR_TOKEN does not have permission to access the project"
+          echo "4. Free plan may not support branch analysis (develop branch)"
+          echo ""
+          echo "To fix this:"
+          echo "1. Go to https://sonarcloud.io"
+          echo "2. Verify project key: ThienPDM_print_service"
+          echo "3. Ensure the organization is: ThienPDM"
+          echo "4. Set 'develop' as main branch in SonarCloud project settings"
+          echo "5. Verify the SONAR_TOKEN has access to this project"
+          echo "6. Note: Free plan may only analyze main branch. Consider upgrading for branch analysis."
 
   # Chỉ chạy khi PR vào nhánh deploy
   deploy-check:
@@ -92,22 +133,22 @@ jobs:
     if: github.event_name == 'pull_request' && github.base_ref == 'deploy'
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Download build artifacts
         uses: actions/download-artifact@v4
         with:
           name: build
           path: .next
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'npm'
-      
+
       - name: Install dependencies
         run: npm ci
-      
+
       - name: Verify build artifacts
         run: |
           if [ ! -d ".next" ]; then
@@ -115,9 +156,8 @@ jobs:
             exit 1
           fi
           echo "✅ Build artifacts verified successfully"
-      
+
       - name: Test deployment readiness
         run: |
           echo "✅ All checks passed - Ready for deployment"
           echo "This PR can be merged to deploy branch"
-
