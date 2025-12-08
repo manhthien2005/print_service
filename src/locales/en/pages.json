@@ -1,0 +1,54 @@
+{
+  "dashboard": {
+    "title": "Dashboard",
+    "welcome": "Welcome back"
+  },
+  "student": {
+    "printers": {
+      "title": "Printers Info",
+      "description": "View available printers and their status"
+    },
+    "print": {
+      "title": "Print Document",
+      "description": "Upload and print your documents"
+    },
+    "history": {
+      "title": "Print History",
+      "description": "View your printing history"
+    },
+    "buyPages": {
+      "title": "Buy Pages",
+      "description": "Purchase printing pages for your account"
+    },
+    "profile": {
+      "title": "Profile",
+      "description": "Manage your account profile"
+    }
+  },
+  "staff": {
+    "managePrinters": {
+      "title": "Manage Printers",
+      "description": "Manage and monitor all printers in the system"
+    },
+    "manageStudents": {
+      "title": "Manage Students",
+      "description": "View and manage student accounts"
+    },
+    "systemLogs": {
+      "title": "System Logs",
+      "description": "View system activity and logs"
+    },
+    "reports": {
+      "title": "Reports",
+      "description": "View and generate system reports"
+    },
+    "configuration": {
+      "title": "Configuration",
+      "description": "Configure system settings and preferences"
+    },
+    "settings": {
+      "title": "Settings",
+      "description": "Manage your account and application settings"
+    }
+  }
+}

@@ -5,6 +5,7 @@ interface User {
   id: string;
   email: string;
   name: string;
+  userType?: 'student' | 'staff';
 }
 
 interface AuthState {

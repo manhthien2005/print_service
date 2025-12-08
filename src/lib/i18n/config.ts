@@ -11,8 +11,16 @@ export default getRequestConfig(async ({ requestLocale }) => {
     notFound();
   }
 
+  const [commonMessages, pagesMessages] = await Promise.all([
+    import(`../../locales/${locale}/common.json`),
+    import(`../../locales/${locale}/pages.json`),
+  ]);
+
   return {
     locale,
-    messages: (await import(`../../locales/${locale}/common.json`)).default,
+    messages: {
+      ...commonMessages.default,
+      ...pagesMessages.default,
+    },
   };
 });

@@ -1,113 +1,114 @@
 'use client';
 
-import {
-  createContext,
-  useContext,
-  useState,
-  useCallback,
-  ReactNode,
-} from 'react';
-import { cn } from '@/lib/utils/cn';
+import { ReactNode, useEffect } from 'react';
+import { Toaster, toast as sonnerToast } from 'sonner';
 
-type ToastType = 'success' | 'error' | 'warning' | 'info';
+const MAX_TOASTS = 3;
+const toastQueue: string[] = [];
 
-interface Toast {
-  id: string;
-  message: string;
-  type: ToastType;
-  duration?: number;
+function manageToastLimit(): string | undefined {
+  // Dismiss oldest toast if queue is full
+  if (toastQueue.length >= MAX_TOASTS) {
+    const oldestId = toastQueue.shift();
+    if (oldestId) {
+      sonnerToast.dismiss(oldestId);
+    }
+  }
+  return undefined;
 }
-
-interface ToastContextType {
-  toasts: Toast[];
-  showToast: (message: string, type?: ToastType, duration?: number) => void;
-  removeToast: (id: string) => void;
-}
-
-const ToastContext = createContext<ToastContextType | undefined>(undefined);
 
 export function ToastProvider({ children }: { children: ReactNode }) {
-  const [toasts, setToasts] = useState<Toast[]>([]);
-
-  const showToast = useCallback(
-    (message: string, type: ToastType = 'info', duration = 3000) => {
-      const id = Math.random().toString(36).substring(7);
-      const toast: Toast = { id, message, type, duration };
-
-      setToasts(prev => [...prev, toast]);
-
-      if (duration > 0) {
-        setTimeout(() => {
-          setToasts(prev => prev.filter(t => t.id !== id));
-        }, duration);
-      }
-    },
-    []
-  );
-
-  const removeToast = useCallback((id: string) => {
-    setToasts(prev => prev.filter(t => t.id !== id));
+  useEffect(() => {
+    // Clear queue on mount
+    toastQueue.length = 0;
   }, []);
 
   return (
-    <ToastContext.Provider value={{ toasts, showToast, removeToast }}>
+    <>
       {children}
-      <ToastContainer toasts={toasts} removeToast={removeToast} />
-    </ToastContext.Provider>
+      <Toaster
+        position="bottom-right"
+        toastOptions={{
+          duration: 3000,
+          classNames: {
+            toast: 'border shadow-lg',
+            success:
+              'bg-emerald-50/95 text-emerald-800 border-emerald-300/60 dark:bg-emerald-900/20 dark:text-emerald-200 dark:border-emerald-700/40',
+            error:
+              'bg-red-50/95 text-red-800 border-red-300/60 dark:bg-red-900/20 dark:text-red-200 dark:border-red-700/40',
+          },
+        }}
+      />
+      <style jsx global>{`
+        @keyframes toast-slide-up {
+          from {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        [data-sonner-toast][data-type='success'] {
+          background-color: rgb(236 253 245 / 0.95) !important;
+          color: rgb(6 78 59) !important;
+          border-color: rgb(110 231 183 / 0.6) !important;
+        }
+        [data-sonner-toast][data-type='error'] {
+          background-color: rgb(254 242 242 / 0.95) !important;
+          color: rgb(153 27 27) !important;
+          border-color: rgb(252 165 165 / 0.6) !important;
+        }
+        [data-sonner-toaster] {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+        }
+        [data-sonner-toast] {
+          animation: toast-slide-up 0.3s ease-out !important;
+        }
+        [data-sonner-toaster] [data-sonner-toast]:nth-child(n + 4) {
+          display: none !important;
+        }
+      `}</style>
+    </>
   );
 }
 
-export function useToast() {
-  const context = useContext(ToastContext);
-  if (!context) {
-    throw new Error('useToast must be used within ToastProvider');
-  }
-  return context;
-}
-
-function ToastContainer({
-  toasts,
-  removeToast,
-}: {
-  toasts: Toast[];
-  removeToast: (id: string) => void;
-}) {
-  return (
-    <div className="fixed bottom-0 right-0 z-50 flex w-full max-w-md flex-col gap-2 p-4">
-      {toasts.map(toast => (
-        <ToastItem
-          key={toast.id}
-          toast={toast}
-          onClose={() => removeToast(toast.id)}
-        />
-      ))}
-    </div>
-  );
-}
-
-function ToastItem({ toast, onClose }: { toast: Toast; onClose: () => void }) {
-  const typeStyles = {
-    success: 'bg-green-500 text-white',
-    error: 'bg-destructive text-destructive-foreground',
-    warning: 'bg-yellow-500 text-white',
-    info: 'bg-primary text-primary-foreground',
-  };
-
-  return (
-    <div
-      className={cn(
-        'flex items-center justify-between rounded-lg p-4 shadow-lg',
-        typeStyles[toast.type]
-      )}
-    >
-      <p className="text-sm font-medium">{toast.message}</p>
-      <button
-        onClick={onClose}
-        className="ml-4 text-white/80 hover:text-white"
-        aria-label="Close"
-      >
-        ×
-      </button>
-    </div>
-  );
-}
+// Custom toast functions with limit management
+export const toast = {
+  success: (message: string) => {
+    manageToastLimit();
+    const toastId = sonnerToast.success(message);
+    if (toastId) {
+      toastQueue.push(String(toastId));
+    }
+    return toastId;
+  },
+  error: (message: string) => {
+    manageToastLimit();
+    const toastId = sonnerToast.error(message);
+    if (toastId) {
+      toastQueue.push(String(toastId));
+    }
+    return toastId;
+  },
+  info: (message: string) => {
+    manageToastLimit();
+    const toastId = sonnerToast.info(message);
+    if (toastId) {
+      toastQueue.push(String(toastId));
+    }
+    return toastId;
+  },
+  warning: (message: string) => {
+    manageToastLimit();
+    const toastId = sonnerToast.warning(message);
+    if (toastId) {
+      toastQueue.push(String(toastId));
+    }
+    return toastId;
+  },
+  dismiss: sonnerToast.dismiss,
+};

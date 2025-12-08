@@ -44,8 +44,9 @@ class ApiClient {
       async (error: AxiosError) => {
         if (error.response?.status === 401) {
           // Handle unauthorized - clear auth and redirect
-          this.clearAuth();
-          if (typeof window !== 'undefined') {
+          // But don't redirect if already on login page
+          if (typeof window !== 'undefined' && !window.location.pathname.includes('/login')) {
+            this.clearAuth();
             window.location.href = '/login';
           }
         }
