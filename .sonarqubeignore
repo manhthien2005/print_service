@@ -1,0 +1,41 @@
+# Build outputs
+.next/
+out/
+build/
+dist/
+
+# Dependencies
+node_modules/
+
+# Config files (không cần phân tích)
+*.config.js
+*.config.ts
+postcss.config.js
+tailwind.config.ts
+next.config.js
+tsconfig.json
+
+# Generated files
+next-env.d.ts
+*.d.ts
+
+# Documentation
+docs/
+
+# Public assets
+public/
+
+# CI/CD files
+.github/
+Procfile
+
+# Environment files
+.env*
+.env.example
+
+# Test coverage (nếu có)
+coverage/
+
+# SonarQube files
+.sonar/
+

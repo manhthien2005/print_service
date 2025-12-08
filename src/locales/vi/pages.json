@@ -1,0 +1,55 @@
+{
+  "dashboard": {
+    "title": "Bảng điều khiển",
+    "welcome": "Chào mừng trở lại"
+  },
+  "student": {
+    "printers": {
+      "title": "Thông tin máy in",
+      "description": "Xem máy in có sẵn và trạng thái của chúng"
+    },
+    "print": {
+      "title": "In tài liệu",
+      "description": "Tải lên và in tài liệu của bạn"
+    },
+    "history": {
+      "title": "Lịch sử in",
+      "description": "Xem lịch sử in của bạn"
+    },
+    "buyPages": {
+      "title": "Mua trang",
+      "description": "Mua trang in cho tài khoản của bạn"
+    },
+    "profile": {
+      "title": "Hồ sơ",
+      "description": "Quản lý hồ sơ tài khoản của bạn"
+    }
+  },
+  "staff": {
+    "managePrinters": {
+      "title": "Quản lý máy in",
+      "description": "Quản lý và theo dõi tất cả máy in trong hệ thống"
+    },
+    "manageStudents": {
+      "title": "Quản lý sinh viên",
+      "description": "Xem và quản lý tài khoản sinh viên"
+    },
+    "systemLogs": {
+      "title": "Nhật ký hệ thống",
+      "description": "Xem hoạt động và nhật ký hệ thống"
+    },
+    "reports": {
+      "title": "Báo cáo",
+      "description": "Xem và tạo báo cáo hệ thống"
+    },
+    "configuration": {
+      "title": "Cấu hình",
+      "description": "Cấu hình cài đặt và tùy chọn hệ thống"
+    },
+    "settings": {
+      "title": "Cài đặt",
+      "description": "Quản lý tài khoản và cài đặt ứng dụng"
+    }
+  }
+}
+

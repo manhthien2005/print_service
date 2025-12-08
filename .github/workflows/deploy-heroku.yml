@@ -1,0 +1,48 @@
+name: Deploy to Heroku
+
+on:
+  pull_request:
+    branches:
+      - deploy
+    types: [opened, synchronize, reopened]
+  workflow_dispatch:
+
+# Chỉ deploy khi có PR từ develop vào deploy
+
+env:
+  NODE_VERSION: '20.x'
+
+jobs:
+  deploy:
+    name: Deploy to Heroku
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.head.ref == 'develop' && github.event.pull_request.base.ref == 'deploy'
+
+    steps:
+      - name: Checkout PR branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install Heroku CLI
+        run: |
+          curl https://cli-assets.heroku.com/install.sh | sh
+
+      - name: Configure Git for Heroku
+        run: |
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "github-actions[bot]"
+
+      - name: Deploy to Heroku
+        run: |
+          heroku git:remote -a ${{ secrets.HEROKU_APP_NAME }}
+          git remote set-url heroku https://heroku:${{ secrets.HEROKU_API_KEY }}@git.heroku.com/${{ secrets.HEROKU_APP_NAME }}.git
+          git push heroku HEAD:main --force
+        env:
+          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
