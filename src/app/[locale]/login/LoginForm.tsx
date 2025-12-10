@@ -2,6 +2,8 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
+import type { FieldError } from 'react-hook-form';
 import { Input } from '@/components/ui/Input';
 import GlareHover from '@/components/GlareHover';
 import { Captcha } from '@/components/ui/Captcha';
@@ -29,6 +31,8 @@ interface LoginFormProps {
 
 const FAILED_LOGIN_KEY = 'failed-login-attempts';
 const MAX_FAILED_ATTEMPTS = 5;
+const PASSWORD_MIN_LENGTH = 8;
+const PASSWORD_MAX_LENGTH = 100;
 
 export default function LoginForm({ locale, copy: t }: LoginFormProps) {
   const [showPassword, setShowPassword] = useState(false);
@@ -38,6 +42,32 @@ export default function LoginForm({ locale, copy: t }: LoginFormProps) {
   const [captchaValid, setCaptchaValid] = useState(false);
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
   const { setUser, setToken } = useAuthStore();
+  const tValidation = useTranslations('validation');
+
+  const translateValidationMessage = (message?: string) => {
+    if (!message) return '';
+    switch (message) {
+      case 'validation.required':
+        return tValidation('required');
+      case 'validation.email':
+        return tValidation('email');
+      case 'validation.minLength':
+        return tValidation('minLength', { min: PASSWORD_MIN_LENGTH });
+      case 'validation.maxLength':
+        return tValidation('maxLength', { max: PASSWORD_MAX_LENGTH });
+      default:
+        return message;
+    }
+  };
+
+  const renderError = (error?: FieldError) => {
+    if (!error) return null;
+    return (
+      <p className="mt-1 text-xs text-red-400">
+        {translateValidationMessage(error.message)}
+      </p>
+    );
+  };
 
   useEffect(() => {
     // Load failed attempts from localStorage
@@ -185,9 +215,11 @@ export default function LoginForm({ locale, copy: t }: LoginFormProps) {
           userType: user.userType as 'student' | 'staff',
         });
 
-        // Save refresh token if remember me
+        // Save refresh token if remember me, otherwise clear any existing
         if (data.rememberMe && refreshToken) {
           localStorage.setItem('refresh-token', refreshToken);
+        } else if (!data.rememberMe) {
+          localStorage.removeItem('refresh-token');
         }
 
         handleSuccessfulLogin();
@@ -244,7 +276,7 @@ export default function LoginForm({ locale, copy: t }: LoginFormProps) {
   };
 
   return (
-    <div className="animate-fade-in w-full max-w-md rounded-2xl border border-white/10 bg-white/5 p-8 shadow-2xl backdrop-blur-md">
+    <div className="w-full max-w-md animate-fade-in rounded-2xl border border-white/10 bg-white/5 p-8 shadow-2xl backdrop-blur-md">
       <div className="mb-8 text-center">
         <h1 className="text-3xl font-bold text-white">{t.title}</h1>
         <p className="mt-2 text-sm text-white/70">{t.subtitle}</p>
@@ -288,12 +320,8 @@ export default function LoginForm({ locale, copy: t }: LoginFormProps) {
               }`}
               {...register('email')}
             />
-            {errors.email && (
-              <p className="mt-1 text-xs text-red-400">
-                {errors.email.message}
-              </p>
-            )}
           </div>
+          {renderError(errors.email)}
         </div>
 
         <div className="space-y-2">
@@ -372,11 +400,7 @@ export default function LoginForm({ locale, copy: t }: LoginFormProps) {
               )}
             </button>
           </div>
-          {errors.password && (
-            <p className="mt-1 text-xs text-red-400">
-              {errors.password.message}
-            </p>
-          )}
+          {renderError(errors.password)}
         </div>
 
         <div className="flex items-center justify-between">

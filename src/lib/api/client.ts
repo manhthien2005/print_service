@@ -4,12 +4,16 @@ import axios, {
   AxiosResponse,
   InternalAxiosRequestConfig,
 } from 'axios';
+import { toast } from '../../components/ui/Toast';
+import { useAuthStore } from '../stores/useAuthStore';
 
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api';
 
 class ApiClient {
   private client: AxiosInstance;
+  private isRefreshing = false;
+  private refreshPromise: Promise<string | null> | null = null;
 
   constructor() {
     this.client = axios.create({
@@ -42,13 +46,26 @@ class ApiClient {
     this.client.interceptors.response.use(
       (response: AxiosResponse) => response,
       async (error: AxiosError) => {
-        if (error.response?.status === 401) {
-          // Handle unauthorized - clear auth and redirect
-          // But don't redirect if already on login page
-          if (typeof window !== 'undefined' && !window.location.pathname.includes('/login')) {
-            this.clearAuth();
-            window.location.href = '/login';
+        const originalRequest = error.config as InternalAxiosRequestConfig & {
+          _retry?: boolean;
+        };
+
+        if (error.response?.status === 401 && !originalRequest?._retry) {
+          originalRequest._retry = true;
+
+          // Avoid trying to refresh while calling refresh
+          if (originalRequest.url?.includes('/auth/refresh')) {
+            this.clearAuthAndRedirect();
+            return Promise.reject(this.handleError(error));
           }
+
+          const newAccessToken = await this.refreshAccessToken();
+          if (newAccessToken && originalRequest.headers) {
+            originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+            return this.client(originalRequest);
+          }
+
+          this.clearAuthAndRedirect();
         }
 
         return Promise.reject(this.handleError(error));
@@ -73,7 +90,76 @@ class ApiClient {
   private clearAuth(): void {
     if (typeof window !== 'undefined') {
       localStorage.removeItem('auth-storage');
+      localStorage.removeItem('refresh-token');
     }
+  }
+
+  private getRefreshToken(): string | null {
+    if (typeof window === 'undefined') return null;
+    return localStorage.getItem('refresh-token');
+  }
+
+  private clearAuthAndRedirect(): void {
+    this.clearAuth();
+    if (
+      typeof window !== 'undefined' &&
+      !window.location.pathname.includes('/login')
+    ) {
+      const locale =
+        window.location.pathname.split('/').filter(Boolean)[0] || undefined;
+      const loginPath = locale ? `/${locale}/login` : '/login';
+      toast.error('Phiên đã hết hạn, vui lòng đăng nhập lại');
+      window.location.href = loginPath;
+    }
+  }
+
+  private async refreshAccessToken(): Promise<string | null> {
+    if (this.isRefreshing && this.refreshPromise) {
+      return this.refreshPromise;
+    }
+
+    const refreshToken = this.getRefreshToken();
+    if (!refreshToken) {
+      return null;
+    }
+
+    this.isRefreshing = true;
+    this.refreshPromise = (async () => {
+      try {
+        const response = await axios.post<{
+          accessToken: string;
+          refreshToken?: string;
+          expiresIn?: number;
+        }>(`${API_BASE_URL}/auth/refresh`, {
+          refreshToken,
+        });
+
+        const newAccessToken = response.data.accessToken;
+        if (newAccessToken) {
+          // Update auth store with new access token
+          if (typeof window !== 'undefined') {
+            const { setToken } = useAuthStore.getState();
+            setToken(newAccessToken);
+          }
+
+          // If backend rotates refresh token, persist it
+          if (response.data.refreshToken && typeof window !== 'undefined') {
+            localStorage.setItem('refresh-token', response.data.refreshToken);
+          }
+
+          return newAccessToken;
+        }
+
+        return null;
+      } catch {
+        return null;
+      } finally {
+        this.isRefreshing = false;
+        this.refreshPromise = null;
+      }
+    })();
+
+    return this.refreshPromise;
   }
 
   private handleError(error: AxiosError): Error {

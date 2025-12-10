@@ -5,7 +5,6 @@ import { locales } from '@/lib/i18n/config';
 import LightRays from '@/components/LightRays';
 import ShinyText from '@/components/ShinyText';
 import TextType from '@/components/TextType';
-import AppDock from '@/components/AppDock';
 
 const copy = {
   en: {
@@ -57,13 +56,15 @@ export default async function HomePage({
       <LightRays
         raysOrigin="top-center"
         raysColor="#ffffff"
-        raysSpeed={1.2}
-        lightSpread={0.6}
-        rayLength={1.2}
+        raysSpeed={1.5}
+        lightSpread={0.85}
+        rayLength={1.6}
+        fadeDistance={1.25}
+        saturation={1.1}
         followMouse
         mouseInfluence={0.2}
         noiseAmount={0}
-        distortion={0}
+        distortion={0.05}
         asBackground
         className="opacity-100"
       />
@@ -74,7 +75,7 @@ export default async function HomePage({
           src="/images/printer.png"
           alt=""
           aria-hidden
-          className="w-[760px] max-w-[82vw] translate-y-6 opacity-[0.18] mix-blend-screen drop-shadow-[0_18px_50px_rgba(0,0,0,0.45)]"
+          className="w-[760px] max-w-[82vw] translate-y-6 opacity-[0.28] mix-blend-screen drop-shadow-[0_18px_50px_rgba(0,0,0,0.45)]"
         />
       </div>
 
@@ -145,7 +146,6 @@ export default async function HomePage({
           </div>
         </section>
       </div>
-      <AppDock locale={locale} />
     </main>
   );
 }

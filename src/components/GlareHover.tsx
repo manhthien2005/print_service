@@ -31,7 +31,7 @@ const GlareHover: React.FC<GlareHoverProps> = ({
   transitionDuration = 650,
   playOnce = false,
   className = '',
-  style = {}
+  style = {},
 }) => {
   const hex = glareColor.replace('#', '');
   let rgba = glareColor;
@@ -82,19 +82,19 @@ const GlareHover: React.FC<GlareHoverProps> = ({
     backgroundSize: `${glareSize}% ${glareSize}%, 100% 100%`,
     backgroundRepeat: 'no-repeat',
     backgroundPosition: '-100% -100%, 0 0',
-    pointerEvents: 'none'
+    pointerEvents: 'none',
   };
 
   return (
     <div
-      className={`relative grid place-items-center overflow-hidden border cursor-pointer ${className}`}
+      className={`relative grid cursor-pointer place-items-center overflow-hidden border ${className}`}
       style={{
         width,
         height,
         background,
         borderRadius,
         borderColor,
-        ...style
+        ...style,
       }}
       onMouseEnter={animateIn}
       onMouseLeave={animateOut}
