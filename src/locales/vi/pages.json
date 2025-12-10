@@ -28,7 +28,115 @@
   "staff": {
     "managePrinters": {
       "title": "Quản lý máy in",
-      "description": "Quản lý và theo dõi tất cả máy in trong hệ thống"
+      "description": "Quản lý và theo dõi tất cả máy in trong hệ thống",
+      "stats": {
+        "totalBrands": "Tổng số hãng",
+        "totalModels": "Tổng số model",
+        "totalPrinters": "Tổng máy in",
+        "activePrinters": "Đang hoạt động",
+        "maintenancePrinters": "Đang bảo trì",
+        "needsMaintenance": "Cần bảo trì"
+      },
+      "tabs": {
+        "brands": "Hãng máy in",
+        "models": "Model máy in",
+        "printers": "Máy in vật lý",
+        "activity": "Lịch sử hoạt động"
+      },
+      "search": {
+        "placeholder": "Tìm kiếm...",
+        "advancedFilters": "Bộ lọc nâng cao",
+        "hideFilters": "Ẩn bộ lọc"
+      },
+      "actions": {
+        "importExcel": "Nhập Excel",
+        "exportExcel": "Xuất Excel",
+        "addNew": "Thêm mới",
+        "edit": "Sửa",
+        "delete": "Xóa",
+        "enable": "Bật",
+        "disable": "Tắt",
+        "viewDetails": "Xem chi tiết"
+      },
+      "filters": {
+        "status": "Trạng thái",
+        "brand": "Hãng",
+        "room": "Phòng",
+        "fromDate": "Từ ngày",
+        "toDate": "Đến ngày",
+        "actionType": "Loại hành động",
+        "performedBy": "Thực hiện bởi",
+        "paperSize": "Khổ giấy",
+        "features": "Tính năng",
+        "countryOfOrigin": "Xuất xứ",
+        "all": "Tất cả",
+        "enabled": "Đang hoạt động",
+        "disabled": "Đang bảo trì",
+        "color": "In màu",
+        "duplex": "In 2 mặt",
+        "clearFilters": "Xóa bộ lọc",
+        "selectStartDate": "Chọn ngày bắt đầu",
+        "selectEndDate": "Chọn ngày kết thúc"
+      },
+      "table": {
+        "brandName": "Tên hãng",
+        "countryOfOrigin": "Xuất xứ",
+        "website": "Website",
+        "createdAt": "Ngày tạo",
+        "modelName": "Tên model",
+        "description": "Mô tả",
+        "maxPaperSize": "Khổ giấy tối đa",
+        "features": "Tính năng",
+        "serialNumber": "Serial Number",
+        "brandModel": "Hãng / Model",
+        "room": "Phòng",
+        "status": "Trạng thái",
+        "installedDate": "Ngày lắp đặt",
+        "lastMaintenance": "Bảo trì gần nhất",
+        "actionType": "Loại hành động",
+        "performedBy": "Thực hiện bởi",
+        "details": "Chi tiết",
+        "time": "Thời gian",
+        "actions": "Thao tác",
+        "noData": "Không có dữ liệu",
+        "color": "Màu",
+        "duplex": "In 2 mặt",
+        "active": "Đang hoạt động",
+        "underMaintenance": "Đang bảo trì"
+      },
+      "bulkActions": {
+        "selected": "Đã chọn {count} mục",
+        "enable": "Kích hoạt",
+        "disable": "Vô hiệu hóa",
+        "deselect": "Bỏ chọn"
+      },
+      "pagination": {
+        "showing": "Hiển thị",
+        "to": "-",
+        "of": "trong tổng số",
+        "items": "mục"
+      },
+      "actionTypes": {
+        "added": "Thêm mới",
+        "enabled": "Kích hoạt",
+        "disabled": "Vô hiệu hóa",
+        "updated": "Cập nhật",
+        "removed": "Xóa",
+        "maintenance": "Bảo trì"
+      },
+      "maintenance": {
+        "alertTitle": "Cảnh báo bảo trì",
+        "alertMessage": "Có {count} máy in cần được bảo trì (quá 3 tháng kể từ lần bảo trì gần nhất)",
+        "daysAgo": "{days} ngày trước - Cần bảo trì"
+      },
+      "deleteModal": {
+        "deleteBrand": "Xóa Hãng",
+        "deleteModel": "Xóa Model",
+        "deletePrinter": "Xóa Máy In",
+        "confirmDeleteBrand": "Bạn có chắc chắn muốn xóa hãng này?",
+        "confirmDeleteModel": "Bạn có chắc chắn muốn xóa model này?",
+        "confirmDeletePrinter": "Bạn có chắc chắn muốn xóa máy in này?"
+      }
     },
     "manageStudents": {
       "title": "Quản lý sinh viên",
@@ -48,8 +156,26 @@
     },
     "settings": {
       "title": "Cài đặt",
-      "description": "Quản lý tài khoản và cài đặt ứng dụng"
+      "description": "Quản lý tài khoản và cài đặt ứng dụng",
+      "comingSoon": "Các mục cài đặt khác sẽ sớm xuất hiện tại đây.",
+      "appearance": {
+        "title": "Giao diện",
+        "description": "Chọn cách hiển thị bảng điều khiển trên thiết bị của bạn.",
+        "lightTitle": "Chế độ sáng",
+        "lightDescription": "Nền sáng, độ tương phản cao phù hợp khi làm việc ban ngày.",
+        "darkTitle": "Chế độ tối",
+        "darkDescription": "Giao diện dịu mắt khi sử dụng ban đêm hoặc môi trường thiếu sáng.",
+        "activeLabel": "Đang dùng"
+      },
+      "language": {
+        "title": "Ngôn ngữ",
+        "description": "Chọn ngôn ngữ hiển thị cho ứng dụng.",
+        "englishTitle": "Tiếng Anh",
+        "englishDescription": "Sử dụng tiếng Anh làm ngôn ngữ giao diện.",
+        "vietnameseTitle": "Tiếng Việt",
+        "vietnameseDescription": "Sử dụng tiếng Việt làm ngôn ngữ giao diện.",
+        "activeLabel": "Đang dùng"
+      }
     }
   }
 }
-

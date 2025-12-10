@@ -1,7 +1,7 @@
 'use client';
 
-import React from 'react';
-import { useRouter } from 'next/navigation';
+import React, { useMemo } from 'react';
+import { useRouter, usePathname } from 'next/navigation';
 import { useAuthStore } from '@/lib/stores/useAuthStore';
 import Dock from './Dock';
 
@@ -11,14 +11,10 @@ interface AppDockProps {
 
 export default function AppDock({ locale }: AppDockProps) {
   const router = useRouter();
+  const pathname = usePathname();
   const { isAuthenticated, logout, user } = useAuthStore();
 
-  // Don't show dock if not authenticated
-  if (!isAuthenticated || !user) {
-    return null;
-  }
-
-  const userType = user.userType || 'student';
+  const userType = user?.userType || 'student';
 
   const studentCopy = {
     en: {
@@ -100,6 +96,7 @@ export default function AppDock({ locale }: AppDockProps) {
       ),
       label: studentT.home,
       onClick: () => router.push(`/${locale}/student/dashboard`),
+      path: `/${locale}/student/dashboard`,
     },
     {
       icon: (
@@ -120,6 +117,7 @@ export default function AppDock({ locale }: AppDockProps) {
       ),
       label: studentT.printersInfo,
       onClick: () => router.push(`/${locale}/student/printers`),
+      path: `/${locale}/student/printers`,
     },
     {
       icon: (
@@ -140,6 +138,7 @@ export default function AppDock({ locale }: AppDockProps) {
       ),
       label: studentT.printDocument,
       onClick: () => router.push(`/${locale}/student/print`),
+      path: `/${locale}/student/print`,
     },
     {
       icon: (
@@ -160,6 +159,7 @@ export default function AppDock({ locale }: AppDockProps) {
       ),
       label: studentT.printHistory,
       onClick: () => router.push(`/${locale}/student/history`),
+      path: `/${locale}/student/history`,
     },
     {
       icon: (
@@ -180,6 +180,7 @@ export default function AppDock({ locale }: AppDockProps) {
       ),
       label: studentT.buyPages,
       onClick: () => router.push(`/${locale}/student/buy-pages`),
+      path: `/${locale}/student/buy-pages`,
     },
     {
       icon: (
@@ -200,6 +201,7 @@ export default function AppDock({ locale }: AppDockProps) {
       ),
       label: studentT.profile,
       onClick: () => router.push(`/${locale}/student/profile`),
+      path: `/${locale}/student/profile`,
     },
     {
       icon: (
@@ -244,6 +246,7 @@ export default function AppDock({ locale }: AppDockProps) {
       ),
       label: staffT.dashboard,
       onClick: () => router.push(`/${locale}/staff/dashboard`),
+      path: `/${locale}/staff/dashboard`,
     },
     {
       icon: (
@@ -264,6 +267,7 @@ export default function AppDock({ locale }: AppDockProps) {
       ),
       label: staffT.managePrinters,
       onClick: () => router.push(`/${locale}/staff/manage-printers`),
+      path: `/${locale}/staff/manage-printers`,
     },
     {
       icon: (
@@ -284,6 +288,7 @@ export default function AppDock({ locale }: AppDockProps) {
       ),
       label: staffT.manageStudents,
       onClick: () => router.push(`/${locale}/staff/manage-students`),
+      path: `/${locale}/staff/manage-students`,
     },
     {
       icon: (
@@ -304,6 +309,7 @@ export default function AppDock({ locale }: AppDockProps) {
       ),
       label: staffT.systemLogs,
       onClick: () => router.push(`/${locale}/staff/system-logs`),
+      path: `/${locale}/staff/system-logs`,
     },
     {
       icon: (
@@ -324,6 +330,7 @@ export default function AppDock({ locale }: AppDockProps) {
       ),
       label: staffT.reports,
       onClick: () => router.push(`/${locale}/staff/reports`),
+      path: `/${locale}/staff/reports`,
     },
     {
       icon: (
@@ -333,22 +340,16 @@ export default function AppDock({ locale }: AppDockProps) {
           fill="none"
           stroke="currentColor"
           strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
           className="h-5 w-5 text-white"
         >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 0 1 1.37.49l1.296 2.247a1.125 1.125 0 0 1-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 0 1 0 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 0 1-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 0 1-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 0 1-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 0 1-1.369-.49l-1.297-2.247a1.125 1.125 0 0 1 .26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 0 1 0-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 0 1-.26-1.43l1.297-2.247a1.125 1.125 0 0 1 1.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281Z"
-          />
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
-          />
+          <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
         </svg>
       ),
       label: staffT.configuration,
       onClick: () => router.push(`/${locale}/staff/configuration`),
+      path: `/${locale}/staff/configuration`,
     },
     {
       icon: (
@@ -374,6 +375,7 @@ export default function AppDock({ locale }: AppDockProps) {
       ),
       label: staffT.settings,
       onClick: () => router.push(`/${locale}/staff/settings`),
+      path: `/${locale}/staff/settings`,
     },
     {
       icon: (
@@ -399,7 +401,32 @@ export default function AppDock({ locale }: AppDockProps) {
 
   const items = userType === 'staff' ? staffItems : studentItems;
 
+  // Determine active index based on current pathname
+  const activeIndex = useMemo(() => {
+    return items.findIndex((item, index) => {
+      // Skip logout button (last item)
+      if (index === items.length - 1) return false;
+
+      // Match based on path property
+      if (item.path) {
+        return pathname === item.path || pathname.startsWith(item.path + '/');
+      }
+      return false;
+    });
+  }, [items, pathname]);
+
+  // Don't show dock if not authenticated
+  if (!isAuthenticated || !user) {
+    return null;
+  }
+
   return (
-    <Dock items={items} panelHeight={68} baseItemSize={50} magnification={70} />
+    <Dock
+      items={items}
+      panelHeight={68}
+      baseItemSize={50}
+      magnification={70}
+      activeIndex={activeIndex >= 0 ? activeIndex : undefined}
+    />
   );
 }

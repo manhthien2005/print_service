@@ -34,6 +34,12 @@ export default function RootLayout({
             `,
           }}
         />
+        {/* Preload model-viewer for faster 3D model loading */}
+        <link
+          rel="modulepreload"
+          href="https://ajax.googleapis.com/ajax/libs/model-viewer/3.3.0/model-viewer.min.js"
+          as="script"
+        />
       </head>
       <body
         suppressHydrationWarning

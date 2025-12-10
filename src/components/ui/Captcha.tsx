@@ -42,21 +42,26 @@ export function Captcha({
   };
 
   if (!siteKey) {
-    console.warn('reCAPTCHA site key is not configured. Please set NEXT_PUBLIC_RECAPTCHA_SITE_KEY in your .env file.');
+    console.warn(
+      'reCAPTCHA site key is not configured. Please set NEXT_PUBLIC_RECAPTCHA_SITE_KEY in your .env file.'
+    );
     return (
-      <div className={`space-y-3 rounded-lg border border-red-300/50 bg-red-50/10 p-4 ${className}`}>
+      <div
+        className={`space-y-3 rounded-lg border border-red-300/50 bg-red-50/10 p-4 ${className}`}
+      >
         <p className="text-sm text-red-400">
-          reCAPTCHA is not configured. Please set NEXT_PUBLIC_RECAPTCHA_SITE_KEY in your environment variables.
+          reCAPTCHA is not configured. Please set NEXT_PUBLIC_RECAPTCHA_SITE_KEY
+          in your environment variables.
         </p>
       </div>
     );
   }
 
   return (
-    <div className={`space-y-3 rounded-lg border border-white/20 bg-white/5 p-4 ${className}`}>
-      <label className="text-sm font-medium text-white/90">
-        {copy.title}
-      </label>
+    <div
+      className={`space-y-3 rounded-lg border border-white/20 bg-white/5 p-4 ${className}`}
+    >
+      <label className="text-sm font-medium text-white/90">{copy.title}</label>
       <div className="flex justify-center">
         <ReCAPTCHA
           ref={recaptchaRef}
@@ -70,4 +75,3 @@ export function Captcha({
     </div>
   );
 }
-
