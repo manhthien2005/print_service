@@ -1,7 +1,148 @@
 {
   "dashboard": {
     "title": "Dashboard",
-    "welcome": "Welcome back"
+    "welcome": "Welcome back",
+    "staff": {
+      "sectionLabel": "Staff dashboard",
+      "stats": {
+        "printersOnline": "Printers online",
+        "jobsToday": "Jobs today",
+        "pagesMonth": "Pages this month",
+        "caption": {
+          "total": "Out of {total}",
+          "lastJob": "Last job finished 6m ago"
+        }
+      },
+      "weekly": {
+        "title": "Weekly activity",
+        "description": "Completed jobs and pages",
+        "jobs": "Jobs",
+        "pages": "Pages"
+      },
+      "paper": {
+        "title": "Paper size usage",
+        "description": "Share of paper sizes used this month"
+      },
+      "printer": {
+        "title": "Status",
+        "description": "Health and utilization overview",
+        "cta": "Manage printers",
+        "online": "Online",
+        "offline": "Offline",
+        "maintenance": "Maintenance",
+        "utilization": "Utilization",
+        "utilizationLabel": "System utilization",
+        "note": ""
+      },
+      "quickActions": {
+        "title": "Quick actions",
+        "description": "Jump to key admin screens",
+        "badges": {
+          "realtime": "Real-time"
+        },
+        "items": {
+          "printers": {
+            "title": "Printer status",
+            "description": "Check on/off/maintenance and reroute quickly."
+          },
+          "reports": {
+            "title": "Reports",
+            "description": "Export PDF/CSV for this week’s jobs and usage."
+          },
+          "logs": {
+            "title": "System logs",
+            "description": "Track errors, warnings, and maintenance history."
+          },
+          "config": {
+            "title": "Printer configuration",
+            "description": "Update print policies, limits, and permissions."
+          }
+        }
+      },
+      "alerts": {
+        "title": "Alerts",
+        "description": "Items to resolve soon",
+        "severity": {
+          "info": "Info",
+          "warning": "Warning",
+          "critical": "Critical"
+        },
+        "items": {
+          "lowPaper": {
+            "title": "A3 paper is low at R305",
+            "time": "10 minutes ago",
+            "action": "Refill paper"
+          },
+          "driverUpdate": {
+            "title": "Driver update needed for HP 4100",
+            "time": "35 minutes ago",
+            "action": "View details"
+          },
+          "printerOffline": {
+            "title": "Printer R402 is offline",
+            "time": "1 hour ago",
+            "action": "Reroute jobs"
+          }
+        }
+      }
+    },
+    "student": {
+      "sectionLabel": "Student home",
+      "greeting": "Hello, {name}",
+      "subtext": "Check balance, print fast, and track your recent jobs.",
+      "ctaPrimary": "Print document",
+      "ctaSecondary": "Buy more pages",
+      "balance": {
+        "title": "A4 balance",
+        "resetLabel": "Resets on {date}",
+        "badge": "Priority",
+        "conversion": "Paper conversion",
+        "note": "Jobs in queue will start when printers are available."
+      },
+      "stats": {
+        "jobsThisMonth": "Jobs this month",
+        "pagesThisMonth": "Pages printed",
+        "successRate": "Success rate",
+        "pending": "Pending jobs"
+      },
+      "quickActions": {
+        "title": "Quick actions",
+        "description": "Jump into your most used flows"
+      },
+      "recent": {
+        "title": "Recent prints",
+        "description": "Stay on top of the latest jobs",
+        "pagesLabel": "{pages} A4 pages",
+        "viewAll": "View history",
+        "status": {
+          "completed": "Completed",
+          "pending": "Pending",
+          "failed": "Failed"
+        }
+      },
+      "conversions": {
+        "title": "Paper conversion",
+        "description": "How A4 balance converts to A3/A5",
+        "label": "{ratio} × A4"
+      },
+      "profile": {
+        "title": "Profile",
+        "description": "Quick academic snapshot",
+        "studentCode": "Student code",
+        "major": "Major",
+        "class": "Class",
+        "gpaLabel": "GPA",
+        "cta": "View profile"
+      },
+      "achievements": {
+        "title": "Activities",
+        "description": "Clubs, awards, highlights"
+      },
+      "highlights": {
+        "title": "Quick notes",
+        "description": "Tips to keep printing smooth"
+      }
+    }
   },
   "student": {
     "printers": {
@@ -10,7 +151,87 @@
     },
     "print": {
       "title": "Print Document",
-      "description": "Upload and print your documents"
+      "description": "Upload and print your documents",
+      "steps": {
+        "upload": "Upload",
+        "choosePrinter": "Choose Printer",
+        "configuration": "Configuration",
+        "confirm": "Confirm"
+      },
+      "step1": {
+        "title": "Upload Document",
+        "description": "Select the file you want to print. Supports PDF, Word, Excel, PowerPoint and images",
+        "dragDrop": "Drag and drop file here or click to select",
+        "fileSizeLimit": "Max 50MB • PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, JPG, PNG",
+        "next": "Next"
+      },
+      "step2": {
+        "title": "Choose Printer",
+        "description": "Select the printer you want to use to print your document",
+        "search": "Search by name, room, building...",
+        "building": "Building",
+        "room": "Room",
+        "allBuildings": "All Buildings",
+        "allRooms": "All Rooms",
+        "found": "Found",
+        "printers": "printers",
+        "status": {
+          "online": "Online",
+          "offline": "Offline",
+          "maintenance": "Maintenance"
+        },
+        "features": {
+          "color": "Color",
+          "duplex": "Duplex"
+        },
+        "noResults": "No printers found",
+        "back": "Back",
+        "next": "Next"
+      },
+      "step3": {
+        "title": "Print Configuration",
+        "description": "Customize print settings for your document",
+        "paperSize": "Paper Size",
+        "orientation": "Orientation",
+        "portrait": "Portrait",
+        "landscape": "Landscape",
+        "printSide": "Print Side",
+        "oneSided": "1-sided",
+        "doubleSided": "2-sided",
+        "colorMode": "Color Mode",
+        "color": "Color",
+        "grayscale": "Grayscale",
+        "blackWhite": "Black & White",
+        "numberOfCopies": "Number of Copies",
+        "summary": "Summary",
+        "costCalc": "Cost calculation",
+        "currentBalance": "Current balance",
+        "remainingBalance": "Remaining balance",
+        "estimatedPages": "Estimated Pages",
+        "estimatedCost": "Estimated Cost",
+        "notSupported": "Not Supported",
+        "back": "Back",
+        "next": "Next"
+      },
+      "step4": {
+        "title": "Confirm Print",
+        "description": "Please review the information before confirming the print job",
+        "fileInfo": "File Information",
+        "selectedPrinter": "Selected Printer",
+        "printConfig": "Print Configuration",
+        "estimatedCost": "Estimated Cost",
+        "costNote": "Cost may vary based on actual number of pages in the document",
+        "warning": "Important Notice",
+        "warningMessage": "Please ensure you have sufficient printing pages in your account. After confirmation, the print job will be added to the queue and will be processed as soon as the printer is ready.",
+        "processing": "Processing...",
+        "confirm": "Confirm Print",
+        "back": "Back",
+        "success": "Print job submitted successfully!",
+        "preview": "Preview",
+        "previewTitle": "Document preview",
+        "previewUnavailable": "Preview is not available for this file type.",
+        "openInNewTab": "Open in new tab"
+      }
     },
     "history": {
       "title": "Print History",

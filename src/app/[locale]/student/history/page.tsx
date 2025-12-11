@@ -3,6 +3,7 @@ import { setRequestLocale } from 'next-intl/server';
 import { locales } from '@/lib/i18n/config';
 import { PageBackground } from '@/components/layout/PageBackground';
 import AppDock from '@/components/AppDock';
+import { PrintHistory } from '@/components/features/print/PrintHistory';
 
 export function generateStaticParams() {
   return locales.map(locale => ({ locale }));
@@ -26,7 +27,7 @@ export default async function StudentHistoryPage({
     >
       <PageBackground />
 
-      <div className="relative z-10 mx-auto flex min-h-screen max-w-7xl flex-col px-6 py-10">
+      <div className="relative z-10 mx-auto flex min-h-screen max-w-7xl flex-col px-6 py-10 pb-24">
         <header className="mb-8">
           <h1 className="text-4xl font-bold text-slate-900 dark:text-white">
             {t.title}
@@ -37,11 +38,7 @@ export default async function StudentHistoryPage({
         </header>
 
         <div className="flex-1">
-          <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-8 shadow-[0_20px_60px_rgba(15,23,42,0.08)] backdrop-blur dark:border-white/10 dark:bg-white/5 dark:shadow-[0_20px_60px_rgba(0,0,0,0.35)]">
-            <p className="text-slate-700 dark:text-white/70">
-              Print History content coming soon...
-            </p>
-          </div>
+          <PrintHistory />
         </div>
       </div>
 

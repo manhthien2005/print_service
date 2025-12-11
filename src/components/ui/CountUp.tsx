@@ -4,8 +4,8 @@ import { useInView, useMotionValue, useSpring } from 'motion/react';
 import { useCallback, useEffect, useRef } from 'react';
 
 interface CountUpProps {
-  to: number;
-  from?: number;
+  to: number | undefined;
+  from?: number | undefined;
   direction?: 'up' | 'down';
   delay?: number;
   duration?: number;
@@ -29,7 +29,9 @@ export default function CountUp({
   onEnd,
 }: CountUpProps) {
   const ref = useRef<HTMLSpanElement>(null);
-  const motionValue = useMotionValue(direction === 'down' ? to : from);
+  const safeTo = to ?? 0;
+  const safeFrom = from ?? 0;
+  const motionValue = useMotionValue(direction === 'down' ? safeTo : safeFrom);
   const damping = 20 + 40 * (1 / duration);
   const stiffness = 100 * (1 / duration);
   const springValue = useSpring(motionValue, {
@@ -39,7 +41,10 @@ export default function CountUp({
 
   const isInView = useInView(ref, { once: true, margin: '0px' });
 
-  const getDecimalPlaces = (num: number): number => {
+  const getDecimalPlaces = (num: number | undefined | null): number => {
+    if (num === undefined || num === null || isNaN(num)) {
+      return 0;
+    }
     const str = num.toString();
     if (str.includes('.')) {
       const decimals = str.split('.')[1];
@@ -50,7 +55,10 @@ export default function CountUp({
     return 0;
   };
 
-  const maxDecimals = Math.max(getDecimalPlaces(from), getDecimalPlaces(to));
+  const maxDecimals = Math.max(
+    getDecimalPlaces(from ?? 0),
+    getDecimalPlaces(to ?? 0)
+  );
 
   const formatValue = useCallback(
     (latest: number) => {
@@ -72,9 +80,11 @@ export default function CountUp({
 
   useEffect(() => {
     if (ref.current) {
-      ref.current.textContent = formatValue(direction === 'down' ? to : from);
+      ref.current.textContent = formatValue(
+        direction === 'down' ? safeTo : safeFrom
+      );
     }
-  }, [from, to, direction, formatValue]);
+  }, [safeFrom, safeTo, direction, formatValue]);
 
   useEffect(() => {
     if (isInView && startWhen) {
@@ -82,7 +92,7 @@ export default function CountUp({
         onStart();
       }
       const timeoutId = setTimeout(() => {
-        motionValue.set(direction === 'down' ? from : to);
+        motionValue.set(direction === 'down' ? safeFrom : safeTo);
       }, delay * 1000);
 
       const durationTimeoutId = setTimeout(
@@ -104,8 +114,8 @@ export default function CountUp({
     startWhen,
     motionValue,
     direction,
-    from,
-    to,
+    safeFrom,
+    safeTo,
     delay,
     onStart,
     onEnd,
