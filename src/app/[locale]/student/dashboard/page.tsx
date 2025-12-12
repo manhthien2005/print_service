@@ -3,6 +3,7 @@ import { setRequestLocale } from 'next-intl/server';
 import { locales } from '@/lib/i18n/config';
 import { PageBackground } from '@/components/layout/PageBackground';
 import AppDock from '@/components/AppDock';
+import StudentDashboard from './StudentDashboard';
 
 export function generateStaticParams() {
   return locales.map(locale => ({ locale }));
@@ -27,21 +28,7 @@ export default async function StudentDashboardPage({
       <PageBackground />
 
       <div className="relative z-10 mx-auto flex min-h-screen max-w-7xl flex-col px-6 py-10">
-        <header className="mb-8">
-          <h1 className="text-4xl font-bold text-slate-900 dark:text-white">
-            {t.title}
-          </h1>
-          <p className="mt-2 text-slate-600 dark:text-white/70">{t.welcome}</p>
-        </header>
-
-        <div className="flex-1">
-          {/* Dashboard content will be added here */}
-          <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-8 shadow-[0_20px_60px_rgba(15,23,42,0.08)] backdrop-blur dark:border-white/10 dark:bg-white/5 dark:shadow-[0_20px_60px_rgba(0,0,0,0.35)]">
-            <p className="text-slate-700 dark:text-white/70">
-              Student Dashboard content coming soon...
-            </p>
-          </div>
-        </div>
+        <StudentDashboard locale={locale} t={t} />
       </div>
 
       <AppDock locale={locale} />

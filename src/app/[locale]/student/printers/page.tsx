@@ -3,6 +3,7 @@ import { setRequestLocale } from 'next-intl/server';
 import { locales } from '@/lib/i18n/config';
 import { PageBackground } from '@/components/layout/PageBackground';
 import AppDock from '@/components/AppDock';
+import { PrinterInfoContent } from '@/components/features/print/PrinterInfoContent';
 
 export function generateStaticParams() {
   return locales.map(locale => ({ locale }));
@@ -36,12 +37,8 @@ export default async function StudentPrintersPage({
           </p>
         </header>
 
-        <div className="flex-1">
-          <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-8 shadow-[0_20px_60px_rgba(15,23,42,0.08)] backdrop-blur dark:border-white/10 dark:bg-white/5 dark:shadow-[0_20px_60px_rgba(0,0,0,0.35)]">
-            <p className="text-slate-700 dark:text-white/70">
-              Printers Info content coming soon...
-            </p>
-          </div>
+        <div className="flex-1 pb-10">
+          <PrinterInfoContent />
         </div>
       </div>
 

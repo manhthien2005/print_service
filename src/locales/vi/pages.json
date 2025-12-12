@@ -1,7 +1,148 @@
 {
   "dashboard": {
     "title": "Bảng điều khiển",
-    "welcome": "Chào mừng trở lại"
+    "welcome": "Chào mừng trở lại",
+    "staff": {
+      "sectionLabel": "Bảng điều khiển nhân viên",
+      "stats": {
+        "printersOnline": "Máy in online",
+        "jobsToday": "Công việc hôm nay",
+        "pagesMonth": "Trang trong tháng",
+        "caption": {
+          "total": "Trên tổng {total}",
+          "lastJob": "Công việc gần nhất 6 phút trước"
+        }
+      },
+      "weekly": {
+        "title": "Hoạt động trong tuần",
+        "description": "Số công việc và trang đã hoàn thành",
+        "jobs": "Công việc",
+        "pages": "Trang"
+      },
+      "paper": {
+        "title": "Phân bổ khổ giấy",
+        "description": "Tỉ lệ sử dụng các khổ giấy trong tháng"
+      },
+      "printer": {
+        "title": "Trạng thái",
+        "description": "Tình trạng và mức sử dụng chung",
+        "cta": "Quản lý máy in",
+        "online": "Online",
+        "offline": "Offline",
+        "maintenance": "Bảo trì",
+        "utilization": "Sử dụng",
+        "utilizationLabel": "Mức sử dụng hệ thống",
+        "note": ""
+      },
+      "quickActions": {
+        "title": "Lối tắt",
+        "description": "Điều hướng nhanh tới các màn quản trị",
+        "badges": {
+          "realtime": "Thời gian thực"
+        },
+        "items": {
+          "printers": {
+            "title": "Trạng thái máy in",
+            "description": "Kiểm tra on/off/maintenance và điều phối nhanh."
+          },
+          "reports": {
+            "title": "Báo cáo nhanh",
+            "description": "Xuất PDF/CSV jobs và mức sử dụng tuần này."
+          },
+          "logs": {
+            "title": "Nhật ký hệ thống",
+            "description": "Theo dõi lỗi, cảnh báo và lịch sử bảo trì."
+          },
+          "config": {
+            "title": "Cấu hình máy in",
+            "description": "Cập nhật chính sách in, hạn mức, phân quyền."
+          }
+        }
+      },
+      "alerts": {
+        "title": "Cảnh báo",
+        "description": "Mục cần xử lý sớm",
+        "severity": {
+          "info": "Thông tin",
+          "warning": "Cảnh báo",
+          "critical": "Khẩn"
+        },
+        "items": {
+          "lowPaper": {
+            "title": "Giấy A3 thấp tại R305",
+            "time": "10 phút trước",
+            "action": "Bổ sung giấy"
+          },
+          "driverUpdate": {
+            "title": "Driver cần cập nhật cho HP 4100",
+            "time": "35 phút trước",
+            "action": "Xem chi tiết"
+          },
+          "printerOffline": {
+            "title": "Máy in R402 đang offline",
+            "time": "1 giờ trước",
+            "action": "Chuyển job"
+          }
+        }
+      }
+    },
+    "student": {
+      "sectionLabel": "Trang của sinh viên",
+      "greeting": "Xin chào, {name}",
+      "subtext": "Kiểm tra số dư, in nhanh và theo dõi gần đây.",
+      "ctaPrimary": "In tài liệu",
+      "ctaSecondary": "Mua thêm trang",
+      "balance": {
+        "title": "Số dư A4",
+        "resetLabel": "Làm mới vào {date}",
+        "badge": "Ưu tiên",
+        "conversion": "Quy đổi khổ giấy",
+        "note": "Công việc đang chờ sẽ tự chạy khi máy in sẵn sàng."
+      },
+      "stats": {
+        "jobsThisMonth": "Công việc tháng này",
+        "pagesThisMonth": "Trang đã in",
+        "successRate": "Tỉ lệ thành công",
+        "pending": "Đang chờ"
+      },
+      "quickActions": {
+        "title": "Thao tác nhanh",
+        "description": "Đi tới tác vụ được dùng nhiều nhất"
+      },
+      "recent": {
+        "title": "In gần đây",
+        "description": "Theo dõi trạng thái mới nhất",
+        "pagesLabel": "{pages} trang A4",
+        "viewAll": "Xem lịch sử",
+        "status": {
+          "completed": "Hoàn tất",
+          "pending": "Đang chờ",
+          "failed": "Lỗi"
+        }
+      },
+      "conversions": {
+        "title": "Quy đổi khổ giấy",
+        "description": "Cách tính hạn mức từ A4 sang A3/A5",
+        "label": "{ratio} × A4"
+      },
+      "profile": {
+        "title": "Hồ sơ",
+        "description": "Thông tin học tập nhanh",
+        "studentCode": "Mã sinh viên",
+        "major": "Chuyên ngành",
+        "class": "Lớp",
+        "gpaLabel": "GPA",
+        "cta": "Xem hồ sơ"
+      },
+      "achievements": {
+        "title": "Hoạt động",
+        "description": "CLB, giải thưởng, nổi bật"
+      },
+      "highlights": {
+        "title": "Lưu ý nhanh",
+        "description": "Mẹo để in ấn mượt mà"
+      }
+    }
   },
   "student": {
     "printers": {
@@ -10,7 +151,87 @@
     },
     "print": {
       "title": "In tài liệu",
-      "description": "Tải lên và in tài liệu của bạn"
+      "description": "Tải lên và in tài liệu của bạn",
+      "steps": {
+        "upload": "Tải lên",
+        "choosePrinter": "Chọn máy in",
+        "configuration": "Cấu hình",
+        "confirm": "Xác nhận"
+      },
+      "step1": {
+        "title": "Tải lên tài liệu",
+        "description": "Chọn file bạn muốn in. Hỗ trợ PDF, Word, Excel, PowerPoint và hình ảnh",
+        "dragDrop": "Kéo thả file vào đây hoặc click để chọn",
+        "fileSizeLimit": "Tối đa 50MB • PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, JPG, PNG",
+        "next": "Tiếp theo"
+      },
+      "step2": {
+        "title": "Chọn máy in",
+        "description": "Chọn máy in bạn muốn sử dụng để in tài liệu",
+        "search": "Tìm kiếm theo tên, phòng, tòa nhà...",
+        "building": "Tòa nhà",
+        "room": "Phòng",
+        "allBuildings": "Tất cả tòa nhà",
+        "allRooms": "Tất cả phòng",
+        "found": "Tìm thấy",
+        "printers": "máy in",
+        "status": {
+          "online": "Đang hoạt động",
+          "offline": "Offline",
+          "maintenance": "Bảo trì"
+        },
+        "features": {
+          "color": "In màu",
+          "duplex": "In 2 mặt"
+        },
+        "noResults": "Không tìm thấy máy in nào phù hợp",
+        "back": "Quay lại",
+        "next": "Tiếp theo"
+      },
+      "step3": {
+        "title": "Cấu hình in",
+        "description": "Tùy chỉnh các thiết lập in cho tài liệu của bạn",
+        "paperSize": "Khổ giấy",
+        "orientation": "Hướng giấy",
+        "portrait": "Dọc",
+        "landscape": "Ngang",
+        "printSide": "In mặt",
+        "oneSided": "1 mặt",
+        "doubleSided": "2 mặt",
+        "colorMode": "Chế độ màu",
+        "color": "Màu",
+        "grayscale": "Xám",
+        "blackWhite": "Đen trắng",
+        "numberOfCopies": "Số bản in",
+        "summary": "Tóm tắt",
+        "costCalc": "Tính chi phí",
+        "currentBalance": "Số dư hiện tại",
+        "remainingBalance": "Số dư còn lại",
+        "estimatedPages": "Số trang ước tính",
+        "estimatedCost": "Chi phí ước tính",
+        "notSupported": "Không hỗ trợ",
+        "back": "Quay lại",
+        "next": "Tiếp theo"
+      },
+      "step4": {
+        "title": "Xác nhận in",
+        "description": "Vui lòng kiểm tra lại thông tin trước khi xác nhận in",
+        "fileInfo": "Thông tin tài liệu",
+        "selectedPrinter": "Máy in đã chọn",
+        "printConfig": "Cấu hình in",
+        "estimatedCost": "Chi phí ước tính",
+        "costNote": "Chi phí có thể thay đổi tùy theo số trang thực tế của tài liệu",
+        "warning": "Lưu ý quan trọng",
+        "warningMessage": "Vui lòng đảm bảo bạn có đủ số trang in trong tài khoản. Sau khi xác nhận, công việc in sẽ được thêm vào hàng đợi và sẽ được xử lý ngay khi máy in sẵn sàng.",
+        "processing": "Đang xử lý...",
+        "confirm": "Xác nhận in",
+        "back": "Quay lại",
+        "success": "Đã gửi công việc in thành công!",
+        "preview": "Xem trước",
+        "previewTitle": "Xem trước tài liệu",
+        "previewUnavailable": "Chưa thể hiển thị bản xem trước cho loại file này.",
+        "openInNewTab": "Mở trong tab mới"
+      }
     },
     "history": {
       "title": "Lịch sử in",
