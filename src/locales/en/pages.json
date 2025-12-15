@@ -163,7 +163,9 @@
         "description": "Select the file you want to print. Supports PDF, Word, Excel, PowerPoint and images",
         "dragDrop": "Drag and drop file here or click to select",
         "fileSizeLimit": "Max 50MB • PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, JPG, PNG",
-        "next": "Next"
+        "saveFile": "Save File",
+        "next": "Next",
+        "fileSaved": "File saved successfully!"
       },
       "step2": {
         "title": "Choose Printer",
@@ -231,6 +233,42 @@
         "previewTitle": "Document preview",
         "previewUnavailable": "Preview is not available for this file type.",
         "openInNewTab": "Open in new tab"
+      },
+      "uploadedFiles": {
+        "title": "Uploaded Files",
+        "description": "View and manage files you have uploaded previously",
+        "searchPlaceholder": "Search by file name...",
+        "filters": "Advanced Filters",
+        "dateFrom": "From Date",
+        "dateTo": "To Date",
+        "selectedCount": "{count} file(s) selected",
+        "bulkPrint": "Bulk Print",
+        "bulkDelete": "Bulk Delete",
+        "deselect": "Deselect",
+        "table": {
+          "fileName": "File Name",
+          "pages": "Pages",
+          "uploadedAt": "Uploaded At",
+          "lastPrintedAt": "Last Printed At",
+          "printCount": "Print Count",
+          "actions": "Actions",
+          "print": "Print",
+          "delete": "Delete",
+          "noData": "No data matches the current filters.",
+          "showing": "Showing {from} - {to} of {total} files"
+        },
+        "deleteModal": {
+          "title": "Confirm Delete File",
+          "message": "Are you sure you want to delete file \"{fileName}\"? This action cannot be undone.",
+          "cancel": "Cancel",
+          "confirm": "Delete File"
+        },
+        "printModal": {
+          "title": "Confirm Reprint",
+          "message": "Do you want to reprint file \"{fileName}\"? You will be taken to the printer selection step.",
+          "cancel": "Cancel",
+          "confirm": "Reprint"
+        }
       }
     },
     "history": {
@@ -238,12 +276,114 @@
       "description": "View your printing history"
     },
     "buyPages": {
-      "title": "Buy Pages",
-      "description": "Purchase printing pages for your account"
+      "title": "Recharge Money",
+      "description": "Recharge money into your account"
     },
     "profile": {
       "title": "Profile",
-      "description": "Manage your account profile"
+      "description": "Manage your account profile",
+      "editProfile": "Edit Profile",
+      "changePassword": "Change Password",
+      "logOut": "Log Out",
+      "logOutSuccess": "Logged out successfully",
+      "badges": {
+        "student": "Student",
+        "active": "Active"
+      },
+      "balance": {
+        "title": "BALANCE",
+        "subtitle": "Available balance",
+        "topUp": "Top Up"
+      },
+      "contactInfo": {
+        "title": "CONTACT INFO",
+        "universityEmail": "University Email",
+        "mobileNumber": "Mobile Number",
+        "dateOfBirth": "Date of Birth"
+      },
+      "academicDetails": {
+        "title": "ACADEMIC DETAILS",
+        "studentId": "Student ID",
+        "faculty": "Faculty",
+        "major": "Major",
+        "academicYear": "Academic Year"
+      },
+      "changePasswordModal": {
+        "title": "Change Password",
+        "currentPassword": "Current Password",
+        "newPassword": "New Password",
+        "confirmPassword": "Confirm New Password",
+        "submit": "Change Password",
+        "submitting": "Processing...",
+        "success": "Password changed successfully",
+        "error": "An error occurred while changing password",
+        "missingFields": "Please fill in all fields",
+        "mismatch": "New password and confirmation do not match",
+        "weakPassword": "Password must be at least 6 characters"
+      },
+      "editProfileModal": {
+        "title": "Edit Profile",
+        "email": "Email",
+        "phone": "Phone Number",
+        "otpCode": "OTP Code",
+        "sendOtp": "Send OTP",
+        "sendingOtp": "Sending...",
+        "otpSent": "OTP code has been sent to your email",
+        "verifyOtp": "Verify",
+        "verifyingOtp": "Verifying...",
+        "otpVerified": "OTP verified successfully",
+        "submit": "Save Changes",
+        "submitting": "Processing...",
+        "success": "Profile updated successfully",
+        "error": "Failed to update profile",
+        "invalidOtp": "Invalid OTP code",
+        "emailChanged": "Email has changed. Please verify with OTP code."
+      }
+    },
+    "settings": {
+      "title": "Settings",
+      "description": "Manage your account and application settings",
+      "appearance": {
+        "title": "Appearance",
+        "description": "Choose how the dashboard looks on your device.",
+        "lightTitle": "Light mode",
+        "lightDescription": "Bright background with higher contrast for daytime viewing.",
+        "darkTitle": "Dark mode",
+        "darkDescription": "Dimmed interface that is gentle on the eyes at night.",
+        "activeLabel": "Active"
+      },
+      "language": {
+        "title": "Language",
+        "description": "Choose the display language for the application.",
+        "englishTitle": "English",
+        "englishDescription": "Use English as the interface language.",
+        "vietnameseTitle": "Vietnamese",
+        "vietnameseDescription": "Use Vietnamese as the interface language.",
+        "activeLabel": "Active"
+      },
+      "dockPosition": {
+        "title": "App Dock Position",
+        "description": "Choose where to display the application navigation dock.",
+        "leftTitle": "Left",
+        "leftDescription": "Display dock on the left side of the screen.",
+        "rightTitle": "Right",
+        "rightDescription": "Display dock on the right side of the screen.",
+        "bottomTitle": "Bottom",
+        "bottomDescription": "Display dock at the bottom of the screen (default).",
+        "activeLabel": "Active"
+      },
+      "musicPlayer": {
+        "title": "Christmas Background Music",
+        "description": "Play background music with Christmas theme while working.",
+        "nowPlaying": "Playlist",
+        "volume": "Volume",
+        "play": "Play",
+        "pause": "Pause",
+        "next": "Next",
+        "previous": "Previous",
+        "autoPlay": "Auto Play",
+        "autoPlayDescription": "Automatically play music when entering the page"
+      }
     }
   },
   "staff": {
@@ -320,6 +460,7 @@
         "time": "Time",
         "actions": "Actions",
         "noData": "No data available",
+        "loading": "Loading data...",
         "color": "Color",
         "duplex": "2-sided",
         "active": "Active",
@@ -396,6 +537,29 @@
         "vietnameseTitle": "Vietnamese",
         "vietnameseDescription": "Use Vietnamese as the interface language.",
         "activeLabel": "Active"
+      },
+      "dockPosition": {
+        "title": "App Dock Position",
+        "description": "Choose where to display the application navigation dock.",
+        "leftTitle": "Left",
+        "leftDescription": "Display dock on the left side of the screen.",
+        "rightTitle": "Right",
+        "rightDescription": "Display dock on the right side of the screen.",
+        "bottomTitle": "Bottom",
+        "bottomDescription": "Display dock at the bottom of the screen (default).",
+        "activeLabel": "Active"
+      },
+      "musicPlayer": {
+        "title": "Christmas Background Music",
+        "description": "Play background music with Christmas theme while working.",
+        "nowPlaying": "Playlist",
+        "volume": "Volume",
+        "play": "Play",
+        "pause": "Pause",
+        "next": "Next",
+        "previous": "Previous",
+        "autoPlay": "Auto Play",
+        "autoPlayDescription": "Automatically play music when entering the page"
       }
     }
   }

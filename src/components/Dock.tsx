@@ -17,6 +17,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
+import type { DockPosition } from '@/lib/stores/useDockPositionStore';
 
 export type DockItemData = {
   icon: React.ReactNode;
@@ -36,6 +37,7 @@ export type DockProps = {
   magnification?: number;
   spring?: SpringOptions;
   activeIndex?: number;
+  position?: DockPosition;
 };
 
 type DockItemProps = {
@@ -43,11 +45,13 @@ type DockItemProps = {
   children: React.ReactNode;
   onClick?: () => void;
   mouseX: MotionValue<number>;
+  mouseY: MotionValue<number>;
   spring: SpringOptions;
   distance: number;
   baseItemSize: number;
   magnification: number;
   isActive?: boolean;
+  position: DockPosition;
 };
 
 function DockItem({
@@ -55,21 +59,35 @@ function DockItem({
   className = '',
   onClick,
   mouseX,
+  mouseY,
   spring,
   distance,
   magnification,
   baseItemSize,
   isActive = false,
+  position,
 }: DockItemProps) {
   const ref = useRef<HTMLDivElement>(null);
   const isHovered = useMotionValue(0);
-  const mouseDistance = useTransform(mouseX, val => {
-    const rect = ref.current?.getBoundingClientRect() ?? {
-      x: 0,
-      width: baseItemSize,
-    };
-    return val - rect.x - baseItemSize / 2;
-  });
+
+  const mouseDistance = useTransform(
+    position === 'bottom' ? mouseX : mouseY,
+    val => {
+      const rect = ref.current?.getBoundingClientRect() ?? {
+        x: 0,
+        y: 0,
+        width: baseItemSize,
+        height: baseItemSize,
+      };
+      // Calculate distance from mouse to center of item
+      // Use actual rect dimensions for more accurate calculation
+      if (position === 'bottom') {
+        return val - rect.x - rect.width / 2;
+      } else {
+        return val - rect.y - rect.height / 2;
+      }
+    }
+  );
 
   const targetSize = useTransform(
     mouseDistance,
@@ -140,9 +158,15 @@ type DockLabelProps = {
   className?: string;
   children: React.ReactNode;
   isHovered?: MotionValue<number>;
+  position: DockPosition;
 };
 
-function DockLabel({ children, className = '', isHovered }: DockLabelProps) {
+function DockLabel({
+  children,
+  className = '',
+  isHovered,
+  position,
+}: DockLabelProps) {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
@@ -155,17 +179,54 @@ function DockLabel({ children, className = '', isHovered }: DockLabelProps) {
     return () => unsubscribe();
   }, [isHovered]);
 
+  const getLabelClasses = () => {
+    if (position === 'bottom') {
+      return 'absolute -top-6 left-1/2 w-fit whitespace-pre rounded-md border border-neutral-700 bg-[#060010] px-2 py-0.5 text-xs text-white';
+    } else if (position === 'left') {
+      return 'absolute left-full ml-2 top-1/2 w-fit whitespace-nowrap rounded-md border border-neutral-700 bg-[#060010] px-2 py-0.5 text-xs text-white';
+    } else {
+      return 'absolute right-full mr-2 top-1/2 w-fit whitespace-nowrap rounded-md border border-neutral-700 bg-[#060010] px-2 py-0.5 text-xs text-white';
+    }
+  };
+
+  const getAnimationProps = () => {
+    if (position === 'bottom') {
+      return {
+        initial: { opacity: 0, y: 0 },
+        animate: { opacity: 1, y: -10 },
+        exit: { opacity: 0, y: 0 },
+      };
+    } else if (position === 'left') {
+      return {
+        initial: { opacity: 0, x: -10, y: '-50%' },
+        animate: { opacity: 1, x: 0, y: '-50%' },
+        exit: { opacity: 0, x: -10, y: '-50%' },
+      };
+    } else {
+      return {
+        initial: { opacity: 0, x: 10, y: '-50%' },
+        animate: { opacity: 1, x: 0, y: '-50%' },
+        exit: { opacity: 0, x: 10, y: '-50%' },
+      };
+    }
+  };
+
   return (
     <AnimatePresence>
       {isVisible && (
         <motion.div
-          initial={{ opacity: 0, y: 0 }}
-          animate={{ opacity: 1, y: -10 }}
-          exit={{ opacity: 0, y: 0 }}
+          {...getAnimationProps()}
           transition={{ duration: 0.2 }}
-          className={`${className} absolute -top-6 left-1/2 w-fit whitespace-pre rounded-md border border-neutral-700 bg-[#060010] px-2 py-0.5 text-xs text-white`}
+          className={`${className} ${getLabelClasses()}`}
           role="tooltip"
-          style={{ x: '-50%' }}
+          style={
+            position === 'bottom'
+              ? { x: '-50%' }
+              : {
+                  // For left/right, use transform to center vertically
+                  // y is already handled in animation props
+                }
+          }
         >
           {children}
         </motion.div>
@@ -198,34 +259,143 @@ export default function Dock({
   dockHeight = 256,
   baseItemSize = 50,
   activeIndex,
+  position = 'bottom',
 }: DockProps) {
   const mouseX = useMotionValue(Infinity);
+  const mouseY = useMotionValue(Infinity);
   const isHovered = useMotionValue(0);
-  const maxHeight = useMemo(
+  const maxSize = useMemo(
     () => Math.max(dockHeight, magnification + magnification / 2 + 4),
     [magnification, dockHeight]
   );
-  const heightRow = useTransform(isHovered, [0, 1], [panelHeight, maxHeight]);
-  const height = useSpring(heightRow, spring);
+  const sizeRow = useTransform(isHovered, [0, 1], [panelHeight, maxSize]);
+  useSpring(sizeRow, spring);
 
+  // Reset motion values when position changes
+  useEffect(() => {
+    isHovered.set(0);
+    mouseX.set(Infinity);
+    mouseY.set(Infinity);
+  }, [position, isHovered, mouseX, mouseY]);
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    isHovered.set(1);
+    // Use clientX/clientY (viewport coordinates) to match getBoundingClientRect()
+    // This ensures accurate hover calculation for all positions
+    if (position === 'bottom') {
+      mouseX.set(e.clientX);
+    } else {
+      mouseY.set(e.clientY);
+    }
+  };
+
+  const handleMouseLeave = () => {
+    isHovered.set(0);
+    mouseX.set(Infinity);
+    mouseY.set(Infinity);
+  };
+
+  // Bottom position (default) - horizontal layout
+  if (position === 'bottom') {
+    return (
+      <motion.div
+        key="dock-bottom"
+        style={{ height: maxSize, scrollbarWidth: 'none' }}
+        className="pointer-events-none fixed bottom-0 left-0 right-0 z-50 mx-2 flex max-w-full items-center"
+      >
+        <motion.div
+          key="dock-bar-bottom"
+          layout
+          onMouseMove={handleMouseMove}
+          onMouseLeave={handleMouseLeave}
+          className={`${className} bg-black/ pointer-events-auto absolute bottom-2 left-1/2 flex w-fit -translate-x-1/2 transform items-end gap-4 rounded-2xl border-2 border-neutral-700 px-4 pb-2 backdrop-blur-md`}
+          style={{ height: panelHeight }}
+          role="toolbar"
+          aria-label="Application dock"
+          initial={false}
+        >
+          {items.map((item, index) => (
+            <DockItem
+              key={index}
+              onClick={item.onClick}
+              className={item.className}
+              mouseX={mouseX}
+              mouseY={mouseY}
+              spring={spring}
+              distance={distance}
+              magnification={magnification}
+              baseItemSize={baseItemSize}
+              isActive={activeIndex !== undefined && activeIndex === index}
+              position={position}
+            >
+              <DockIcon>{item.icon}</DockIcon>
+              <DockLabel position={position}>{item.label}</DockLabel>
+            </DockItem>
+          ))}
+        </motion.div>
+      </motion.div>
+    );
+  }
+
+  // Left position - vertical layout
+  if (position === 'left') {
+    return (
+      <motion.div
+        key="dock-left"
+        style={{ width: maxSize, scrollbarWidth: 'none' }}
+        className="pointer-events-none fixed bottom-0 left-0 top-0 z-50 flex items-center justify-center"
+      >
+        <motion.div
+          key="dock-bar-left"
+          layout
+          onMouseMove={handleMouseMove}
+          onMouseLeave={handleMouseLeave}
+          className={`${className} bg-black/ pointer-events-auto absolute left-2 top-1/2 flex h-fit -translate-y-1/2 transform flex-col items-start gap-4 rounded-2xl border-2 border-neutral-700 py-4 pl-2 pr-2 backdrop-blur-md`}
+          style={{ width: panelHeight }}
+          role="toolbar"
+          aria-label="Application dock"
+          initial={false}
+        >
+          {items.map((item, index) => (
+            <DockItem
+              key={index}
+              onClick={item.onClick}
+              className={item.className}
+              mouseX={mouseX}
+              mouseY={mouseY}
+              spring={spring}
+              distance={distance}
+              magnification={magnification}
+              baseItemSize={baseItemSize}
+              isActive={activeIndex !== undefined && activeIndex === index}
+              position={position}
+            >
+              <DockIcon>{item.icon}</DockIcon>
+              <DockLabel position={position}>{item.label}</DockLabel>
+            </DockItem>
+          ))}
+        </motion.div>
+      </motion.div>
+    );
+  }
+
+  // Right position - vertical layout
   return (
     <motion.div
-      style={{ height, scrollbarWidth: 'none' }}
-      className="pointer-events-none fixed bottom-0 left-0 right-0 z-50 mx-2 flex max-w-full items-center"
+      key="dock-right"
+      style={{ width: maxSize, scrollbarWidth: 'none' }}
+      className="pointer-events-none fixed bottom-0 right-0 top-0 z-50 flex items-center justify-center"
     >
       <motion.div
-        onMouseMove={({ pageX }) => {
-          isHovered.set(1);
-          mouseX.set(pageX);
-        }}
-        onMouseLeave={() => {
-          isHovered.set(0);
-          mouseX.set(Infinity);
-        }}
-        className={`${className} bg-black/ pointer-events-auto absolute bottom-2 left-1/2 flex w-fit -translate-x-1/2 transform items-end gap-4 rounded-2xl border-2 border-neutral-700 px-4 pb-2 backdrop-blur-md`}
-        style={{ height: panelHeight }}
+        key="dock-bar-right"
+        layout
+        onMouseMove={handleMouseMove}
+        onMouseLeave={handleMouseLeave}
+        className={`${className} bg-black/ pointer-events-auto absolute right-2 top-1/2 flex h-fit -translate-y-1/2 transform flex-col items-end gap-4 rounded-2xl border-2 border-neutral-700 py-4 pl-2 pr-2 backdrop-blur-md`}
+        style={{ width: panelHeight }}
         role="toolbar"
         aria-label="Application dock"
+        initial={false}
       >
         {items.map((item, index) => (
           <DockItem
@@ -233,14 +403,16 @@ export default function Dock({
             onClick={item.onClick}
             className={item.className}
             mouseX={mouseX}
+            mouseY={mouseY}
             spring={spring}
             distance={distance}
             magnification={magnification}
             baseItemSize={baseItemSize}
             isActive={activeIndex !== undefined && activeIndex === index}
+            position={position}
           >
             <DockIcon>{item.icon}</DockIcon>
-            <DockLabel>{item.label}</DockLabel>
+            <DockLabel position={position}>{item.label}</DockLabel>
           </DockItem>
         ))}
       </motion.div>

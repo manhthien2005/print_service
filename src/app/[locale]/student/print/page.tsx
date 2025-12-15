@@ -3,7 +3,7 @@ import { setRequestLocale } from 'next-intl/server';
 import { locales } from '@/lib/i18n/config';
 import { PageBackground } from '@/components/layout/PageBackground';
 import AppDock from '@/components/AppDock';
-import { PrintWizard } from '@/components/features/print/PrintWizard';
+import { PrintPageContent } from './components/PrintPageContent';
 
 export function generateStaticParams() {
   return locales.map(locale => ({ locale }));
@@ -37,9 +37,7 @@ export default async function StudentPrintPage({
           </p>
         </header>
 
-        <div className="flex-1">
-          <PrintWizard />
-        </div>
+        <PrintPageContent />
       </div>
 
       <AppDock locale={locale} />

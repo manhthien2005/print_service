@@ -21,14 +21,14 @@ export interface StudentHighlight {
 export const studentStatsMock = {
   giftedQuotaTotal: 150,
   giftedQuotaUsed: 90,
-  topupBalance: 120,
+  topupBalance: 60000, // Số dư nạp tiền (VND)
   quotaReset: studentProfileMock.quotaReset,
   jobsThisMonth: printHistorySummaryMock.totalJobsThisMonth,
   jobsLastMonth: 45, // Mock data for comparison
   pagesThisMonth: printHistorySummaryMock.totalPagesThisMonth,
   pagesLastMonth: 320, // Mock data for comparison
   successRate: Math.round(printHistorySummaryMock.successRate * 100),
-  balance: 150 - 90 + 120,
+  balance: 60000, // Số dư tiền (VND) - không tính từ quota nữa
   // Tính tỉ lệ thay đổi
   get jobsChangePercent() {
     if (this.jobsLastMonth === 0) return 0;
@@ -54,8 +54,8 @@ export const studentQuickActionsMock: StudentQuickAction[] = [
   },
   {
     id: 'buy',
-    title: 'Mua thêm trang',
-    description: 'Nạp A4 credit bằng ví hoặc thẻ',
+    title: 'Nạp tiền',
+    description: 'Nạp tiền vào tài khoản bằng ví hoặc thẻ',
     href: '/student/buy-pages',
   },
   {

@@ -154,39 +154,126 @@
   .animate-star-movement-top {
     animation: star-movement-top linear infinite alternate;
   }
+
+  @keyframes shimmer {
+    0% {
+      background-position: -1000px 0;
+    }
+    100% {
+      background-position: 1000px 0;
+    }
+  }
+
+  .animate-shimmer {
+    animation: shimmer 6s infinite;
+    background: linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0) 0%,
+      rgba(255, 255, 255, 0.15) 20%,
+      rgba(255, 255, 255, 0.25) 50%,
+      rgba(255, 255, 255, 0.15) 80%,
+      rgba(255, 255, 255, 0) 100%
+    );
+    background-size: 1000px 100%;
+  }
+
+  .dark .animate-shimmer {
+    background: linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0) 0%,
+      rgba(255, 255, 255, 0.08) 20%,
+      rgba(255, 255, 255, 0.15) 50%,
+      rgba(255, 255, 255, 0.08) 80%,
+      rgba(255, 255, 255, 0) 100%
+    );
+    background-size: 1000px 100%;
+  }
+
+  @keyframes text-loading {
+    0% {
+      background-position: 200% 0;
+    }
+    100% {
+      background-position: -200% 0;
+    }
+  }
+
+  .animate-text-loading {
+    animation: text-loading 2.5s linear infinite;
+    background-size: 200% 100%;
+  }
+
+  @keyframes shimmer-wave {
+    0% {
+      transform: translateX(-100%);
+    }
+    100% {
+      transform: translateX(100%);
+    }
+  }
+
+  .animate-shimmer-wave {
+    animation: shimmer-wave 2.5s ease-in-out infinite;
+  }
+
+  /* Hide scrollbar when loading skeleton */
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
 }
 
-/* Native select dropdown styling */
-select option {
-  background-color: white;
-  color: #1e293b;
-  padding: 0.5rem 0.75rem;
-  cursor: pointer;
-  border-radius: 0.375rem;
+/* Custom Select Dropdown - Hidden native select for form compatibility */
+select.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
 }
 
-select option:hover {
-  background-color: #f1f5f9;
+/* Custom scrollbar for dropdown menus */
+[role='listbox']::-webkit-scrollbar,
+.overflow-auto::-webkit-scrollbar {
+  width: 8px;
 }
 
-select option:checked,
-select option:focus {
-  background-color: #dbeafe;
-  color: #1e40af;
-  font-weight: 500;
+[role='listbox']::-webkit-scrollbar-track,
+.overflow-auto::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 4px;
 }
 
-.dark select option {
-  background-color: #0f172a;
-  color: white;
+[role='listbox']::-webkit-scrollbar-thumb,
+.overflow-auto::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
 }
 
-.dark select option:hover {
-  background-color: rgba(255, 255, 255, 0.1);
+[role='listbox']::-webkit-scrollbar-thumb:hover,
+.overflow-auto::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
 }
 
-.dark select option:checked,
-.dark select option:focus {
-  background-color: rgba(59, 130, 246, 0.3);
-  color: #93c5fd;
+.dark [role='listbox']::-webkit-scrollbar-track,
+.dark .overflow-auto::-webkit-scrollbar-track {
+  background: #1e293b;
+}
+
+.dark [role='listbox']::-webkit-scrollbar-thumb,
+.dark .overflow-auto::-webkit-scrollbar-thumb {
+  background: #475569;
+}
+
+.dark [role='listbox']::-webkit-scrollbar-thumb:hover,
+.dark .overflow-auto::-webkit-scrollbar-thumb:hover {
+  background: #64748b;
 }

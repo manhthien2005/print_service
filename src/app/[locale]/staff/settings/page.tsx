@@ -5,6 +5,8 @@ import LightRays from '@/components/LightRays';
 import AppDock from '@/components/AppDock';
 import { ThemeSelection } from '@/components/settings/ThemeSelection';
 import { LanguageSelection } from '@/components/settings/LanguageSelection';
+import { DockPositionSelection } from '@/components/settings/DockPositionSelection';
+import { MusicPlayer } from '@/components/settings/MusicPlayer';
 
 export function generateStaticParams() {
   return locales.map(locale => ({ locale }));
@@ -62,12 +64,19 @@ export default async function SettingsPage({
               <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-[0_20px_60px_rgba(15,23,42,0.08)] backdrop-blur dark:border-white/10 dark:bg-white/5 dark:shadow-[0_20px_60px_rgba(0,0,0,0.35)]">
                 <LanguageSelection copy={t.language} />
               </div>
+              <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-[0_20px_60px_rgba(15,23,42,0.08)] backdrop-blur dark:border-white/10 dark:bg-white/5 dark:shadow-[0_20px_60px_rgba(0,0,0,0.35)]">
+                <DockPositionSelection copy={t.dockPosition} />
+              </div>
             </div>
 
             <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-[0_20px_60px_rgba(15,23,42,0.08)] backdrop-blur dark:border-white/10 dark:bg-white/5 dark:shadow-[0_20px_60px_rgba(0,0,0,0.35)]">
-              <p className="text-sm text-slate-600 dark:text-white/70">
-                {t.comingSoon}
-              </p>
+              {t.musicPlayer ? (
+                <MusicPlayer copy={t.musicPlayer} />
+              ) : (
+                <p className="text-sm text-slate-600 dark:text-white/70">
+                  {t.comingSoon}
+                </p>
+              )}
             </div>
           </div>
         </div>
