@@ -163,7 +163,9 @@
         "description": "Chọn file bạn muốn in. Hỗ trợ PDF, Word, Excel, PowerPoint và hình ảnh",
         "dragDrop": "Kéo thả file vào đây hoặc click để chọn",
         "fileSizeLimit": "Tối đa 50MB • PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, JPG, PNG",
-        "next": "Tiếp theo"
+        "saveFile": "Lưu file",
+        "next": "Tiếp theo",
+        "fileSaved": "Đã lưu file thành công!"
       },
       "step2": {
         "title": "Chọn máy in",
@@ -182,7 +184,7 @@
         },
         "features": {
           "color": "In màu",
-          "duplex": "In 2 mặt"
+          "duplex": "2 mặt"
         },
         "noResults": "Không tìm thấy máy in nào phù hợp",
         "back": "Quay lại",
@@ -231,6 +233,42 @@
         "previewTitle": "Xem trước tài liệu",
         "previewUnavailable": "Chưa thể hiển thị bản xem trước cho loại file này.",
         "openInNewTab": "Mở trong tab mới"
+      },
+      "uploadedFiles": {
+        "title": "Tài liệu đã tải lên",
+        "description": "Xem và quản lý các file bạn đã tải lên trước đó",
+        "searchPlaceholder": "Tìm kiếm theo tên file...",
+        "filters": "Bộ lọc nâng cao",
+        "dateFrom": "Từ ngày",
+        "dateTo": "Đến ngày",
+        "selectedCount": "Đã chọn {count} file",
+        "bulkPrint": "In hàng loạt",
+        "bulkDelete": "Xóa hàng loạt",
+        "deselect": "Bỏ chọn",
+        "table": {
+          "fileName": "Tên file",
+          "pages": "Số trang",
+          "uploadedAt": "Ngày tải lên",
+          "lastPrintedAt": "Lần in cuối",
+          "printCount": "Số lần in",
+          "actions": "Thao tác",
+          "print": "In",
+          "delete": "Xóa",
+          "noData": "Không có dữ liệu phù hợp với bộ lọc hiện tại.",
+          "showing": "Hiển thị {from} - {to} trong tổng số {total} file"
+        },
+        "deleteModal": {
+          "title": "Xác nhận xóa file",
+          "message": "Bạn có chắc chắn muốn xóa file \"{fileName}\"? Hành động này không thể hoàn tác.",
+          "cancel": "Hủy",
+          "confirm": "Xóa file"
+        },
+        "printModal": {
+          "title": "Xác nhận in lại",
+          "message": "Bạn có muốn in lại file \"{fileName}\"? Bạn sẽ được chuyển đến bước chọn máy in.",
+          "cancel": "Hủy",
+          "confirm": "In lại"
+        }
       }
     },
     "history": {
@@ -238,12 +276,114 @@
       "description": "Xem lịch sử in của bạn"
     },
     "buyPages": {
-      "title": "Mua trang",
-      "description": "Mua trang in cho tài khoản của bạn"
+      "title": "Nạp tiền",
+      "description": "Nạp tiền vào tài khoản của bạn"
     },
     "profile": {
       "title": "Hồ sơ",
-      "description": "Quản lý hồ sơ tài khoản của bạn"
+      "description": "Quản lý hồ sơ tài khoản của bạn",
+      "editProfile": "Chỉnh sửa hồ sơ",
+      "changePassword": "Đổi mật khẩu",
+      "logOut": "Đăng xuất",
+      "logOutSuccess": "Đăng xuất thành công",
+      "badges": {
+        "student": "Sinh viên",
+        "active": "Hoạt động"
+      },
+      "balance": {
+        "title": "SỐ DƯ",
+        "subtitle": "Số dư khả dụng",
+        "topUp": "Nạp tiền"
+      },
+      "contactInfo": {
+        "title": "THÔNG TIN LIÊN HỆ",
+        "universityEmail": "Email trường",
+        "mobileNumber": "Số điện thoại",
+        "dateOfBirth": "Ngày sinh"
+      },
+      "academicDetails": {
+        "title": "THÔNG TIN HỌC TẬP",
+        "studentId": "Mã sinh viên",
+        "faculty": "Khoa",
+        "major": "Chuyên ngành",
+        "academicYear": "Năm học"
+      },
+      "changePasswordModal": {
+        "title": "Đổi mật khẩu",
+        "currentPassword": "Mật khẩu hiện tại",
+        "newPassword": "Mật khẩu mới",
+        "confirmPassword": "Xác nhận mật khẩu mới",
+        "submit": "Đổi mật khẩu",
+        "submitting": "Đang xử lý...",
+        "success": "Đổi mật khẩu thành công",
+        "error": "Đã xảy ra lỗi khi đổi mật khẩu",
+        "missingFields": "Vui lòng điền đầy đủ các trường",
+        "mismatch": "Mật khẩu mới và xác nhận không khớp",
+        "weakPassword": "Mật khẩu phải có ít nhất 6 ký tự"
+      },
+      "editProfileModal": {
+        "title": "Chỉnh sửa hồ sơ",
+        "email": "Email",
+        "phone": "Số điện thoại",
+        "otpCode": "Mã OTP",
+        "sendOtp": "Gửi OTP",
+        "sendingOtp": "Đang gửi...",
+        "otpSent": "Mã OTP đã được gửi đến email của bạn",
+        "verifyOtp": "Xác thực",
+        "verifyingOtp": "Đang xác thực...",
+        "otpVerified": "Xác thực OTP thành công",
+        "submit": "Lưu thay đổi",
+        "submitting": "Đang xử lý...",
+        "success": "Cập nhật thông tin thành công",
+        "error": "Không thể cập nhật thông tin",
+        "invalidOtp": "Mã OTP không hợp lệ",
+        "emailChanged": "Email đã thay đổi. Vui lòng xác thực bằng mã OTP."
+      }
+    },
+    "settings": {
+      "title": "Cài đặt",
+      "description": "Quản lý tài khoản và cài đặt ứng dụng",
+      "appearance": {
+        "title": "Giao diện",
+        "description": "Chọn cách hiển thị bảng điều khiển trên thiết bị của bạn.",
+        "lightTitle": "Chế độ sáng",
+        "lightDescription": "Nền sáng, độ tương phản cao phù hợp khi làm việc ban ngày.",
+        "darkTitle": "Chế độ tối",
+        "darkDescription": "Giao diện dịu mắt khi sử dụng ban đêm hoặc môi trường thiếu sáng.",
+        "activeLabel": "Đang dùng"
+      },
+      "language": {
+        "title": "Ngôn ngữ",
+        "description": "Chọn ngôn ngữ hiển thị cho ứng dụng.",
+        "englishTitle": "Tiếng Anh",
+        "englishDescription": "Sử dụng tiếng Anh làm ngôn ngữ giao diện.",
+        "vietnameseTitle": "Tiếng Việt",
+        "vietnameseDescription": "Sử dụng tiếng Việt làm ngôn ngữ giao diện.",
+        "activeLabel": "Đang dùng"
+      },
+      "dockPosition": {
+        "title": "Vị trí App Dock",
+        "description": "Chọn vị trí hiển thị thanh điều hướng ứng dụng.",
+        "leftTitle": "Bên trái",
+        "leftDescription": "Hiển thị dock ở cạnh trái màn hình.",
+        "rightTitle": "Bên phải",
+        "rightDescription": "Hiển thị dock ở cạnh phải màn hình.",
+        "bottomTitle": "Dưới cùng",
+        "bottomDescription": "Hiển thị dock ở dưới cùng màn hình (mặc định).",
+        "activeLabel": "Đang dùng"
+      },
+      "musicPlayer": {
+        "title": "Nhạc nền Giáng sinh",
+        "description": "Phát nhạc nền với chủ đề Giáng sinh trong khi làm việc.",
+        "nowPlaying": "Danh sách phát",
+        "volume": "Âm lượng",
+        "play": "Phát",
+        "pause": "Tạm dừng",
+        "next": "Bài tiếp",
+        "previous": "Bài trước",
+        "autoPlay": "Tự động phát nhạc",
+        "autoPlayDescription": "Tự động phát nhạc khi vào trang"
+      }
     }
   },
   "staff": {
@@ -320,8 +460,9 @@
         "time": "Thời gian",
         "actions": "Thao tác",
         "noData": "Không có dữ liệu",
+        "loading": "Đang tải dữ liệu...",
         "color": "Màu",
-        "duplex": "In 2 mặt",
+        "duplex": "2 mặt",
         "active": "Đang hoạt động",
         "underMaintenance": "Đang bảo trì"
       },
@@ -396,6 +537,29 @@
         "vietnameseTitle": "Tiếng Việt",
         "vietnameseDescription": "Sử dụng tiếng Việt làm ngôn ngữ giao diện.",
         "activeLabel": "Đang dùng"
+      },
+      "dockPosition": {
+        "title": "Vị trí App Dock",
+        "description": "Chọn vị trí hiển thị thanh điều hướng ứng dụng.",
+        "leftTitle": "Bên trái",
+        "leftDescription": "Hiển thị dock ở cạnh trái màn hình.",
+        "rightTitle": "Bên phải",
+        "rightDescription": "Hiển thị dock ở cạnh phải màn hình.",
+        "bottomTitle": "Dưới cùng",
+        "bottomDescription": "Hiển thị dock ở dưới cùng màn hình (mặc định).",
+        "activeLabel": "Đang dùng"
+      },
+      "musicPlayer": {
+        "title": "Nhạc nền Giáng sinh",
+        "description": "Phát nhạc nền với chủ đề Giáng sinh trong khi làm việc.",
+        "nowPlaying": "Danh sách phát",
+        "volume": "Âm lượng",
+        "play": "Phát",
+        "pause": "Tạm dừng",
+        "next": "Bài tiếp",
+        "previous": "Bài trước",
+        "autoPlay": "Tự động phát nhạc",
+        "autoPlayDescription": "Tự động phát nhạc khi vào trang"
       }
     }
   }

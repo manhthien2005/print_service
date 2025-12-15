@@ -46,6 +46,10 @@ yarn-error.log*
 # Documentation (không push lên git)
 /docs/
 
+# Cursor rules (local development only)
+CURSOR.md
+CLAUDE.md
+
 # Temporary files
 *.tmp
 *.temp

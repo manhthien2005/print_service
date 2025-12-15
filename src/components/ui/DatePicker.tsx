@@ -158,7 +158,7 @@ export function DatePicker({
   ];
 
   return (
-    <div ref={datePickerRef} className={cn('relative', className)}>
+    <div ref={datePickerRef} className="relative">
       <button
         type="button"
         onClick={() => !disabled && setIsOpen(!isOpen)}
@@ -166,7 +166,8 @@ export function DatePicker({
         className={cn(
           'flex h-10 w-full cursor-pointer items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background transition-all hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50',
           error && 'border-destructive focus-visible:ring-destructive',
-          isOpen && 'ring-2 ring-ring ring-offset-2'
+          isOpen && 'ring-2 ring-ring ring-offset-2',
+          className
         )}
       >
         <span className={cn(!selectedDate && 'text-muted-foreground')}>
@@ -188,7 +189,7 @@ export function DatePicker({
         </svg>
       </button>
       {isOpen && (
-        <div className="absolute z-[100] mt-1 rounded-md border border-slate-200 bg-white p-4 shadow-lg dark:border-white/10 dark:bg-slate-900">
+        <div className="absolute z-[100] mt-1 rounded-lg border-0 bg-white p-4 shadow-2xl ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700">
           {/* Calendar Header */}
           <div className="mb-4 flex items-center justify-between">
             <button

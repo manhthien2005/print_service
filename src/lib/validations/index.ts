@@ -1,3 +1,3 @@
 export * from './common';
 export * from './utils';
-export * from './auth';
+// auth.ts has been removed - loginSchema and LoginFormData moved to src/app/[locale]/login/schemas.ts

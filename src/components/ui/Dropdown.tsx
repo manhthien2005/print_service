@@ -61,12 +61,19 @@ export function Dropdown({
         onClick={() => !disabled && setIsOpen(!isOpen)}
         disabled={disabled}
         className={cn(
-          'flex h-10 w-full cursor-pointer items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background transition-all hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50',
-          error && 'border-destructive focus-visible:ring-destructive',
-          isOpen && 'ring-2 ring-ring ring-offset-2'
+          'flex h-10 w-full cursor-pointer items-center justify-between rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm text-slate-900 transition-colors hover:border-slate-400 hover:bg-slate-50 focus-visible:border-sky-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500/20 focus-visible:ring-offset-0 disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-500 disabled:opacity-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 dark:hover:border-slate-500 dark:hover:bg-slate-700 dark:focus-visible:border-sky-400 dark:focus-visible:ring-sky-400/20 dark:disabled:bg-slate-900 dark:disabled:text-slate-600',
+          error &&
+            'border-rose-500 focus-visible:border-rose-500 focus-visible:ring-rose-500/20 dark:border-rose-400 dark:focus-visible:border-rose-400 dark:focus-visible:ring-rose-400/20',
+          isOpen &&
+            'border-sky-500 ring-2 ring-sky-500/20 ring-offset-0 dark:border-sky-400 dark:ring-sky-400/20'
         )}
       >
-        <span className={cn(!selectedOption && 'text-muted-foreground')}>
+        <span
+          className={cn(
+            !selectedOption && 'text-slate-400 dark:text-slate-500',
+            selectedOption && 'text-slate-900 dark:text-slate-100'
+          )}
+        >
           {selectedOption ? selectedOption.label : placeholder}
         </span>
         <svg
@@ -104,7 +111,7 @@ export function Dropdown({
                   className={cn(
                     'w-full cursor-pointer rounded-md px-3 py-2.5 text-left text-sm transition-colors hover:bg-slate-100 hover:text-slate-900 focus:bg-slate-100 focus:text-slate-900 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50 dark:hover:bg-white/10 dark:hover:text-white dark:focus:bg-white/10 dark:focus:text-white',
                     value === option.value &&
-                      'bg-blue-50 font-medium text-blue-900 dark:bg-blue-900/30 dark:text-blue-300'
+                      'bg-sky-50 font-medium text-sky-900 dark:bg-sky-500/20 dark:text-sky-300'
                   )}
                 >
                   <div className="flex items-center justify-between gap-2">

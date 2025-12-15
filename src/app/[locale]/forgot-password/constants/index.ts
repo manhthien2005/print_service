@@ -1,0 +1,39 @@
+export const copy = {
+  en: {
+    title: 'Forgot password',
+    subtitle: 'Enter your registered email to receive a reset link.',
+    email: 'Email',
+    submit: 'Send reset link',
+    sending: 'Sending...',
+    resend: 'Resend link',
+    back: 'Back to login',
+    success: 'If the email exists, we have sent a reset link.',
+    missingEmail: 'Please enter your registered email',
+    invalidEmail: 'Please enter a valid email address',
+    error: 'Request failed, please try again',
+    resendHint: 'Resend to the same email',
+    captchaRequired: 'Please complete the verification',
+    captchaTitle: 'Verification',
+    resendIn: (s: number) => `Resend in ${s}s`,
+  },
+  vi: {
+    title: 'Quên mật khẩu',
+    subtitle: 'Nhập email đã đăng ký để nhận liên kết đặt lại.',
+    email: 'Email',
+    submit: 'Gửi liên kết đặt lại',
+    sending: 'Đang gửi...',
+    resend: 'Gửi lại liên kết',
+    back: 'Quay lại đăng nhập',
+    success: 'Nếu email tồn tại, chúng tôi đã gửi liên kết đặt lại.',
+    missingEmail: 'Vui lòng nhập email đã đăng ký',
+    invalidEmail: 'Vui lòng nhập email hợp lệ',
+    error: 'Gửi yêu cầu thất bại, thử lại',
+    resendHint: 'Gửi lại đến email vừa nhập',
+    captchaRequired: 'Vui lòng hoàn thành xác minh',
+    captchaTitle: 'Xác minh',
+    resendIn: (s: number) => `Gửi lại sau ${s}s`,
+  },
+};
+
+
+

@@ -7,8 +7,18 @@ import axios, {
 import { toast } from '../../components/ui/Toast';
 import { useAuthStore } from '../stores/useAuthStore';
 
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api';
+// Normalize API base URL - remove trailing slash to avoid double slashes
+const getApiBaseUrl = (): string => {
+  const url = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api';
+  return url.replace(/\/+$/, ''); // Remove trailing slashes
+};
+
+const API_BASE_URL = getApiBaseUrl();
+
+// Log API URL in development for debugging (only in browser)
+if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
+  console.log('🔗 API Base URL:', API_BASE_URL);
+}
 
 class ApiClient {
   private client: AxiosInstance;
@@ -171,8 +181,25 @@ class ApiClient {
         'An error occurred';
       return new Error(message);
     } else if (error.request) {
-      // Request made but no response
-      return new Error('Network error. Please check your connection.');
+      // Request made but no response - this is a network error
+      const errorMessage =
+        error.code === 'ECONNABORTED'
+          ? 'Request timeout. The server is taking too long to respond.'
+          : error.code === 'ERR_NETWORK'
+            ? `Network error. Cannot connect to API at ${API_BASE_URL}. Please check:\n1. The API server is running\n2. CORS is configured correctly\n3. Your internet connection`
+            : 'Network error. Please check your connection and API server status.';
+
+      // Log detailed error in development
+      if (process.env.NODE_ENV === 'development') {
+        console.error('🚨 Network Error Details:', {
+          code: error.code,
+          message: error.message,
+          baseURL: API_BASE_URL,
+          config: error.config?.url,
+        });
+      }
+
+      return new Error(errorMessage);
     } else {
       // Something else happened
       return new Error(error.message || 'An unexpected error occurred');

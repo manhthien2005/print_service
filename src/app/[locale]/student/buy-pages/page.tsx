@@ -3,7 +3,7 @@ import { setRequestLocale } from 'next-intl/server';
 import { locales } from '@/lib/i18n/config';
 import { PageBackground } from '@/components/layout/PageBackground';
 import AppDock from '@/components/AppDock';
-import { BuyPagesContent } from '@/components/features/print/BuyPagesContent';
+import { BuyPagesContent } from './components/BuyPagesContent';
 
 export function generateStaticParams() {
   return locales.map(locale => ({ locale }));

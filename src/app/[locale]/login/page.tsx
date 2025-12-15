@@ -2,34 +2,8 @@ import React from 'react';
 import { setRequestLocale } from 'next-intl/server';
 import { locales } from '@/lib/i18n/config';
 import LightRays from '@/components/LightRays';
-import LoginForm from './LoginForm';
-
-const copy = {
-  en: {
-    title: 'Welcome back',
-    subtitle: 'Sign in to your account',
-    email: 'Email',
-    password: 'Password',
-    rememberMe: 'Remember me',
-    forgotPassword: 'Forgot password?',
-    login: 'Login',
-    captchaTitle: 'Security verification',
-    captchaError: 'Please complete the security verification',
-    captchaRequired: 'Please complete the security verification',
-  },
-  vi: {
-    title: 'Chào mừng trở lại',
-    subtitle: 'Đăng nhập vào tài khoản của bạn',
-    email: 'Email',
-    password: 'Mật khẩu',
-    rememberMe: 'Ghi nhớ đăng nhập',
-    forgotPassword: 'Quên mật khẩu?',
-    login: 'Đăng nhập',
-    captchaTitle: 'Xác minh bảo mật',
-    captchaError: 'Vui lòng hoàn thành xác minh bảo mật',
-    captchaRequired: 'Vui lòng hoàn thành xác minh bảo mật',
-  },
-};
+import LoginForm from './components/LoginForm';
+import { copy } from './constants';
 
 export function generateStaticParams() {
   return locales.map(locale => ({ locale }));
