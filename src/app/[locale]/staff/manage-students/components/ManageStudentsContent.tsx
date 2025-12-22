@@ -12,9 +12,8 @@ import {
   studentFilters,
   studentStats,
   studentsMockData,
-  StudentStatus,
-  StudentItem,
 } from '@/data/studentsMock';
+import type { StudentStatus, StudentItem } from '../types';
 import CountUp from '@/components/ui/CountUp';
 
 const PAGE_SIZE = 10;
@@ -995,6 +994,3 @@ export function ManageStudentsContent() {
 }
 
 export default ManageStudentsContent;
-
-
-

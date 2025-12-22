@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils/cn';
 
 interface StepIndicatorProps {
   currentStep: number;
-  steps: Array<{ label: string; description?: string }>;
+  steps: Array<{ label: string }>;
 }
 
 export function StepIndicator({ currentStep, steps }: StepIndicatorProps) {
@@ -76,11 +76,6 @@ export function StepIndicator({ currentStep, steps }: StepIndicatorProps) {
                   >
                     {step.label}
                   </div>
-                  {step.description && (
-                    <div className="mt-1 text-xs text-slate-500 dark:text-white/60">
-                      {step.description}
-                    </div>
-                  )}
                 </div>
               </div>
 

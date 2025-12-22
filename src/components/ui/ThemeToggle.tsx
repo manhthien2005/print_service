@@ -51,6 +51,3 @@ export function ThemeToggle() {
     </button>
   );
 }
-
-
-

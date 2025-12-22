@@ -9,7 +9,9 @@ export function Loading() {
   );
 }
 
-export function LoadingSpinner({ size = 'md' }: { size?: 'sm' | 'md' | 'lg' }) {
+export function LoadingSpinner({
+  size = 'md',
+}: Readonly<{ size?: 'sm' | 'md' | 'lg' }>) {
   const sizeClasses = {
     sm: 'h-4 w-4 border-2',
     md: 'h-8 w-8 border-4',

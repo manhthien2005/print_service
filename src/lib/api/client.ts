@@ -32,6 +32,9 @@ class ApiClient {
       headers: {
         'Content-Type': 'application/json',
       },
+      // Set max file size to 50MB for file uploads
+      maxContentLength: 50 * 1024 * 1024,
+      maxBodyLength: 50 * 1024 * 1024,
     });
 
     this.setupInterceptors();
@@ -44,6 +47,22 @@ class ApiClient {
         const token = this.getToken();
         if (token && config.headers) {
           config.headers.Authorization = `Bearer ${token}`;
+        }
+        // Remove default Content-Type for FormData uploads
+        // Axios will automatically set 'multipart/form-data' with proper boundary
+        if (config.data instanceof FormData && config.headers) {
+          // Remove Content-Type to let axios/browser set it automatically with boundary
+          delete config.headers['Content-Type'];
+          // Log in development for debugging
+          if (process.env.NODE_ENV === 'development') {
+            console.log('📤 Uploading FormData:', {
+              url: config.url,
+              hasFile: config.data instanceof FormData,
+              maxContentLength: config.maxContentLength,
+              maxBodyLength: config.maxBodyLength,
+              headers: Object.keys(config.headers),
+            });
+          }
         }
         return config;
       },

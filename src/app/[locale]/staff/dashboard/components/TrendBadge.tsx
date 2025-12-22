@@ -19,6 +19,3 @@ export const TrendBadge = ({ trend, change }: TrendBadgeProps) => (
     {change}
   </span>
 );
-
-
-

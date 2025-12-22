@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Modal } from '@/components/ui/Modal';
-import { MockPrinter } from '@/data/printMock';
+import { MockPrinter } from '../../print/types';
 import Image from 'next/image';
 
 interface PrinterLocationModalProps {
@@ -149,6 +149,3 @@ export function PrinterLocationModal({
     </Modal>
   );
 }
-
-
-

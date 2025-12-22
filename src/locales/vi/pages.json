@@ -161,7 +161,7 @@
       "step1": {
         "title": "Tải lên tài liệu",
         "description": "Chọn file bạn muốn in. Hỗ trợ PDF, Word, Excel, PowerPoint và hình ảnh",
-        "dragDrop": "Kéo thả file vào đây hoặc click để chọn",
+        "dragDrop": "Kéo thả file vào đây để lưu hoặc in nhanh",
         "fileSizeLimit": "Tối đa 50MB • PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, JPG, PNG",
         "saveFile": "Lưu file",
         "next": "Tiếp theo",
@@ -278,6 +278,198 @@
     "buyPages": {
       "title": "Nạp tiền",
       "description": "Nạp tiền vào tài khoản của bạn"
+    },
+    "recharge": {
+      "title": "Nạp tiền",
+      "description": "Nạp tiền vào tài khoản của bạn",
+      "packages": {
+        "title": "Chọn gói nạp tiền",
+        "description": "Nạp theo gói để nhận thêm tiền bonus",
+        "popular": "Phổ biến",
+        "selectPackage": "Chọn gói",
+        "depositAmount": "Số tiền nạp",
+        "bonusAmount": "Tiền bonus",
+        "totalReceived": "Tổng nhận được",
+        "savings": "Tiết kiệm"
+      },
+      "custom": {
+        "title": "Nạp tùy chỉnh",
+        "description": "",
+        "minAmount": "Tối thiểu 10,000₫",
+        "amountLabel": "Số tiền (VND)",
+        "amountPlaceholder": "Nhập số tiền (tối thiểu 10,000₫)",
+        "depositAmount": "Số tiền nạp",
+        "pay": "Thanh toán"
+      },
+      "qrModal": {
+        "title": "Thanh toán",
+        "transferContent": "Nội dung chuyển khoản",
+        "amount": "Số tiền",
+        "expiresIn": "Hết hạn sau",
+        "cancelOrder": "Hủy đơn",
+        "expired": "Đơn đã hết hạn, vui lòng tạo đơn mới",
+        "reused": "Đang sử dụng đơn nạp tiền hiện có",
+        "newOrder": "Đã tạo đơn nạp tiền mới",
+        "scanQR": "Quét mã QR để thanh toán",
+        "copyContent": "Sao chép nội dung chuyển khoản",
+        "copied": "Đã sao chép",
+        "instructions": "Hướng dẫn thanh toán",
+        "step1": "Quét mã QR bằng ứng dụng ngân hàng của bạn",
+        "step2": "Hoặc chuyển khoản với nội dung: {content}",
+        "step3": "Số tiền: {amount}",
+        "step4": "Đơn sẽ tự động cập nhật khi thanh toán thành công"
+      },
+      "cancelModal": {
+        "title": "Hủy đơn nạp tiền",
+        "reason": "Lý do hủy (tùy chọn)",
+        "reasonPlaceholder": "Nhập lý do hủy đơn...",
+        "confirm": "Xác nhận hủy",
+        "cancel": "Hủy",
+        "cancelling": "Đang hủy..."
+      },
+      "successModal": {
+        "title": "Thanh toán thành công",
+        "message": "Bạn đã nạp thành công",
+        "amount": "Số tiền đã nạp",
+        "close": "Đóng",
+        "rechargeMore": "Nạp thêm"
+      },
+      "errors": {
+        "noPackageOrAmount": "Phải cung cấp packageId hoặc amount",
+        "minAmount": "Số tiền tối thiểu là 10,000₫",
+        "mustBeMultipleOf1000": "Số tiền phải là bội số của 1,000₫",
+        "networkError": "Lỗi kết nối, vui lòng thử lại",
+        "cancelFailed": "Không thể hủy đơn",
+        "createFailed": "Không thể tạo đơn",
+        "loadPackagesFailed": "Không thể tải danh sách gói",
+        "loadCurrentFailed": "Không thể tải đơn hiện tại"
+      },
+      "loading": {
+        "packages": "Đang tải danh sách gói...",
+        "creating": "Đang tạo đơn nạp tiền...",
+        "cancelling": "Đang hủy đơn..."
+      }
+    },
+    "topUp": {
+      "title": "Nạp tiền",
+      "description": "Nạp tiền vào tài khoản của bạn",
+      "packages": {
+        "title": "Chọn gói nạp tiền",
+        "description": "Nạp theo gói để nhận thêm tiền bonus",
+        "popular": "Phổ biến",
+        "selectPackage": "Chọn gói",
+        "depositAmount": "Số tiền nạp",
+        "bonusAmount": "Tiền bonus",
+        "totalReceived": "Tổng nhận được",
+        "savings": "Tiết kiệm"
+      },
+      "custom": {
+        "title": "Nạp tùy chỉnh",
+        "description": "",
+        "minAmount": "Tối thiểu 10,000₫",
+        "amountLabel": "Số tiền (VND)",
+        "amountPlaceholder": "Nhập số tiền (tối thiểu 10,000₫)",
+        "depositAmount": "Số tiền nạp",
+        "pay": "Thanh toán"
+      },
+      "qrModal": {
+        "title": "Thanh toán",
+        "transferContent": "Nội dung chuyển khoản",
+        "amount": "Số tiền",
+        "expiresIn": "Hết hạn sau",
+        "cancelOrder": "Hủy đơn",
+        "expired": "Đơn đã hết hạn, vui lòng tạo đơn mới",
+        "reused": "Đang sử dụng đơn nạp tiền hiện có",
+        "newOrder": "Đã tạo đơn nạp tiền mới",
+        "scanQR": "Quét mã QR để thanh toán",
+        "copyContent": "Sao chép nội dung chuyển khoản",
+        "copied": "Đã sao chép",
+        "instructions": "Hướng dẫn thanh toán",
+        "step1": "Quét mã QR bằng ứng dụng ngân hàng của bạn",
+        "step2": "Hoặc chuyển khoản với nội dung: {content}",
+        "step3": "Số tiền: {amount}",
+        "step4": "Đơn sẽ tự động cập nhật khi thanh toán thành công"
+      },
+      "cancelModal": {
+        "title": "Hủy đơn nạp tiền",
+        "reason": "Lý do hủy (tùy chọn)",
+        "reasonPlaceholder": "Nhập lý do hủy đơn...",
+        "confirm": "Xác nhận hủy",
+        "cancel": "Hủy",
+        "cancelling": "Đang hủy..."
+      },
+      "successModal": {
+        "title": "Thanh toán thành công",
+        "message": "Bạn đã nạp thành công",
+        "amount": "Số tiền đã nạp",
+        "close": "Đóng",
+        "rechargeMore": "Nạp thêm"
+      },
+      "errors": {
+        "noPackageOrAmount": "Phải cung cấp packageId hoặc amount",
+        "minAmount": "Số tiền tối thiểu là 10,000₫",
+        "mustBeMultipleOf1000": "Số tiền phải là bội số của 1,000₫",
+        "networkError": "Lỗi kết nối, vui lòng thử lại",
+        "cancelFailed": "Không thể hủy đơn",
+        "createFailed": "Không thể tạo đơn",
+        "loadPackagesFailed": "Không thể tải danh sách gói",
+        "loadCurrentFailed": "Không thể tải đơn hiện tại"
+      },
+      "loading": {
+        "packages": "Đang tải danh sách gói...",
+        "creating": "Đang tạo đơn nạp tiền...",
+        "cancelling": "Đang hủy đơn..."
+      },
+      "history": {
+        "title": "Lịch sử nạp tiền",
+        "description": "Xem lịch sử các giao dịch nạp tiền của bạn",
+        "searchPlaceholder": "Tìm kiếm theo mã giao dịch...",
+        "loading": "Đang tải lịch sử...",
+        "empty": "Không có giao dịch nào",
+        "pagination": {
+          "showing": "Hiển thị",
+          "of": "trên",
+          "items": "mục"
+        },
+        "statistics": {
+          "totalTransactions": "Tổng giao dịch",
+          "completedTransactions": "Giao dịch thành công",
+          "totalDeposited": "Tổng đã nạp",
+          "totalBonus": "Tổng bonus",
+          "totalSpent": "Tổng đã chi"
+        },
+        "filters": {
+          "all": "Tất cả",
+          "completed": "Đã hoàn thành",
+          "pending": "Đang chờ",
+          "cancelled": "Đã hủy",
+          "expired": "Hết hạn",
+          "failed": "Thất bại",
+          "refunded": "Đã hoàn tiền"
+        },
+        "status": {
+          "completed": "Đã hoàn thành",
+          "pending": "Đang chờ",
+          "cancelled": "Đã hủy",
+          "expired": "Hết hạn",
+          "failed": "Thất bại",
+          "refunded": "Đã hoàn tiền"
+        },
+        "table": {
+          "depositCode": "Mã giao dịch",
+          "transactionDate": "Ngày giao dịch",
+          "packageName": "Gói nạp",
+          "depositAmount": "Số tiền nạp",
+          "bonusAmount": "Tiền bonus",
+          "totalCredited": "Tổng nhận",
+          "status": "Trạng thái",
+          "customAmount": "Nạp tùy chỉnh",
+          "clickToPay": "Thanh toán"
+        },
+        "errors": {
+          "loadFailed": "Không thể tải lịch sử nạp tiền"
+        }
+      }
     },
     "profile": {
       "title": "Hồ sơ",

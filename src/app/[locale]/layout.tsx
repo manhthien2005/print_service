@@ -35,7 +35,7 @@ export default async function LocaleLayout({
       <ThemeProvider>
         <ReactQueryProvider>
           <MusicPlayerProvider>
-          <ToastProvider>{children}</ToastProvider>
+            <ToastProvider>{children}</ToastProvider>
           </MusicPlayerProvider>
         </ReactQueryProvider>
       </ThemeProvider>

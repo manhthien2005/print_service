@@ -151,6 +151,3 @@ export const studentsMockData: StudentItem[] = [
     expectedGraduate: '2028-06-30',
   },
 ];
-
-
-

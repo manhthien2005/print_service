@@ -14,12 +14,9 @@ import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import { Modal } from '@/components/ui/Modal';
 import { cn } from '@/lib/utils/cn';
-import {
-  systemConfigurationMockData,
-  SystemConfigItem,
-  ConfigurationCategory,
-  categoryLabels,
-} from '@/data/systemConfigurationMock';
+import { systemConfigurationMockData } from '@/data/systemConfigurationMock';
+import type { SystemConfigItem, ConfigurationCategory } from '../types';
+import { categoryLabels } from '../types';
 import {
   Card,
   CardContent,
@@ -463,6 +460,3 @@ export function ConfigurationContent() {
 }
 
 export default ConfigurationContent;
-
-
-

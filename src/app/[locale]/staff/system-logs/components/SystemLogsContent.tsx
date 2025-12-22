@@ -10,11 +10,9 @@ import { cn } from '@/lib/utils/cn';
 import {
   systemLogsMockData,
   systemLogsSummaryMock,
-  SystemLogItem,
-  ActionType,
-  actionTypeLabels,
-  actionTypeColors,
 } from '@/data/systemLogsMock';
+import type { SystemLogItem, ActionType } from '../types';
+import { actionTypeLabels, actionTypeColors } from '../types';
 import CountUp from '@/components/ui/CountUp';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 
@@ -682,6 +680,3 @@ export function SystemLogsContent() {
 }
 
 export default SystemLogsContent;
-
-
-

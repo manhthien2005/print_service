@@ -26,6 +26,3 @@ export const copy = {
     docs: 'Tài liệu',
   },
 };
-
-
-

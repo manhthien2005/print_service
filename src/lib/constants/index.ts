@@ -17,6 +17,9 @@ export const API_ENDPOINTS = {
     UPDATE: (id: string) => `/users/${id}`,
     DELETE: (id: string) => `/users/${id}`,
   },
+  STUDENT: {
+    PROFILE: '/student/profile',
+  },
 } as const;
 
 export const QUERY_KEYS = {

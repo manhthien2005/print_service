@@ -183,8 +183,8 @@ export default function AppDock({ locale }: AppDockProps) {
         </svg>
       ),
       label: studentT.buyPages,
-      onClick: () => router.push(`/${locale}/student/buy-pages`),
-      path: `/${locale}/student/buy-pages`,
+      onClick: () => router.push(`/${locale}/student/top-up`),
+      path: `/${locale}/student/top-up`,
     },
     {
       icon: (

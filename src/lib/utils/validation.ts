@@ -4,8 +4,8 @@ export function isValidEmail(email: string): boolean {
 }
 
 export function isValidPhone(phone: string): boolean {
-  const phoneRegex = /^[0-9]{10,11}$/;
-  return phoneRegex.test(phone.replace(/\s+/g, ''));
+  const phoneRegex = /^\d{10,11}$/;
+  return phoneRegex.test(phone.replaceAll(/\s+, ''));
 }
 
 export function isValidUrl(url: string): boolean {

@@ -10,6 +10,3 @@ export const PieTooltip = ({ active, payload }: ChartTooltipProps) => {
     </div>
   );
 };
-
-
-
