@@ -45,5 +45,3 @@ export function mapModelsResponse(
   return responses.map(mapModelResponse);
 }
 
-
-

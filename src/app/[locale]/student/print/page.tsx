@@ -27,7 +27,7 @@ export default async function StudentPrintPage({
     >
       <PageBackground />
 
-      <div className="relative z-10 mx-auto flex min-h-screen w-full max-w-[95vw] flex-col px-4 py-10 sm:px-6 lg:px-8 xl:max-w-[1600px]">
+      <div className="relative z-10 mx-auto flex min-h-screen w-full max-w-[95vw] flex-col px-4 py-10 pb-24 sm:px-6 lg:px-8 xl:max-w-[1600px]">
         <header className="mb-8">
           <h1 className="text-4xl font-bold text-slate-900 dark:text-white">
             {t.title}

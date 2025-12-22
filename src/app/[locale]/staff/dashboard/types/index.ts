@@ -14,5 +14,3 @@ export type ChartTooltipProps = TooltipProps<number, string> & {
   label?: string | number;
 };
 
-
-

@@ -15,9 +15,9 @@ export function slugify(str: string): string {
   return str
     .toLowerCase()
     .trim()
-    .replace(/[^\w\s-]/g, '')
-    .replace(/[\s_-]+/g, '-')
-    .replace(/^-+|-+$/g, '');
+    .replaceAll(/[^\w\s-]/g, '')
+    .replaceAll(/[\s_-]+/g, '-')
+    .replaceAll(/^-+|-+$/g, '');
 }
 
 export function camelCase(str: string): string {
@@ -26,4 +26,21 @@ export function camelCase(str: string): string {
       return index === 0 ? word.toLowerCase() : word.toUpperCase();
     })
     .replace(/\s+/g, '');
+}
+
+/**
+ * Generate initials from a full name
+ * @param name - Full name string
+ * @returns Initials (e.g., "Nguyen Van A" -> "NA")
+ */
+export function getInitials(name: string | null | undefined): string {
+  if (!name || name.trim().length === 0) return '?';
+  
+  const words = name.trim().split(/\s+/);
+  if (words.length === 1) {
+    return words[0].charAt(0).toUpperCase();
+  }
+  
+  // Get first letter of first word and last word
+  return (words[0].charAt(0) + words[words.length - 1].charAt(0)).toUpperCase();
 }

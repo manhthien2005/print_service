@@ -220,5 +220,3 @@ export const reportsDataMock: ReportsData = {
   summary: reportsSummaryMock,
 };
 
-
-

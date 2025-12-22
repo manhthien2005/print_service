@@ -1,53 +1,104 @@
 'use client';
 
-import Link from 'next/link';
-import {
-  Bar,
-  BarChart,
-  CartesianGrid,
-  Cell,
-  Legend,
-  Pie,
-  PieChart,
-  ResponsiveContainer,
-  Tooltip as RechartsTooltip,
-  XAxis,
-  YAxis,
-} from 'recharts';
-import {
-  alerts,
-  paperSizeUsage,
-  printerStatusSummary,
-  statWidgets,
-  weeklyPrintingActivity,
-} from '@/data/staffDashboardMock';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/Card';
+import { useDashboardPrinterStats } from '@/lib/api/services/dashboard';
+// import { Card } from '@/components/ui/Card'; // Not used currently
 import { Button } from '@/components/ui/Button';
-import CountUp from '@/components/ui/CountUp';
-import { cn } from '@/lib/utils/cn';
+import StaffDashboardSkeleton from './StaffDashboardSkeleton';
+import { DashboardStats } from './DashboardStats';
+import { DashboardCharts } from './DashboardCharts';
+import { PrinterStatusCard } from './PrinterStatusCard';
+import { AlertsCard } from './AlertsCard';
 import type { StaffDashboardProps } from '../types';
-import { CustomTooltip } from './CustomTooltip';
-import { PieTooltip } from './PieTooltip';
-import { TrendBadge } from './TrendBadge';
-import { ProgressBar } from './ProgressBar';
+import {
+  weeklyPrintingActivity,
+  paperSizeUsage,
+  alerts,
+} from '@/data/staffDashboardMock';
 
 export default function StaffDashboard({ locale, t }: StaffDashboardProps) {
   const staff = t.staff ?? {};
-  const withLocale = (path: string) =>
-    `/${locale}${path.startsWith('/') ? path : `/${path}`}`;
-  const totalPrinters =
-    printerStatusSummary.online +
-    printerStatusSummary.offline +
-    printerStatusSummary.maintenance;
+  const { data, isLoading, error, refetch } = useDashboardPrinterStats();
+
+  // Handle loading state
+  if (isLoading) {
+    return <StaffDashboardSkeleton />;
+  }
+
+  // Handle error state
+  if (error) {
+    return (
+      <div className="space-y-8 pb-24">
+        <div className="flex flex-col gap-2">
+          <p className="text-sm uppercase tracking-[0.2em] text-white/60">
+            {staff.sectionLabel ?? 'Staff dashboard'}
+          </p>
+          <h1 className="text-4xl font-bold text-white">{t.title}</h1>
+        </div>
+        <div className="rounded-xl border border-red-400/20 bg-red-500/10 p-8 text-center">
+          <h3 className="mb-2 text-lg font-semibold text-red-300">
+            Không thể tải thống kê
+          </h3>
+          <p className="mb-4 text-red-200">
+            {error instanceof Error
+              ? error.message
+              : 'Đã xảy ra lỗi khi tải dữ liệu dashboard'}
+          </p>
+          <Button
+            onClick={() => refetch()}
+            className="bg-red-500 text-white hover:bg-red-600"
+          >
+            Thử lại
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  // Extract data from API response
+  const statsData = data?.data?.data;
+  if (!statsData) {
+    return <StaffDashboardSkeleton />;
+  }
+
+  // Map API response to component props
+  const printerStats = {
+    totalPrinters: statsData.totalPrinters,
+    activePrinters: statsData.activePrinters,
+    maintenancePrinters: statsData.maintenancePrinters || 0,
+    offlinePrinters:
+      statsData.totalPrinters -
+      statsData.activePrinters -
+      (statsData.maintenancePrinters || 0),
+  };
+
+  // Calculate utilization (active / total * 100)
+  const utilization =
+    statsData.totalPrinters > 0
+      ? Math.round((statsData.activePrinters / statsData.totalPrinters) * 100)
+      : 0;
+
+  // Prepare stats for DashboardStats component
+  const dashboardStats = {
+    totalPrinters: statsData.totalPrinters,
+    activePrinters: statsData.activePrinters,
+    maintenancePrinters: statsData.maintenancePrinters || 0,
+    totalBrands: statsData.totalBrands || 0,
+    totalModels: statsData.totalModels || 0,
+    maintenanceWarning: statsData.maintenanceWarning || 0,
+  };
+
+  // Map alerts (still using mock for now, can be replaced with API later)
+  const mappedAlerts = alerts.slice(0, 2).map(alert => ({
+    id: alert.id,
+    title: staff.alerts?.items?.[alert.id]?.title || alert.id,
+    time: staff.alerts?.items?.[alert.id]?.time || 'Vừa xong',
+    severity: alert.severity,
+    actionLabel: staff.alerts?.items?.[alert.id]?.action,
+  }));
 
   return (
     <div className="space-y-8 pb-24">
+      {/* Header */}
       <div className="flex flex-col gap-2">
         <p className="text-sm uppercase tracking-[0.2em] text-white/60">
           {staff.sectionLabel ?? 'Staff dashboard'}
@@ -56,270 +107,69 @@ export default function StaffDashboard({ locale, t }: StaffDashboardProps) {
         <p className="text-white/70">{t.welcome}</p>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-3 xl:grid-cols-3">
-        {statWidgets.map(stat => (
-          <Card
-            key={stat.id}
-            className="border-white/10 bg-white/5 backdrop-blur-md"
-          >
-            <CardHeader className="pb-3">
-              <CardDescription className="text-base font-medium text-white/80">
-                {staff.stats?.[stat.id] ?? stat.id}
-              </CardDescription>
-              <div className="flex items-center justify-between gap-3">
-                <div className="flex items-end gap-2 text-3xl font-semibold leading-tight text-white">
-                  <CountUp
-                    to={stat.value}
-                    className="leading-none"
-                    separator=","
-                  />
-                  {stat.suffix && (
-                    <span className="text-lg font-medium text-white/80">
-                      {stat.suffix}
-                    </span>
-                  )}
-                </div>
-                {stat.change && (
-                  <TrendBadge trend={stat.trend} change={stat.change} />
-                )}
-              </div>
-              {stat.captionKey && (
-                <p className="text-sm text-white/65">
-                  {staff.stats?.caption?.[stat.captionKey]?.replace
-                    ? staff.stats.caption[stat.captionKey].replace(
-                        '{total}',
-                        totalPrinters.toString()
-                      )
-                    : staff.stats?.caption?.[stat.captionKey]}
-                </p>
-              )}
-            </CardHeader>
-          </Card>
-        ))}
-      </div>
+      {/* Stats Widgets */}
+      <DashboardStats
+        stats={dashboardStats}
+        translations={{
+          printersOnline: staff.stats?.printersOnline ?? 'Máy in trực tuyến',
+          jobsToday: staff.stats?.jobsToday ?? 'Công việc hôm nay',
+          pagesMonth: staff.stats?.pagesMonth ?? 'Trang tháng này',
+          totalCaption: staff.stats?.caption?.total ?? 'Tổng {total} máy',
+          lastJobCaption: staff.stats?.caption?.lastJob ?? 'Công việc gần nhất',
+        }}
+      />
 
-      <div className="grid gap-6 xl:grid-cols-3">
-        <Card className="border-white/10 bg-white/5 backdrop-blur xl:col-span-2">
-          <CardHeader>
-            <CardTitle className="text-white">{staff.weekly?.title}</CardTitle>
-            <CardDescription className="text-white/70">
-              {staff.weekly?.description}
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="h-[320px] select-none">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart
-                data={weeklyPrintingActivity}
-                barSize={18}
-                tabIndex={-1}
-                style={{ outline: 'none' }}
-              >
-                <CartesianGrid strokeDasharray="4 4" stroke="#334155" />
-                <XAxis
-                  dataKey="day"
-                  tick={{ fill: '#cbd5e1', fontSize: 12 }}
-                  axisLine={false}
-                  tickLine={false}
-                />
-                <YAxis
-                  tick={{ fill: '#cbd5e1', fontSize: 12 }}
-                  axisLine={false}
-                  tickLine={false}
-                />
-                <RechartsTooltip content={<CustomTooltip />} />
-                <Legend
-                  verticalAlign="top"
-                  align="right"
-                  wrapperStyle={{ color: '#cbd5e1' }}
-                />
-                <Bar
-                  dataKey="jobs"
-                  name={staff.weekly?.jobs}
-                  radius={[6, 6, 0, 0]}
-                  fill="url(#jobsGradient)"
-                />
-                <Bar
-                  dataKey="pages"
-                  name={staff.weekly?.pages}
-                  radius={[6, 6, 0, 0]}
-                  fill="url(#pagesGradient)"
-                />
-                <defs>
-                  <linearGradient id="jobsGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#38bdf8" stopOpacity={0.9} />
-                    <stop offset="100%" stopColor="#6366f1" stopOpacity={0.7} />
-                  </linearGradient>
-                  <linearGradient
-                    id="pagesGradient"
-                    x1="0"
-                    y1="0"
-                    x2="0"
-                    y2="1"
-                  >
-                    <stop offset="0%" stopColor="#a855f7" stopOpacity={0.9} />
-                    <stop offset="100%" stopColor="#ec4899" stopOpacity={0.7} />
-                  </linearGradient>
-                </defs>
-              </BarChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
+      {/* Charts */}
+      <DashboardCharts
+        weeklyActivity={weeklyPrintingActivity}
+        paperSizeUsage={paperSizeUsage}
+        translations={{
+          weekly: {
+            title: staff.weekly?.title ?? 'Hoạt động in theo tuần',
+            description:
+              staff.weekly?.description ?? 'Thống kê công việc và trang in',
+            jobs: staff.weekly?.jobs ?? 'Công việc',
+            pages: staff.weekly?.pages ?? 'Trang',
+          },
+          paper: {
+            title: staff.paper?.title ?? 'Sử dụng khổ giấy',
+            description: staff.paper?.description ?? 'Phân bố các khổ giấy',
+          },
+        }}
+      />
 
-        <Card className="border-white/10 bg-white/5 backdrop-blur">
-          <CardHeader>
-            <CardTitle className="text-white">{staff.paper?.title}</CardTitle>
-            <CardDescription className="text-white/70">
-              {staff.paper?.description}
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="h-[320px] select-none">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart tabIndex={-1} style={{ outline: 'none' }}>
-                <Pie
-                  data={
-                    paperSizeUsage as Array<{
-                      name: string;
-                      value: number;
-                      color: string;
-                    }>
-                  }
-                  dataKey="value"
-                  nameKey="name"
-                  cx="50%"
-                  cy="50%"
-                  outerRadius={110}
-                  innerRadius={60}
-                  paddingAngle={6}
-                >
-                  {paperSizeUsage.map(entry => (
-                    <Cell key={entry.name} fill={entry.color} />
-                  ))}
-                </Pie>
-                <Legend
-                  verticalAlign="bottom"
-                  height={36}
-                  wrapperStyle={{ color: '#cbd5e1' }}
-                />
-                <RechartsTooltip content={<PieTooltip />} />
-              </PieChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
-      </div>
-
+      {/* Printer Status & Alerts */}
       <div className="grid items-stretch gap-6 lg:grid-cols-[2fr,1fr]">
-        <Card className="h-full border-white/10 bg-white/5 backdrop-blur">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-2xl font-semibold text-white">
-              {staff.printer?.title}
-            </CardTitle>
-            <CardDescription className="text-white/70">
-              {staff.printer?.description}
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6 pb-6">
-            <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-              <div className="rounded-xl border border-white/10 bg-white/5 p-4 text-white">
-                <p className="text-sm text-white/70">
-                  {staff.printer?.online ?? 'Online'}
-                </p>
-                <p className="text-2xl font-semibold text-emerald-300">
-                  <CountUp to={printerStatusSummary.online} />
-                </p>
-              </div>
-              <div className="rounded-xl border border-white/10 bg-white/5 p-4 text-white">
-                <p className="text-sm text-white/70">
-                  {staff.printer?.offline ?? 'Offline'}
-                </p>
-                <p className="text-2xl font-semibold text-rose-300">
-                  <CountUp to={printerStatusSummary.offline} />
-                </p>
-              </div>
-              <div className="rounded-xl border border-white/10 bg-white/5 p-4 text-white">
-                <p className="text-sm text-white/70">
-                  {staff.printer?.maintenance ?? 'Maintenance'}
-                </p>
-                <p className="text-2xl font-semibold text-amber-200">
-                  <CountUp to={printerStatusSummary.maintenance} />
-                </p>
-              </div>
-              <div className="rounded-xl border border-white/10 bg-white/5 p-4 text-white">
-                <p className="text-sm text-white/70">
-                  {staff.printer?.utilization ?? 'Utilization'}
-                </p>
-                <p className="text-2xl font-semibold">
-                  <CountUp to={printerStatusSummary.utilization} />%
-                </p>
-              </div>
-            </div>
+        <PrinterStatusCard
+          stats={printerStats}
+          utilization={utilization}
+          locale={locale}
+          translations={{
+            title: staff.printer?.title ?? 'Trạng thái máy in',
+            description: staff.printer?.description ?? 'Tổng quan hệ thống',
+            online: staff.printer?.online ?? 'Online',
+            offline: staff.printer?.offline ?? 'Offline',
+            maintenance: staff.printer?.maintenance ?? 'Maintenance',
+            utilization: staff.printer?.utilization ?? 'Utilization',
+            utilizationLabel:
+              staff.printer?.utilizationLabel ?? 'System utilization',
+            cta: staff.printer?.cta ?? 'Go to printers',
+          }}
+        />
 
-            <ProgressBar
-              value={printerStatusSummary.utilization}
-              label={staff.printer?.utilizationLabel ?? 'System utilization'}
-            />
-
-            <Link href={withLocale('/staff/manage-printers')}>
-              <Button
-                className="mt-2 w-full border border-white/15 bg-white/10 text-white hover:bg-white/20"
-                size="lg"
-              >
-                {staff.printer?.cta ?? 'Go to printers'}
-              </Button>
-            </Link>
-          </CardContent>
-        </Card>
-
-        <Card className="h-full border-white/10 bg-white/5 backdrop-blur">
-          <CardHeader>
-            <CardTitle className="text-white">{staff.alerts?.title}</CardTitle>
-            <CardDescription className="text-white/70">
-              {staff.alerts?.description}
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {alerts.slice(0, 2).map(alert => {
-              const copy = staff.alerts?.items?.[alert.id];
-              const severityLabel = staff.alerts?.severity?.[alert.severity];
-              return (
-                <div
-                  key={alert.id}
-                  className="rounded-xl border border-white/10 bg-white/5 p-4 text-white"
-                >
-                  <div className="flex items-center justify-between">
-                    <p className="font-semibold">{copy?.title}</p>
-                    <span
-                      className={cn(
-                        'flex items-center justify-center rounded-full px-2.5 py-1 text-[11px] font-semibold uppercase',
-                        alert.severity === 'critical' &&
-                          'border border-rose-400/20 bg-rose-500/15 text-rose-300',
-                        alert.severity === 'warning' &&
-                          'border border-amber-400/20 bg-amber-500/15 text-amber-200',
-                        alert.severity === 'info' &&
-                          'border border-sky-400/20 bg-sky-500/15 text-sky-200'
-                      )}
-                    >
-                      {severityLabel ?? alert.severity}
-                    </span>
-                  </div>
-                  <p className="text-sm text-white/60">{copy?.time}</p>
-                  {copy?.action && (
-                    <Button
-                      variant="secondary"
-                      size="sm"
-                      className="mt-3 bg-white/10 text-white"
-                    >
-                      {copy.action}
-                    </Button>
-                  )}
-                </div>
-              );
-            })}
-          </CardContent>
-        </Card>
+        <AlertsCard
+          alerts={mappedAlerts}
+          translations={{
+            title: staff.alerts?.title ?? 'Cảnh báo',
+            description: staff.alerts?.description ?? 'Thông báo hệ thống',
+            severity: {
+              critical: staff.alerts?.severity?.critical ?? 'Critical',
+              warning: staff.alerts?.severity?.warning ?? 'Warning',
+              info: staff.alerts?.severity?.info ?? 'Info',
+            },
+          }}
+        />
       </div>
     </div>
   );
 }
-
-
-

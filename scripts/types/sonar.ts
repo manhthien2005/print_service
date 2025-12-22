@@ -96,5 +96,3 @@ export interface IssueSummary {
   groups: IssueGroup[];
 }
 
-
-

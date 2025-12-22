@@ -6,9 +6,14 @@ import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import SpotlightCard from '@/components/ui/SpotlightCard';
 import BalanceCountUp from './BalanceCountUp';
-import { studentProfilePageMock } from '@/data/studentProfilePageMock';
 import ChangePasswordModal from './ChangePasswordModal';
 import EditProfileModal from './EditProfileModal';
+import ProfileSkeleton from './ProfileSkeleton';
+import { useStudentProfile } from '@/lib/api/services/student';
+import { formatDate } from '@/lib/utils/date';
+// import { formatNumber } from '@/lib/utils/format'; // Not used currently
+import { getInitials } from '@/lib/utils/string';
+// import { toast } from '@/components/ui/Toast'; // Not used currently
 
 interface StudentProfileContentProps {
   locale: string;
@@ -21,10 +26,82 @@ export default function StudentProfileContent({
 }: StudentProfileContentProps) {
   const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
   const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
-  const profile = studentProfilePageMock;
+
+  const { data, isLoading, error, refetch } = useStudentProfile();
 
   const withLocale = (path: string) =>
     `/${locale}${path.startsWith('/') ? path : '/' + path}`;
+
+  // Handle loading state
+  if (isLoading) {
+    return <ProfileSkeleton />;
+  }
+
+  // Handle error state
+  if (error) {
+    return (
+      <div className="mx-auto max-w-5xl space-y-8">
+        <Card className="border-red-200 bg-red-50 p-8 dark:border-red-800 dark:bg-red-900/20">
+          <div className="text-center">
+            <h3 className="mb-2 text-lg font-semibold text-red-900 dark:text-red-300">
+              {t.error?.title ?? 'Không thể tải thông tin'}
+            </h3>
+            <p className="mb-4 text-red-700 dark:text-red-400">
+              {error instanceof Error
+                ? error.message
+                : (t.error?.message ??
+                  'Đã xảy ra lỗi khi tải thông tin profile')}
+            </p>
+            <Button
+              onClick={() => refetch()}
+              className="bg-red-500 text-white hover:bg-red-600 dark:bg-red-600 dark:hover:bg-red-700"
+            >
+              {t.error?.retry ?? 'Thử lại'}
+            </Button>
+          </div>
+        </Card>
+      </div>
+    );
+  }
+
+  // Extract profile data from API response
+  const profileData = data?.data?.data;
+  if (!profileData) {
+    return (
+      <div className="mx-auto max-w-5xl space-y-8">
+        <Card className="border-slate-200 bg-slate-50 p-8 dark:border-white/10 dark:bg-white/5">
+          <div className="text-center">
+            <p className="text-slate-600 dark:text-white/70">
+              {t.error?.notFound ?? 'Không tìm thấy thông tin profile'}
+            </p>
+          </div>
+        </Card>
+      </div>
+    );
+  }
+
+  // Format data for display
+  const formattedDateOfBirth = profileData.dateOfBirth
+    ? formatDate(profileData.dateOfBirth, 'dd/MM/yyyy', locale as 'vi' | 'en')
+    : '—';
+
+  // const formattedBalance = formatNumber(profileData.balance || 0); // Not used currently
+  const avatarInitials = getInitials(profileData.fullName);
+  const displayPhone = profileData.phoneNumber || '—';
+  // const displayAddress = profileData.address || '—'; // Not used currently
+  const displayStudentCode = profileData.studentCode || '—';
+  const displayFaculty = profileData.facultyName || '—';
+  const displayMajor = profileData.departmentName || '—';
+  const displayClass = profileData.classCode || '—';
+
+  // Map status to display text
+  const statusMap: Record<string, string> = {
+    active: t.badges?.active ?? 'Active',
+    graduated: t.badges?.graduated ?? 'Graduated',
+    suspended: t.badges?.suspended ?? 'Suspended',
+    withdrawn: t.badges?.withdrawn ?? 'Withdrawn',
+  };
+  const displayStatus = profileData.status ? (statusMap[profileData.status] || profileData.status) : '';
 
   return (
     <>
@@ -36,14 +113,22 @@ export default function StudentProfileContent({
         >
           <div className="relative z-10 flex flex-col items-center gap-6 text-center">
             {/* Avatar */}
-            <div className="flex h-32 w-32 items-center justify-center rounded-full bg-gradient-to-br from-sky-400 via-indigo-500 to-purple-500 text-3xl font-bold text-white shadow-2xl ring-4 ring-white/50 dark:ring-white/10">
-              {profile.avatarInitials}
-            </div>
+            {profileData.profilePicture ? (
+              <img
+                src={profileData.profilePicture}
+                alt={profileData.fullName}
+                className="h-32 w-32 rounded-full object-cover shadow-2xl ring-4 ring-white/50 dark:ring-white/10"
+              />
+            ) : (
+              <div className="flex h-32 w-32 items-center justify-center rounded-full bg-gradient-to-br from-sky-400 via-indigo-500 to-purple-500 text-3xl font-bold text-white shadow-2xl ring-4 ring-white/50 dark:ring-white/10">
+                {avatarInitials}
+              </div>
+            )}
 
             {/* Name and Status */}
             <div className="space-y-3">
               <h2 className="text-4xl font-bold text-slate-900 dark:text-white">
-                {profile.fullName}
+                {profileData.fullName}
               </h2>
               <div className="flex flex-wrap items-center justify-center gap-3">
                 {/* Student Badge */}
@@ -62,7 +147,7 @@ export default function StudentProfileContent({
                       d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"
                     />
                   </svg>
-                  {t.badges?.student ?? 'Student'}
+                  {displayStatus}
                 </span>
               </div>
             </div>
@@ -137,7 +222,7 @@ export default function StudentProfileContent({
                 <div className="space-y-1">
                   <div className="text-5xl font-bold text-slate-900 dark:text-white">
                     <BalanceCountUp
-                      to={Math.floor(profile.balance)}
+                      to={Math.floor(profileData.balance || 0)}
                       duration={1.5}
                       className="inline-block"
                     />
@@ -148,7 +233,7 @@ export default function StudentProfileContent({
                   </p>
                 </div>
               </div>
-              <Link href={withLocale('/student/buy-pages')}>
+              <Link href={withLocale('/student/top-up')}>
                 <Button className="bg-gradient-to-r from-emerald-500 to-sky-500 text-white shadow-lg hover:from-emerald-600 hover:to-sky-600 hover:shadow-xl dark:from-emerald-600 dark:to-sky-600 dark:hover:from-emerald-700 dark:hover:to-sky-700">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -200,7 +285,7 @@ export default function StudentProfileContent({
                   </div>
                   <div className="flex-1">
                     <div className="font-semibold text-slate-900 dark:text-white">
-                      {profile.email}
+                      {profileData.email}
                     </div>
                     <div className="mt-1 text-sm text-slate-500 dark:text-white/70">
                       {t.contactInfo?.universityEmail ?? 'University Email'}
@@ -228,7 +313,7 @@ export default function StudentProfileContent({
                   </div>
                   <div className="flex-1">
                     <div className="font-semibold text-slate-900 dark:text-white">
-                      {profile.phone}
+                      {displayPhone}
                     </div>
                     <div className="mt-1 text-sm text-slate-500 dark:text-white/70">
                       {t.contactInfo?.mobileNumber ?? 'Mobile Number'}
@@ -256,7 +341,7 @@ export default function StudentProfileContent({
                   </div>
                   <div className="flex-1">
                     <div className="font-semibold text-slate-900 dark:text-white">
-                      {profile.dateOfBirth}
+                      {formattedDateOfBirth}
                     </div>
                     <div className="mt-1 text-sm text-slate-500 dark:text-white/70">
                       {t.contactInfo?.dateOfBirth ?? 'Date of Birth'}
@@ -294,13 +379,43 @@ export default function StudentProfileContent({
                   </div>
                   <div className="flex-1">
                     <div className="font-semibold text-slate-900 dark:text-white">
-                      {profile.studentId}
+                      {displayStudentCode}
                     </div>
                     <div className="mt-1 text-sm text-slate-500 dark:text-white/70">
                       {t.academicDetails?.studentId ?? 'Student ID'}
                     </div>
                   </div>
                 </div>
+
+                {/* Class */}
+                {displayClass !== '—' && (
+                  <div className="flex items-start gap-4">
+                    <div className="mt-1 flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-blue-100 dark:bg-blue-500/20">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        className="h-6 w-6 text-blue-600 dark:text-blue-400"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z"
+                        />
+                      </svg>
+                    </div>
+                    <div className="flex-1">
+                      <div className="font-semibold text-slate-900 dark:text-white">
+                        {displayClass}
+                      </div>
+                      <div className="mt-1 text-sm text-slate-500 dark:text-white/70">
+                        {t.academicDetails?.class ?? 'Class'}
+                      </div>
+                    </div>
+                  </div>
+                )}
 
                 {/* Faculty */}
                 <div className="flex items-start gap-4">
@@ -322,7 +437,7 @@ export default function StudentProfileContent({
                   </div>
                   <div className="flex-1">
                     <div className="font-semibold text-slate-900 dark:text-white">
-                      {profile.faculty}
+                      {displayFaculty}
                     </div>
                     <div className="mt-1 text-sm text-slate-500 dark:text-white/70">
                       {t.academicDetails?.faculty ?? 'Faculty'}
@@ -350,38 +465,10 @@ export default function StudentProfileContent({
                   </div>
                   <div className="flex-1">
                     <div className="font-semibold text-slate-900 dark:text-white">
-                      {profile.major}
+                      {displayMajor}
                     </div>
                     <div className="mt-1 text-sm text-slate-500 dark:text-white/70">
                       {t.academicDetails?.major ?? 'Major'}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Academic Year */}
-                <div className="flex items-start gap-4">
-                  <div className="mt-1 flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-violet-100 dark:bg-violet-500/20">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      className="h-6 w-6 text-violet-600 dark:text-violet-400"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5"
-                      />
-                    </svg>
-                  </div>
-                  <div className="flex-1">
-                    <div className="font-semibold text-slate-900 dark:text-white">
-                      {profile.academicYear}
-                    </div>
-                    <div className="mt-1 text-sm text-slate-500 dark:text-white/70">
-                      {t.academicDetails?.academicYear ?? 'Academic Year'}
                     </div>
                   </div>
                 </div>
@@ -404,7 +491,10 @@ export default function StudentProfileContent({
         onClose={() => setIsEditProfileOpen(false)}
         locale={locale}
         t={t.editProfileModal}
-        initialData={profile}
+        initialData={profileData}
+        onSuccess={() => {
+          refetch();
+        }}
       />
     </>
   );

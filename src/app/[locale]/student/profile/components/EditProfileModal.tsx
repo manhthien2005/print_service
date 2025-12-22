@@ -5,7 +5,10 @@ import { Modal } from '@/components/ui/Modal';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { toast } from '@/components/ui/Toast';
-import type { StudentProfilePageData } from '@/data/studentProfilePageMock';
+import { useUpdateStudentProfile } from '@/lib/api/services/student';
+import type { StudentProfileResponse } from '@/types/api';
+import { phoneNumberSchema } from '@/lib/validations/common';
+import { z } from 'zod';
 
 interface EditProfileModalProps {
   isOpen: boolean;
@@ -15,21 +18,20 @@ interface EditProfileModalProps {
     title?: string;
     email?: string;
     phone?: string;
-    otpCode?: string;
-    sendOtp?: string;
-    sendingOtp?: string;
-    otpSent?: string;
-    verifyOtp?: string;
-    verifyingOtp?: string;
-    otpVerified?: string;
+    address?: string;
+    profilePicture?: string;
     submit?: string;
     submitting?: string;
     success?: string;
     error?: string;
-    invalidOtp?: string;
-    emailChanged?: string;
+    phoneRequired?: string;
+    phoneInvalid?: string;
+    phoneMaxLength?: string;
+    addressMaxLength?: string;
+    profilePictureMaxLength?: string;
   };
-  initialData: StudentProfilePageData;
+  initialData: StudentProfileResponse;
+  onSuccess?: () => void;
 }
 
 export default function EditProfileModal({
@@ -38,135 +40,116 @@ export default function EditProfileModal({
   locale: _locale,
   t = {},
   initialData,
+  onSuccess,
 }: EditProfileModalProps) {
-  const [email, setEmail] = useState(initialData.email);
-  const [phone, setPhone] = useState(initialData.phone);
-  const [otpCode, setOtpCode] = useState('');
-  const [isOtpSent, setIsOtpSent] = useState(false);
-  const [isOtpVerified, setIsOtpVerified] = useState(false);
-  const [isSendingOtp, setIsSendingOtp] = useState(false);
-  const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [emailChanged, setEmailChanged] = useState(false);
+  const [phoneNumber, setPhoneNumber] = useState(initialData.phoneNumber || '');
+  const [address, setAddress] = useState(initialData.address || '');
+  const [profilePicture, setProfilePicture] = useState(
+    initialData.profilePicture || ''
+  );
+  const [phoneError, setPhoneError] = useState<string | null>(null);
+
+  const updateProfile = useUpdateStudentProfile();
 
   // Reset state when modal opens/closes
   useEffect(() => {
     if (isOpen) {
-      setEmail(initialData.email);
-      setPhone(initialData.phone);
-      setOtpCode('');
-      setIsOtpSent(false);
-      setIsOtpVerified(false);
-      setEmailChanged(false);
+      setPhoneNumber(initialData.phoneNumber || '');
+      setAddress(initialData.address || '');
+      setProfilePicture(initialData.profilePicture || '');
+      setPhoneError(null);
     }
   }, [isOpen, initialData]);
 
-  // Check if email changed
-  useEffect(() => {
-    setEmailChanged(email !== initialData.email);
-    if (email === initialData.email) {
-      setIsOtpSent(false);
-      setIsOtpVerified(false);
-      setOtpCode('');
-    }
-  }, [email, initialData.email]);
-
-  const handleSendOtp = async () => {
-    if (!email || email === initialData.email) {
-      return;
-    }
-
-    // Validate email format
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      toast.error('Email không hợp lệ');
-      return;
-    }
-
-    try {
-      setIsSendingOtp(true);
-      // TODO: Replace with real API call when available
-      // await apiClient.post('/auth/send-otp', { email });
-
-      // Mock API call - simulate delay
-      await new Promise(resolve => setTimeout(resolve, 1500));
-
-      // Mock: In real implementation, OTP would be sent to email
-      // For demo purposes, we'll show a mock OTP
-      const mockOtp = '123456';
-      console.log('Mock OTP sent to', email, ':', mockOtp);
-
-      setIsOtpSent(true);
-      toast.success(t.otpSent ?? 'Mã OTP đã được gửi đến email của bạn');
-    } catch (err: unknown) {
-      const message =
-        err instanceof Error
-          ? err.message
-          : (t.error ?? 'Không thể gửi mã OTP');
-      toast.error(message);
-    } finally {
-      setIsSendingOtp(false);
+  // Validate phone number on change
+  const handlePhoneChange = (value: string) => {
+    setPhoneNumber(value);
+    // Clear error when user starts typing
+    if (phoneError) {
+      setPhoneError(null);
     }
   };
 
-  const handleVerifyOtp = async () => {
-    if (!otpCode) {
-      toast.error('Vui lòng nhập mã OTP');
+  // Validate phone number on blur
+  const handlePhoneBlur = () => {
+    const cleanPhone = phoneNumber.trim();
+    if (!cleanPhone) {
+      setPhoneError(t.phoneRequired ?? 'Số điện thoại là bắt buộc');
       return;
     }
 
     try {
-      setIsVerifyingOtp(true);
-      // TODO: Replace with real API call when available
-      // await apiClient.post('/auth/verify-otp', { email, otpCode });
-
-      // Mock API call - simulate delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
-      // Mock: Accept any 6-digit code for demo
-      if (otpCode.length === 6) {
-        setIsOtpVerified(true);
-        toast.success(t.otpVerified ?? 'Xác thực OTP thành công');
-      } else {
-        toast.error(t.invalidOtp ?? 'Mã OTP không hợp lệ');
+      phoneNumberSchema.parse(cleanPhone.replace(/\s/g, ''));
+      setPhoneError(null);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        setPhoneError(error.errors[0]?.message || 'Số điện thoại không hợp lệ');
       }
-    } catch (err: unknown) {
-      const message =
-        err instanceof Error
-          ? err.message
-          : (t.invalidOtp ?? 'Mã OTP không hợp lệ');
-      toast.error(message);
-    } finally {
-      setIsVerifyingOtp(false);
     }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // If email changed, require OTP verification
-    if (emailChanged && !isOtpVerified) {
-      toast.error('Vui lòng xác thực email bằng mã OTP trước');
+    // Validate phone number using zod
+    const cleanPhone = phoneNumber.trim();
+    try {
+      phoneNumberSchema.parse(cleanPhone.replace(/\s/g, ''));
+      setPhoneError(null);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        const errorMessage =
+          error.errors[0]?.message || 'Số điện thoại không hợp lệ';
+        setPhoneError(errorMessage);
+        toast.error(errorMessage);
+      }
       return;
     }
 
-    // Validate phone format (basic validation)
-    const phoneRegex = /^[0-9]{10,11}$/;
-    const cleanPhone = phone.replace(/\s/g, '');
-    if (!phoneRegex.test(cleanPhone)) {
-      toast.error('Số điện thoại không hợp lệ');
+    // Validate address (max 500 chars)
+    if (address && address.length > 500) {
+      toast.error(
+        t.addressMaxLength ?? 'Địa chỉ không được vượt quá 500 ký tự'
+      );
+      return;
+    }
+
+    // Validate profile picture URL (max 500 chars)
+    if (profilePicture && profilePicture.length > 500) {
+      toast.error(
+        t.profilePictureMaxLength ??
+          'URL ảnh đại diện không được vượt quá 500 ký tự'
+      );
+      return;
+    }
+
+    // Build request payload - only include fields that have values
+    const request: {
+      phoneNumber?: string;
+      address?: string;
+      profilePicture?: string;
+    } = {};
+
+    if (cleanPhone !== (initialData.phoneNumber || '')) {
+      request.phoneNumber = cleanPhone;
+    }
+    if (address.trim() !== (initialData.address || '')) {
+      request.address = address.trim();
+    }
+    if (profilePicture.trim() !== (initialData.profilePicture || '')) {
+      request.profilePicture = profilePicture.trim();
+    }
+
+    // Check if there are any changes
+    if (Object.keys(request).length === 0) {
+      toast.error('Không có thay đổi nào để lưu');
       return;
     }
 
     try {
-      setIsSubmitting(true);
-      // TODO: Replace with real API call when available
-      // await apiClient.put('/auth/profile', { email, phone, otpCode: emailChanged ? otpCode : undefined });
-
-      // Mock API call - simulate delay
-      await new Promise(resolve => setTimeout(resolve, 1500));
-
+      await updateProfile.mutateAsync(request);
       toast.success(t.success ?? 'Cập nhật thông tin thành công');
+      onSuccess?.();
       onClose();
     } catch (err: unknown) {
       const message =
@@ -174,10 +157,10 @@ export default function EditProfileModal({
           ? err.message
           : (t.error ?? 'Không thể cập nhật thông tin');
       toast.error(message);
-    } finally {
-      setIsSubmitting(false);
     }
   };
+
+  const isSubmitting = updateProfile.isPending;
 
   return (
     <Modal
@@ -188,98 +171,98 @@ export default function EditProfileModal({
     >
       <form onSubmit={handleSubmit} className="p-6">
         <div className="space-y-4">
-          {/* Email */}
+          {/* Email - Read Only */}
           <div className="space-y-2">
             <label className="text-sm font-medium text-slate-700 dark:text-white/90">
               {t.email ?? 'Email'}
             </label>
-            <div className="flex gap-2">
-              <Input
-                type="email"
-                value={email}
-                onChange={e => setEmail(e.target.value)}
-                placeholder="email@example.com"
-                required
-                disabled={isSubmitting || isOtpVerified}
-                className="h-11 flex-1"
-              />
-              {emailChanged && !isOtpVerified && (
-                <Button
-                  type="button"
-                  onClick={handleSendOtp}
-                  disabled={isSendingOtp || isOtpSent}
-                  className="bg-sky-500 text-white hover:bg-sky-600 dark:bg-sky-600 dark:hover:bg-sky-700"
-                >
-                  {isSendingOtp
-                    ? (t.sendingOtp ?? 'Đang gửi...')
-                    : isOtpSent
-                      ? 'Đã gửi'
-                      : (t.sendOtp ?? 'Gửi OTP')}
-                </Button>
-              )}
-            </div>
-            {emailChanged && (
-              <p className="text-xs text-amber-600 dark:text-amber-400">
-                {t.emailChanged ??
-                  'Email đã thay đổi. Vui lòng xác thực bằng mã OTP.'}
+            <Input
+              type="email"
+              value={initialData.email}
+              disabled
+              className="h-11 bg-slate-50 dark:bg-slate-800"
+            />
+            <p className="text-xs text-slate-500 dark:text-white/70">
+              Email không thể thay đổi
+            </p>
+          </div>
+
+          {/* Phone Number */}
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-slate-700 dark:text-white/90">
+              {t.phone ?? 'Số điện thoại'}{' '}
+              <span className="text-red-500">*</span>
+            </label>
+            <Input
+              type="tel"
+              value={phoneNumber}
+              onChange={e => handlePhoneChange(e.target.value)}
+              onBlur={handlePhoneBlur}
+              placeholder="0912345678"
+              required
+              disabled={isSubmitting}
+              maxLength={15}
+              className={`h-11 ${phoneError ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''}`}
+            />
+            {phoneError ? (
+              <p className="text-xs text-red-600 dark:text-red-400">
+                {phoneError}
+              </p>
+            ) : (
+              <p className="text-xs text-slate-500 dark:text-white/70">
+                Tối đa 15 ký tự, chỉ chứa số (10-15 chữ số)
               </p>
             )}
           </div>
 
-          {/* OTP Code (only show if email changed and OTP sent) */}
-          {emailChanged && isOtpSent && !isOtpVerified && (
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-slate-700 dark:text-white/90">
-                {t.otpCode ?? 'Mã OTP'}
-              </label>
-              <div className="flex gap-2">
-                <Input
-                  type="text"
-                  value={otpCode}
-                  onChange={e => setOtpCode(e.target.value.replace(/\D/g, ''))}
-                  placeholder="000000"
-                  maxLength={6}
-                  disabled={isVerifyingOtp || isSubmitting}
-                  className="h-11 flex-1 text-center text-lg tracking-widest"
-                />
-                <Button
-                  type="button"
-                  onClick={handleVerifyOtp}
-                  disabled={!otpCode || otpCode.length !== 6 || isVerifyingOtp}
-                  className="bg-emerald-500 text-white hover:bg-emerald-600 dark:bg-emerald-600 dark:hover:bg-emerald-700"
-                >
-                  {isVerifyingOtp
-                    ? (t.verifyingOtp ?? 'Đang xác thực...')
-                    : (t.verifyOtp ?? 'Xác thực')}
-                </Button>
-              </div>
-              <p className="text-xs text-slate-500 dark:text-white/70">
-                Nhập mã OTP 6 chữ số đã được gửi đến email của bạn
-              </p>
-            </div>
-          )}
-
-          {/* OTP Verified Message */}
-          {emailChanged && isOtpVerified && (
-            <div className="rounded-lg bg-emerald-50 p-3 text-sm text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300">
-              ✓ Email đã được xác thực thành công
-            </div>
-          )}
-
-          {/* Phone */}
+          {/* Address */}
           <div className="space-y-2">
             <label className="text-sm font-medium text-slate-700 dark:text-white/90">
-              {t.phone ?? 'Số điện thoại'}
+              {t.address ?? 'Địa chỉ'}
             </label>
             <Input
-              type="tel"
-              value={phone}
-              onChange={e => setPhone(e.target.value)}
-              placeholder="0912345678"
-              required
+              type="text"
+              value={address}
+              onChange={e => setAddress(e.target.value)}
+              placeholder="123 Lê Lợi, Quận 1, TP.HCM"
               disabled={isSubmitting}
+              maxLength={500}
               className="h-11"
             />
+            <p className="text-xs text-slate-500 dark:text-white/70">
+              Tối đa 500 ký tự ({address.length}/500)
+            </p>
+          </div>
+
+          {/* Profile Picture URL */}
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-slate-700 dark:text-white/90">
+              {t.profilePicture ?? 'Ảnh đại diện (URL)'}
+            </label>
+            <Input
+              type="url"
+              value={profilePicture}
+              onChange={e => setProfilePicture(e.target.value)}
+              placeholder="https://example.com/avatar.jpg"
+              disabled={isSubmitting}
+              maxLength={500}
+              className="h-11"
+            />
+            <p className="text-xs text-slate-500 dark:text-white/70">
+              Tối đa 500 ký tự ({profilePicture.length}/500)
+            </p>
+            {profilePicture && (
+              <div className="mt-2">
+                <img
+                  src={profilePicture}
+                  alt="Preview"
+                  className="h-20 w-20 rounded-full border-2 border-slate-200 object-cover dark:border-slate-700"
+                  onError={e => {
+                    (e.target as HTMLImageElement).style.display = 'none';
+                  }}
+                />
+              </div>
+            )}
           </div>
         </div>
 
@@ -296,7 +279,7 @@ export default function EditProfileModal({
           </Button>
           <Button
             type="submit"
-            disabled={isSubmitting || (emailChanged && !isOtpVerified)}
+            disabled={isSubmitting || !!phoneError}
             className="bg-sky-500 text-white hover:bg-sky-600 dark:bg-sky-600 dark:hover:bg-sky-700"
           >
             {isSubmitting

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/Button';
 import { Select } from '@/components/ui/Select';
@@ -10,14 +10,27 @@ import {
   MockPageSize,
   MockPrinter,
   MockUploadedFile,
-} from '@/data/printMock';
+} from '../types';
 import { PaperSizeComparisonModal } from './PaperSizeComparisonModal';
 import { ColorModeInfoModal } from './ColorModeInfoModal';
+import {
+  useStudentPageSizes,
+  useColorModes,
+  useCalculateCost,
+  useStudentBalance,
+} from '../api';
+import {
+  mapPageSizesResponse,
+  mapColorModesResponse,
+  mapCalculateCostResponse,
+  mapStudentBalanceResponse,
+} from '@/lib/utils/mappers/studentPrintMapper';
+import { useDebounce } from '@/lib/hooks';
 
 interface Step3ConfigurationProps {
   config: MockPrintConfig;
   selectedPrinter: MockPrinter | null;
-  pageSizes: MockPageSize[];
+  pageSizes?: MockPageSize[]; // Optional, will load from API if not provided
   uploadedFile: MockUploadedFile;
   onConfigChange: (config: MockPrintConfig) => void;
   onNext: () => void;
@@ -27,7 +40,7 @@ interface Step3ConfigurationProps {
 export function Step3Configuration({
   config,
   selectedPrinter,
-  pageSizes,
+  pageSizes: propsPageSizes,
   uploadedFile,
   onConfigChange,
   onNext,
@@ -41,6 +54,118 @@ export function Step3Configuration({
   });
   const [showPaperSizeModal, setShowPaperSizeModal] = useState(false);
   const [showColorModeModal, setShowColorModeModal] = useState(false);
+  const [calculatedCost, setCalculatedCost] = useState<number | null>(null);
+  const [isCalculatingCost, setIsCalculatingCost] = useState(false);
+
+  // Load page sizes from API
+  const { data: pageSizesData } = useStudentPageSizes(
+    selectedPrinter?.printer_id
+  );
+  const apiPageSizes = useMemo(() => {
+    if (pageSizesData?.data?.data) {
+      return mapPageSizesResponse(pageSizesData.data.data);
+    }
+    return [];
+  }, [pageSizesData]);
+
+  // Use API page sizes if available, otherwise use props
+  const pageSizes =
+    apiPageSizes.length > 0 ? apiPageSizes : propsPageSizes || [];
+
+  // Load color modes from API
+  const { data: colorModesData } = useColorModes();
+  const colorModes = useMemo(() => {
+    if (colorModesData?.data?.data) {
+      return mapColorModesResponse(colorModesData.data.data);
+    }
+    return [];
+  }, [colorModesData]);
+
+  // Load student balance
+  const { data: balanceData } = useStudentBalance();
+  const balance = useMemo(() => {
+    if (balanceData?.data?.data) {
+      return mapStudentBalanceResponse(balanceData.data.data);
+    }
+    return { balanceAmount: 0, balanceInPages: 0 };
+  }, [balanceData]);
+
+  // Calculate cost mutation
+  const calculateCostMutation = useCalculateCost();
+
+  // Debounce config changes for cost calculation
+  const debouncedConfig = useDebounce(localConfig, 500);
+
+  // Calculate cost when config changes
+  useEffect(() => {
+    if (
+      !uploadedFile.uploaded_file_id ||
+      !selectedPrinter?.printer_id ||
+      !localConfig.paper_size ||
+      !localConfig.color_mode ||
+      !localConfig.number_of_copy
+    ) {
+      setCalculatedCost(null);
+      return;
+    }
+
+    // Find page size ID and color mode ID
+    const pageSize = pageSizes.find(
+      ps => ps.size_name === localConfig.paper_size
+    );
+    const colorMode = colorModes.find(cm => {
+      // Map color_mode values: 'black-white' -> 'black_white', etc.
+      const modeMap: Record<string, string> = {
+        'black-white': 'black_white',
+        grayscale: 'grayscale',
+        color: 'color',
+      };
+      return (
+        cm.colorModeName === modeMap[localConfig.color_mode] ||
+        cm.colorModeName === localConfig.color_mode
+      );
+    });
+
+    if (!pageSize || !colorMode) {
+      setCalculatedCost(null);
+      return;
+    }
+
+    setIsCalculatingCost(true);
+    calculateCostMutation.mutate(
+      {
+        uploadedFileId: uploadedFile.uploaded_file_id!,
+        printerId: selectedPrinter.printer_id,
+        paperSize: localConfig.paper_size,
+        colorMode: colorMode.colorModeName,
+        printSide:
+          localConfig.print_side === 'double-sided'
+            ? 'double-sided'
+            : 'one-sided',
+        orientation: localConfig.orientation,
+        numberOfCopy: localConfig.number_of_copy,
+      },
+      {
+        onSuccess: response => {
+          const costData = mapCalculateCostResponse(response.data.data);
+          setCalculatedCost(costData.totalPrice);
+          setIsCalculatingCost(false);
+        },
+        onError: error => {
+          console.error('Calculate cost error:', error);
+          setIsCalculatingCost(false);
+          // Don't show error toast, just use fallback calculation
+          setCalculatedCost(null);
+        },
+      }
+    );
+  }, [
+    debouncedConfig,
+    uploadedFile.uploaded_file_id,
+    selectedPrinter?.printer_id,
+    pageSizes,
+    colorModes,
+  ]);
 
   const handleChange = (field: keyof MockPrintConfig, value: any) => {
     const newConfig = { ...localConfig, [field]: value };
@@ -109,7 +234,12 @@ export function Step3Configuration({
   };
 
   const calculateEstimatedCost = () => {
-    // Mock cost calculation
+    // Use calculated cost from API if available
+    if (calculatedCost !== null) {
+      return calculatedCost;
+    }
+
+    // Fallback calculation if API call hasn't completed yet
     const baseCostPerPage = localConfig.color_mode === 'color' ? 500 : 100; // VND
     const pages = calculateEstimatedPages();
     const sides = localConfig.print_side === 'double-sided' ? 0.7 : 1;
@@ -524,7 +654,8 @@ export function Step3Configuration({
                   {t('currentBalance')}:
                 </span>
                 <span className="text-lg font-bold text-slate-900 dark:text-white">
-                  200 trang
+                  {balance.balanceInPages} trang (
+                  {balance.balanceAmount.toLocaleString('vi-VN')} VNĐ)
                 </span>
               </div>
               <div className="flex items-center justify-between rounded-lg bg-blue-50/70 px-3 py-2 dark:bg-blue-500/10">
@@ -540,7 +671,11 @@ export function Step3Configuration({
                   {t('remainingBalance')}:
                 </span>
                 <span className="text-lg font-bold text-green-700 dark:text-green-300">
-                  {Math.max(0, 200 - calculateEstimatedPages())} trang
+                  {Math.max(
+                    0,
+                    balance.balanceInPages - calculateEstimatedPages()
+                  )}{' '}
+                  trang
                 </span>
               </div>
               <div className="mt-2 flex items-center justify-between rounded-lg bg-gradient-to-r from-blue-100 to-blue-200 px-3 py-2 dark:from-blue-500/20 dark:to-blue-600/20">
@@ -548,7 +683,32 @@ export function Step3Configuration({
                   {t('estimatedCost')}:
                 </span>
                 <span className="text-xl font-bold text-blue-600 dark:text-blue-400">
-                  {calculateEstimatedCost().toLocaleString('vi-VN')} VNĐ
+                  {isCalculatingCost ? (
+                    <span className="flex items-center gap-2">
+                      <svg
+                        className="h-4 w-4 animate-spin"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                      >
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                        />
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                        />
+                      </svg>
+                      Đang tính...
+                    </span>
+                  ) : (
+                    calculateEstimatedCost().toLocaleString('vi-VN') + ' VNĐ'
+                  )}
                 </span>
               </div>
             </div>

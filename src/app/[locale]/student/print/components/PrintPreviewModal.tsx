@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { Modal } from '@/components/ui/Modal';
-import { MockUploadedFile } from '@/data/printMock';
+import { MockUploadedFile } from '../types';
 import { FileIcon } from './FileIcon';
 import { useTranslations } from 'next-intl';
 

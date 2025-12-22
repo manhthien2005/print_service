@@ -22,9 +22,8 @@ import {
   printerInfoList,
   printerInfoSummary,
   printerNotices,
-  PrinterInfoMock,
-  PrinterStatus,
 } from '@/data/printersInfoMock';
+import type { PrinterInfoMock, PrinterStatus } from '../types';
 
 type StatusTab = 'all' | PrinterStatus;
 

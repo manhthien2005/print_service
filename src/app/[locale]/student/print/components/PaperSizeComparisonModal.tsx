@@ -1,7 +1,7 @@
 'use client';
 
 import { Modal } from '@/components/ui/Modal';
-import { MockPageSize } from '@/data/printMock';
+import { MockPageSize } from '../types';
 import { useState, useEffect } from 'react';
 
 interface PaperSizeComparisonModalProps {

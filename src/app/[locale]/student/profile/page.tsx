@@ -27,16 +27,7 @@ export default async function StudentProfilePage({
     >
       <PageBackground />
 
-      <div className="relative z-10 mx-auto flex min-h-screen max-w-7xl flex-col px-6 py-10">
-        <header className="mb-8">
-          <h1 className="text-4xl font-bold text-slate-900 dark:text-white">
-            {t.title}
-          </h1>
-          <p className="mt-2 text-slate-600 dark:text-white/70">
-            {t.description}
-          </p>
-        </header>
-
+      <div className="relative z-10 mx-auto flex min-h-screen max-w-7xl flex-col px-6 pb-20 pt-10">
         <div className="flex-1">
           <StudentProfileContent locale={locale} t={t} />
         </div>

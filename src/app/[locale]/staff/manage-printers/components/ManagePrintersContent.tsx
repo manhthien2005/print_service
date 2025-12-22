@@ -336,7 +336,7 @@ export default function ManagePrintersContent({
     // Get base data based on active tab
     switch (activeTab) {
       case 'brands':
-        data = [...brandsData];
+        data = [...(brandsData as unknown as Brand[])];
         break;
       case 'models':
         data = [...(modelsData as unknown as PrinterModel[])];
@@ -562,8 +562,12 @@ export default function ManagePrintersContent({
       totalBrands: brandsPagination?.totalItems || brandsData.length,
       totalModels: modelsPagination?.totalItems || modelsData.length,
       totalPrinters: printersPagination?.totalItems || printersData.length,
-      enabledPrinters: printersData.filter(p => p.isEnabled).length,
-      disabledPrinters: printersData.filter(p => !p.isEnabled).length,
+      enabledPrinters: (printersData as unknown as PrinterPhysical[]).filter(
+        p => p.isEnabled
+      ).length,
+      disabledPrinters: (printersData as unknown as PrinterPhysical[]).filter(
+        p => !p.isEnabled
+      ).length,
       printersNeedingMaintenance: (
         printersData as unknown as PrinterPhysical[]
       ).filter(p => needsMaintenance(p.lastMaintenanceDate)).length,
@@ -641,9 +645,11 @@ export default function ManagePrintersContent({
   // Handle save model
   const handleSaveModel = async (updatedModel: Partial<PrinterModelType>) => {
     try {
-      // Find pageSizeId from pageSize name
+      // Find pageSize from pageSize name
       const pageSize = pageSizes.find(
-        ps => ps.sizeName === updatedModel.maxPaperSize
+        ps =>
+          (ps as any).sizeName === updatedModel.maxPaperSize ||
+          ps.pageSizeId === updatedModel.maxPaperSize
       );
       if (!pageSize) {
         toast.error('Không tìm thấy khổ giấy được chọn');
@@ -792,10 +798,16 @@ export default function ManagePrintersContent({
       const printerRequest: PrinterRequest = {
         modelId: model.modelId,
         roomId: room.roomId,
-        serialNumber: updatedPrinter.serialNumber,
-        isEnabled: updatedPrinter.isEnabled,
-        installedDate: updatedPrinter.installedDate || undefined,
-        lastMaintenanceDate: updatedPrinter.lastMaintenanceDate || undefined,
+        serialNumber: updatedPrinter.serialNumber || '',
+        ...(updatedPrinter.isEnabled !== undefined && {
+          isEnabled: updatedPrinter.isEnabled,
+        }),
+        ...(updatedPrinter.installedDate && {
+          installedDate: updatedPrinter.installedDate,
+        }),
+        ...(updatedPrinter.lastMaintenanceDate && {
+          lastMaintenanceDate: updatedPrinter.lastMaintenanceDate,
+        }),
       };
 
       if (selectedPrinter) {
@@ -860,23 +872,29 @@ export default function ManagePrintersContent({
 
     try {
       if (activeTab === 'brands' && action === 'delete') {
-        const ids = Array.from(selectedItems);
+        const ids = Array.from(selectedItems).filter((id): id is string =>
+          Boolean(id)
+        );
         await bulkDeleteBrandsMutation.mutateAsync({ ids });
         toast.success(`Đã xóa ${ids.length} hãng thành công!`);
         setSelectedItems(new Set());
       } else if (activeTab === 'models' && action === 'delete') {
-        const ids = Array.from(selectedItems);
+        const ids = Array.from(selectedItems).filter((id): id is string =>
+          Boolean(id)
+        );
         await bulkDeleteModelsMutation.mutateAsync({ ids });
         toast.success(`Đã xóa ${ids.length} model thành công!`);
         setSelectedItems(new Set());
       } else if (activeTab === 'printers') {
-        const ids = Array.from(selectedItems);
+        const ids = Array.from(selectedItems).filter((id): id is string =>
+          Boolean(id)
+        );
         if (action === 'delete') {
           await bulkDeletePrintersMutation.mutateAsync({ ids });
           toast.success(`Đã xóa ${ids.length} máy in thành công!`);
         } else if (action === 'enable' || action === 'disable') {
           await bulkUpdatePrinterStatusMutation.mutateAsync({
-            ids,
+            ids: ids,
             isEnabled: action === 'enable',
           });
           toast.success(
@@ -1810,28 +1828,34 @@ export default function ManagePrintersContent({
                     {t('filters.paperSize')}
                   </label>
                   <div className="space-y-2">
-                    {pageSizes.map(size => (
-                      <label
-                        key={size.pageSizeId}
-                        className="flex items-center gap-2"
-                      >
-                        <Checkbox
-                          checked={filters.paperSizes.includes(size.sizeName)}
-                          onChange={e => {
-                            const newSizes = e.target.checked
-                              ? [...filters.paperSizes, size.sizeName]
-                              : filters.paperSizes.filter(
-                                  s => s !== size.sizeName
-                                );
-                            setFilters({ ...filters, paperSizes: newSizes });
-                            setCurrentPage(1);
-                          }}
-                        />
-                        <span className="text-sm text-slate-700 dark:text-white/70">
-                          {size.sizeName}
-                        </span>
-                      </label>
-                    ))}
+                    {pageSizes.map((size, index) => {
+                      const sizeName =
+                        (size as any).sizeName ||
+                        size.pageSizeId ||
+                        `Size ${index}`;
+                      return (
+                        <label
+                          key={size.pageSizeId || index}
+                          className="flex items-center gap-2"
+                        >
+                          <Checkbox
+                            checked={filters.paperSizes.includes(sizeName)}
+                            onChange={e => {
+                              const newSizes = e.target.checked
+                                ? [...filters.paperSizes, sizeName]
+                                : filters.paperSizes.filter(
+                                    s => s !== sizeName
+                                  );
+                              setFilters({ ...filters, paperSizes: newSizes });
+                              setCurrentPage(1);
+                            }}
+                          />
+                          <span className="text-sm text-slate-700 dark:text-white/70">
+                            {sizeName}
+                          </span>
+                        </label>
+                      );
+                    })}
                   </div>
                 </div>
                 <div>
@@ -3095,7 +3119,7 @@ export default function ManagePrintersContent({
           brandId: b.brandId,
           brandName: b.brandName,
         }))}
-        pageSizes={pageSizes.map(ps => ps.sizeName)}
+        pageSizes={pageSizes.map(ps => (ps as any).sizeName || ps.pageSizeId)}
         onSave={handleSaveModel}
       />
 
@@ -3118,7 +3142,13 @@ export default function ManagePrintersContent({
           setSelectedPrinter(null);
         }}
         printer={selectedPrinter as PrinterPhysicalType | null}
-        brands={Array.from(new Set(printersData.map(p => p.brandName)))}
+        brands={Array.from(
+          new Set(
+            printersData
+              .map(p => p.brandName)
+              .filter((name): name is string => Boolean(name))
+          )
+        )}
         models={modelsForSelect.map(m => m.modelName)}
         rooms={rooms.map(r => `${r.roomCode} - ${r.buildingCode}`)}
         onSave={handleSavePrinter}

@@ -358,5 +358,3 @@ export const systemLogsSummaryMock: SystemLogsSummary = {
   uniqueUsers: 8,
 };
 
-
-

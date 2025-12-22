@@ -51,5 +51,3 @@ export function mapPrintersResponse(
   return responses.map(mapPrinterResponse);
 }
 
-
-

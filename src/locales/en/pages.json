@@ -279,6 +279,198 @@
       "title": "Recharge Money",
       "description": "Recharge money into your account"
     },
+    "recharge": {
+      "title": "Recharge Money",
+      "description": "Recharge money into your account",
+      "packages": {
+        "title": "Select Recharge Package",
+        "description": "Recharge by package to receive bonus money",
+        "popular": "Popular",
+        "selectPackage": "Select Package",
+        "depositAmount": "Deposit Amount",
+        "bonusAmount": "Bonus Amount",
+        "totalReceived": "Total Received",
+        "savings": "Savings"
+      },
+      "custom": {
+        "title": "Custom Recharge",
+        "description": "Enter the amount you want to recharge (minimum 10,000₫)",
+        "minAmount": "Minimum 10,000₫",
+        "amountLabel": "Amount (VND)",
+        "amountPlaceholder": "Enter amount (minimum 10,000₫)",
+        "depositAmount": "Deposit Amount",
+        "pay": "Pay"
+      },
+      "qrModal": {
+        "title": "Payment",
+        "transferContent": "Transfer Content",
+        "amount": "Amount",
+        "expiresIn": "Expires in",
+        "cancelOrder": "Cancel Order",
+        "expired": "Order has expired, please create a new order",
+        "reused": "Using existing recharge order",
+        "newOrder": "New recharge order created",
+        "scanQR": "Scan QR code to pay",
+        "copyContent": "Copy transfer content",
+        "copied": "Copied",
+        "instructions": "Payment Instructions",
+        "step1": "Scan the QR code with your banking app",
+        "step2": "Or transfer with content: {content}",
+        "step3": "Amount: {amount}",
+        "step4": "Order will automatically update when payment is successful"
+      },
+      "cancelModal": {
+        "title": "Cancel Recharge Order",
+        "reason": "Cancellation Reason (Optional)",
+        "reasonPlaceholder": "Enter cancellation reason...",
+        "confirm": "Confirm Cancel",
+        "cancel": "Cancel",
+        "cancelling": "Cancelling..."
+      },
+      "successModal": {
+        "title": "Payment Successful",
+        "message": "You have successfully recharged",
+        "amount": "Amount Recharged",
+        "close": "Close",
+        "rechargeMore": "Recharge More"
+      },
+      "errors": {
+        "noPackageOrAmount": "Must provide packageId or amount",
+        "minAmount": "Minimum amount is 10,000₫",
+        "mustBeMultipleOf1000": "Amount must be a multiple of 1,000₫",
+        "networkError": "Connection error, please try again",
+        "cancelFailed": "Unable to cancel order",
+        "createFailed": "Unable to create order",
+        "loadPackagesFailed": "Unable to load packages",
+        "loadCurrentFailed": "Unable to load current order"
+      },
+      "loading": {
+        "packages": "Loading packages...",
+        "creating": "Creating recharge order...",
+        "cancelling": "Cancelling order..."
+      }
+    },
+    "topUp": {
+      "title": "Top Up",
+      "description": "Add money to your account",
+      "packages": {
+        "title": "Select Top Up Package",
+        "description": "Top up with packages to receive bonus money",
+        "popular": "Popular",
+        "selectPackage": "Select Package",
+        "depositAmount": "Deposit Amount",
+        "bonusAmount": "Bonus",
+        "totalReceived": "Total Received",
+        "savings": "Savings"
+      },
+      "custom": {
+        "title": "Custom Amount",
+        "description": "Enter the amount you want to top up (minimum 10,000₫)",
+        "minAmount": "Minimum 10,000₫",
+        "amountLabel": "Amount (VND)",
+        "amountPlaceholder": "Enter amount (minimum 10,000₫)",
+        "depositAmount": "Deposit Amount",
+        "pay": "Pay"
+      },
+      "qrModal": {
+        "title": "Payment",
+        "transferContent": "Transfer Content",
+        "amount": "Amount",
+        "expiresIn": "Expires In",
+        "cancelOrder": "Cancel Order",
+        "expired": "Order expired, please create a new order",
+        "reused": "Using existing top up order",
+        "newOrder": "New top up order created",
+        "scanQR": "Scan QR code to pay",
+        "copyContent": "Copy transfer content",
+        "copied": "Copied",
+        "instructions": "Payment Instructions",
+        "step1": "Scan QR code with your banking app",
+        "step2": "Or transfer with content: {content}",
+        "step3": "Amount: {amount}",
+        "step4": "Order will automatically update when payment is successful"
+      },
+      "cancelModal": {
+        "title": "Cancel Top Up Order",
+        "reason": "Cancellation reason (optional)",
+        "reasonPlaceholder": "Enter cancellation reason...",
+        "confirm": "Confirm Cancel",
+        "cancel": "Cancel",
+        "cancelling": "Cancelling..."
+      },
+      "successModal": {
+        "title": "Payment Successful",
+        "message": "You have successfully topped up",
+        "amount": "Amount Topped Up",
+        "close": "Close",
+        "rechargeMore": "Top Up More"
+      },
+      "errors": {
+        "noPackageOrAmount": "Must provide packageId or amount",
+        "minAmount": "Minimum amount is 10,000₫",
+        "mustBeMultipleOf1000": "Amount must be a multiple of 1,000₫",
+        "networkError": "Connection error, please try again",
+        "cancelFailed": "Unable to cancel order",
+        "createFailed": "Unable to create order",
+        "loadPackagesFailed": "Unable to load packages",
+        "loadCurrentFailed": "Unable to load current order"
+      },
+      "loading": {
+        "packages": "Loading packages...",
+        "creating": "Creating top up order...",
+        "cancelling": "Cancelling order..."
+      },
+      "history": {
+        "title": "Top Up History",
+        "description": "View your top up transaction history",
+        "searchPlaceholder": "Search by transaction code...",
+        "loading": "Loading history...",
+        "empty": "No transactions found",
+        "pagination": {
+          "showing": "Showing",
+          "of": "of",
+          "items": "items"
+        },
+        "statistics": {
+          "totalTransactions": "Total Transactions",
+          "completedTransactions": "Completed Transactions",
+          "totalDeposited": "Total Deposited",
+          "totalBonus": "Total Bonus",
+          "totalSpent": "Total Spent"
+        },
+        "filters": {
+          "all": "All",
+          "completed": "Completed",
+          "pending": "Pending",
+          "cancelled": "Cancelled",
+          "expired": "Expired",
+          "failed": "Failed",
+          "refunded": "Refunded"
+        },
+        "status": {
+          "completed": "Completed",
+          "pending": "Pending",
+          "cancelled": "Cancelled",
+          "expired": "Expired",
+          "failed": "Failed",
+          "refunded": "Refunded"
+        },
+        "table": {
+          "depositCode": "Transaction Code",
+          "transactionDate": "Transaction Date",
+          "packageName": "Package",
+          "depositAmount": "Deposit Amount",
+          "bonusAmount": "Bonus Amount",
+          "totalCredited": "Total Credited",
+          "status": "Status",
+          "customAmount": "Custom Amount",
+          "clickToPay": "Click to pay"
+        },
+        "errors": {
+          "loadFailed": "Failed to load top up history"
+        }
+      }
+    },
     "profile": {
       "title": "Profile",
       "description": "Manage your account profile",

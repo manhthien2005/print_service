@@ -31,5 +31,3 @@ export function mapBrandsResponse(responses: BrandResponse[]): Brand[] {
   return responses.map(mapBrandResponse);
 }
 
-
-

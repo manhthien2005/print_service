@@ -13,5 +13,3 @@ export const STATUS_STYLES = {
   },
 };
 
-
-
