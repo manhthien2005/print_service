@@ -122,13 +122,13 @@ export function Step4ConfirmPrint({
         paperSize: config.paper_size,
         colorMode: colorMode.colorModeName,
         printSide:
-          config.print_side === 'double-sided' ? 'double_sided' : 'one_sided',
+          config.print_side === 'double-sided' ? 'double-sided' : 'one-sided',
         orientation: config.orientation,
         numberOfCopy: config.number_of_copy,
       },
       {
         onSuccess: response => {
-          setCalculatedCost(response.data.data.estimatedCost);
+          setCalculatedCost(response.data.data.estimatedCost ?? response.data.data.totalPrice ?? null);
           setIsCalculatingCost(false);
         },
         onError: () => {
@@ -243,7 +243,7 @@ export function Step4ConfirmPrint({
         paperSize: config.paper_size,
         colorMode: colorMode.colorModeName,
         printSide:
-          config.print_side === 'double-sided' ? 'double_sided' : 'one_sided',
+          config.print_side === 'double-sided' ? 'double-sided' : 'one-sided',
         orientation: config.orientation,
         numberOfCopy: config.number_of_copy,
       });

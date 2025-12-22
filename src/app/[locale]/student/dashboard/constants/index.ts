@@ -12,3 +12,4 @@ export const STATUS_STYLES = {
     dot: 'bg-rose-400',
   },
 };
+

@@ -140,8 +140,8 @@ export function Step3Configuration({
         colorMode: colorMode.colorModeName,
         printSide:
           localConfig.print_side === 'double-sided'
-            ? 'double_sided'
-            : 'one_sided',
+            ? 'double-sided'
+            : 'one-sided',
         orientation: localConfig.orientation,
         numberOfCopy: localConfig.number_of_copy,
       },

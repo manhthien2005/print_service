@@ -219,3 +219,4 @@ export const reportsDataMock: ReportsData = {
   paperSizeDistribution: paperSizeDistributionMock,
   summary: reportsSummaryMock,
 };
+

@@ -57,3 +57,4 @@ export const actionTypeColors: Record<ActionType, string> = {
   EXPORT:
     'bg-purple-100 text-purple-700 ring-purple-500/30 dark:bg-purple-500/10 dark:text-purple-300',
 };
+

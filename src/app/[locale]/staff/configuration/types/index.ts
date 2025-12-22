@@ -27,3 +27,4 @@ export const categoryLabels: Record<ConfigurationCategory, string> = {
   security: 'Bảo mật',
   general: 'Chung',
 };
+

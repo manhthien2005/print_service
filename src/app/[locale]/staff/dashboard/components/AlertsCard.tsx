@@ -81,3 +81,4 @@ export function AlertsCard({ alerts, translations }: AlertsCardProps) {
     </Card>
   );
 }
+

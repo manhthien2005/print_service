@@ -64,11 +64,11 @@ export default function StaffDashboard({ locale, t }: StaffDashboardProps) {
   const printerStats = {
     totalPrinters: statsData.totalPrinters,
     activePrinters: statsData.activePrinters,
-    maintenancePrinters: statsData.maintenancePrinters,
+    maintenancePrinters: statsData.maintenancePrinters || 0,
     offlinePrinters:
       statsData.totalPrinters -
       statsData.activePrinters -
-      statsData.maintenancePrinters,
+      (statsData.maintenancePrinters || 0),
   };
 
   // Calculate utilization (active / total * 100)
@@ -81,10 +81,10 @@ export default function StaffDashboard({ locale, t }: StaffDashboardProps) {
   const dashboardStats = {
     totalPrinters: statsData.totalPrinters,
     activePrinters: statsData.activePrinters,
-    maintenancePrinters: statsData.maintenancePrinters,
-    totalBrands: statsData.totalBrands,
-    totalModels: statsData.totalModels,
-    maintenanceWarning: statsData.maintenanceWarning,
+    maintenancePrinters: statsData.maintenancePrinters || 0,
+    totalBrands: statsData.totalBrands || 0,
+    totalModels: statsData.totalModels || 0,
+    maintenanceWarning: statsData.maintenanceWarning || 0,
   };
 
   // Map alerts (still using mock for now, can be replaced with API later)

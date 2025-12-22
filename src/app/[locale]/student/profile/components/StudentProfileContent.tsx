@@ -101,7 +101,7 @@ export default function StudentProfileContent({
     suspended: t.badges?.suspended ?? 'Suspended',
     withdrawn: t.badges?.withdrawn ?? 'Withdrawn',
   };
-  const displayStatus = statusMap[profileData.status] || profileData.status;
+  const displayStatus = profileData.status ? (statusMap[profileData.status] || profileData.status) : '';
 
   return (
     <>

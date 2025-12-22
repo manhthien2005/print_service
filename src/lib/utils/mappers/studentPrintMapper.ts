@@ -98,6 +98,19 @@ export function mapAvailablePrinterResponse(
     status = 'online';
   }
 
+  // Map printing_status: API uses string, FE uses 'idle' | 'printing' | 'error'
+  let printingStatus: 'idle' | 'printing' | 'error' | undefined = undefined;
+  if (response.printingStatus) {
+    const ps = response.printingStatus.toLowerCase();
+    if (ps === 'idle' || ps === 'printing' || ps === 'error') {
+      printingStatus = ps;
+    } else if (ps === 'busy') {
+      printingStatus = 'printing';
+    } else {
+      printingStatus = 'idle';
+    }
+  }
+
   return {
     printer_id: response.printerId,
     serial_number: response.serialNumber,
@@ -109,8 +122,8 @@ export function mapAvailablePrinterResponse(
     building_address: response.buildingAddress,
     campus_name: response.campusName,
     is_enabled: response.isEnabled,
-    status,
-    printing_status: response.printingStatus,
+    status: status,
+    printing_status: printingStatus,
     supports_color: response.supportsColor,
     supports_duplex: response.supportsDuplex,
     max_paper_size: response.maxPageSize,
@@ -182,7 +195,7 @@ export interface ColorMode {
 export function mapColorModeResponse(response: ColorModeResponse): ColorMode {
   return {
     colorModeId: response.colorModeId,
-    colorModeName: response.colorModeName,
+    colorModeName: response.colorModeName as 'black_white' | 'grayscale' | 'color',
     description: response.description,
     colorMultiplier: response.colorMultiplier,
   };
@@ -267,10 +280,10 @@ export function mapCreatePrintJobResponse(
 ): CreatePrintJob {
   return {
     jobId: response.jobId,
-    printStatus: response.printStatus,
+    printStatus: response.printStatus as 'queued' | 'printing' | 'completed' | 'cancelled' | 'failed',
     totalPrice: response.totalPrice,
     paymentId: response.paymentId,
-    paymentStatus: response.paymentStatus,
+    paymentStatus: response.paymentStatus as 'pending' | 'completed' | 'failed' | 'refunded',
     paymentMethod: response.paymentMethod,
     printer: response.printer,
     estimatedCompletionTime: response.estimatedCompletionTime,
@@ -318,7 +331,7 @@ export function mapPrintJobProgressResponse(
 ): PrintJobProgress {
   return {
     jobId: response.jobId,
-    printStatus: response.printStatus,
+    printStatus: response.printStatus as 'queued' | 'printing' | 'completed' | 'cancelled' | 'failed',
     progress: response.progress,
     queueInfo: response.queueInfo,
     timing: response.timing,

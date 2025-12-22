@@ -5,7 +5,7 @@ import type {
 import type {
   PrintHistoryItem,
   PrintJobStatus,
-} from '@/app/[locale]/student/history/components/historyTypes';
+} from '@/app/[locale]/student/history/types';
 
 /**
  * Map BE print status to FE print status
@@ -104,7 +104,7 @@ export function mapHistoryItemToFE(
 ): PrintHistoryItem {
   const status = mapPrintStatus(item.printStatus);
   const colorMode = mapColorMode(item.colorMode);
-  const fileName = getFileName(item.fileUrl, item.fileName);
+  const fileName = getFileName(item.fileUrl || null, item.fileName);
   const { buildingName, roomCode, location } = parsePrinterLocation(
     item.printerLocation
   );
@@ -146,14 +146,14 @@ export function mapHistoryItemToFE(
     supportsDuplex: undefined, // Not provided in history item
     location: location,
     submittedAt: item.createdAt,
-    completedAt: item.endTime || undefined,
+    completedAt: item.endTime || item.completedAt || undefined,
     pageCount: item.totalPages || 0,
     copies: item.numberOfCopy || 1,
     colorMode,
     duplex,
     paperSize: undefined, // Not provided in history item
     orientation:
-      item.pageOrientation === 'landscape' ? 'landscape' : 'portrait',
+      (item.pageOrientation || 'portrait') === 'landscape' ? 'landscape' : 'portrait',
     costVnd: 0, // Not provided by BE
     status,
     tags,
@@ -168,10 +168,14 @@ export function mapJobDetailToFE(
   detail: StudentPrintJobDetailResponse
 ): PrintHistoryItem {
   const status = mapPrintStatus(detail.printStatus);
-  const colorMode = mapColorMode(detail.colorMode);
-  const fileName = getFileName(detail.fileUrl, detail.fileName);
+  const colorModeValue = detail.colorMode || detail.config?.colorMode || 'black_white';
+  const colorMode = mapColorMode(colorModeValue as string);
+  const fileUrl = detail.fileUrl || detail.uploadedFile?.fileUrl || null;
+  const fileName = detail.fileName || detail.uploadedFile?.fileName || 'Unknown';
+  const fileType = detail.fileType || detail.uploadedFile?.fileType || 'PDF';
+  const fileNameResult = getFileName(fileUrl, fileName);
 
-  // Parse printer display name: "BUILDING-ROOM - Brand Model"
+  // Parse printer location
   let buildingName: string | undefined;
   let roomCode: string | undefined;
   let location = '—';
@@ -187,12 +191,19 @@ export function mapJobDetailToFE(
         location = locationPart;
       }
     }
+  } else if (detail.printer?.location) {
+    const { buildingName: bName, roomCode: rCode, location: loc } = parsePrinterLocation(detail.printer.location);
+    buildingName = bName;
+    roomCode = rCode;
+    location = loc;
   }
 
-  const duplex = detail.printSide === 'double-sided';
+  const printSide = detail.printSide || detail.config?.printSide || 'one-sided';
+  const duplex = printSide === 'double-sided';
 
+  const pageOrientation = detail.pageOrientation || detail.config?.pageOrientation || 'portrait';
   const tags: string[] = [];
-  if (detail.pageOrientation === 'landscape') {
+  if (pageOrientation === 'landscape') {
     tags.push('Ngang');
   }
   if (duplex) {
@@ -209,14 +220,21 @@ export function mapJobDetailToFE(
     tags.push('Đen trắng');
   }
 
+  const printerName = detail.printerDisplayName?.split(' - ')[1] || 
+    `${detail.printer?.brandName || ''} ${detail.printer?.modelName || ''}`.trim() || 
+    'Unknown Printer';
+  const numberOfCopy = detail.numberOfCopy || detail.config?.numberOfCopy || 1;
+  const totalPages = detail.totalPrintedPages || detail.originalPages || detail.pricing?.totalPages || 0;
+  const createdAt = detail.createdAt || detail.timing?.createdAt || '';
+  const completedAt = detail.endTime || detail.timing?.completedAt || null;
+
   return {
     id: detail.jobId,
-    documentName: fileName,
-    fileType: (detail.fileType || 'PDF').toUpperCase(),
+    documentName: fileNameResult,
+    fileType: fileType.toUpperCase(),
     fileSizeKB: getFileSizeKB(),
-    previewUrl: detail.fileUrl || undefined,
-    printerName:
-      detail.printerDisplayName?.split(' - ')[1] || 'Unknown Printer',
+    previewUrl: fileUrl || undefined,
+    printerName,
     printerSerial: undefined,
     buildingName,
     roomCode,
@@ -224,16 +242,15 @@ export function mapJobDetailToFE(
     supportsColor: undefined,
     supportsDuplex: undefined,
     location,
-    submittedAt: detail.createdAt,
-    completedAt: detail.endTime || undefined,
-    pageCount: detail.totalPrintedPages || detail.originalPages || 0,
-    copies: detail.numberOfCopy || 1,
+    submittedAt: createdAt,
+    completedAt: completedAt || undefined,
+    pageCount: totalPages,
+    copies: numberOfCopy,
     colorMode,
     duplex,
-    paperSize: undefined,
-    orientation:
-      detail.pageOrientation === 'landscape' ? 'landscape' : 'portrait',
-    costVnd: 0,
+    paperSize: detail.config?.paperSize || undefined,
+    orientation: pageOrientation === 'landscape' ? 'landscape' : 'portrait',
+    costVnd: detail.pricing?.totalPrice || 0,
     status,
     tags,
     errorMessage: status === 'failed' ? 'Lỗi khi in' : undefined,

@@ -15,17 +15,17 @@ export function slugify(str: string): string {
   return str
     .toLowerCase()
     .trim()
-    .replaceAll(/[^\w\s-], '')
-    .replaceAll(/[\s_-]+, '-')
-    .replaceAll(/^-+|-+$, '');
+    .replaceAll(/[^\w\s-]/g, '')
+    .replaceAll(/[\s_-]+/g, '-')
+    .replaceAll(/^-+|-+$/g, '');
 }
 
 export function camelCase(str: string): string {
   return str
-    .replaceAll(/(?:^\w|[A-Z]|\b\w), (word, index) => {
+    .replace(/(?:^\w|[A-Z]|\b\w)/g, (word, index) => {
       return index === 0 ? word.toLowerCase() : word.toUpperCase();
     })
-    .replaceAll(/\s+, '');
+    .replace(/\s+/g, '');
 }
 
 /**

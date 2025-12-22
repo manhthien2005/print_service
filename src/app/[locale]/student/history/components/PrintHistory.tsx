@@ -224,10 +224,30 @@ export function PrintHistory() {
 
   // Get stats
   const stats = statsData?.data?.data;
-  const jobsThisMonth = stats?.jobsThisMonth?.total || 0;
-  const pagesLast30Days = stats?.pagesLast30Days || 0;
-  const successRate = stats?.successRate?.percent || 0;
-  const growthPercent = stats?.jobsThisMonth?.growthPercent || 0;
+  let jobsThisMonth = 0;
+  let pagesLast30Days = 0;
+  let successRate = 0;
+  let growthPercent = 0;
+
+  if (stats) {
+    if (
+      typeof stats.jobsThisMonth === 'object' &&
+      stats.jobsThisMonth !== null
+    ) {
+      jobsThisMonth = (stats.jobsThisMonth as any)?.total || 0;
+      growthPercent = (stats.jobsThisMonth as any)?.growthPercent || 0;
+    } else if (typeof stats.jobsThisMonth === 'number') {
+      jobsThisMonth = stats.jobsThisMonth;
+    }
+
+    pagesLast30Days = stats.pagesLast30Days || 0;
+
+    if (typeof stats.successRate === 'object' && stats.successRate !== null) {
+      successRate = (stats.successRate as any)?.percent || 0;
+    } else if (typeof stats.successRate === 'number') {
+      successRate = stats.successRate;
+    }
+  }
 
   return (
     <div className="flex flex-col gap-6">

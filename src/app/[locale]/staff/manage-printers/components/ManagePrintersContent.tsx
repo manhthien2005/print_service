@@ -648,8 +648,8 @@ export default function ManagePrintersContent({
       // Find pageSize from pageSize name
       const pageSize = pageSizes.find(
         ps =>
-          ps.pageSize === updatedModel.maxPaperSize ||
-          (ps as any).sizeName === updatedModel.maxPaperSize
+          (ps as any).sizeName === updatedModel.maxPaperSize ||
+          ps.pageSizeId === updatedModel.maxPaperSize
       );
       if (!pageSize) {
         toast.error('Không tìm thấy khổ giấy được chọn');
@@ -660,7 +660,7 @@ export default function ManagePrintersContent({
         brandId: updatedModel.brandId || '',
         modelName: updatedModel.modelName || '',
         description: updatedModel.description,
-        maxPaperSize: pageSize.pageSize || (pageSize as any).sizeName,
+        maxPaperSizeId: pageSize.pageSizeId,
         supportsColor: updatedModel.supportsColor,
         supportsDuplex: updatedModel.supportsDuplex,
       };
@@ -894,8 +894,8 @@ export default function ManagePrintersContent({
           toast.success(`Đã xóa ${ids.length} máy in thành công!`);
         } else if (action === 'enable' || action === 'disable') {
           await bulkUpdatePrinterStatusMutation.mutateAsync({
-            printerIds: ids,
-            status: action === 'enable' ? 'enabled' : 'disabled',
+            ids: ids,
+            isEnabled: action === 'enable',
           });
           toast.success(
             `Đã cập nhật trạng thái ${ids.length} máy in thành công!`
@@ -1830,12 +1830,12 @@ export default function ManagePrintersContent({
                   <div className="space-y-2">
                     {pageSizes.map((size, index) => {
                       const sizeName =
-                        size.pageSize ||
                         (size as any).sizeName ||
+                        size.pageSizeId ||
                         `Size ${index}`;
                       return (
                         <label
-                          key={size.pageSize || index}
+                          key={size.pageSizeId || index}
                           className="flex items-center gap-2"
                         >
                           <Checkbox
@@ -3119,7 +3119,7 @@ export default function ManagePrintersContent({
           brandId: b.brandId,
           brandName: b.brandName,
         }))}
-        pageSizes={pageSizes.map(ps => ps.pageSize || (ps as any).sizeName)}
+        pageSizes={pageSizes.map(ps => (ps as any).sizeName || ps.pageSizeId)}
         onSave={handleSaveModel}
       />
 
