@@ -22,8 +22,9 @@ export default async function StudentTopUpPage({
   let t;
   try {
     const pagesModule = await import(`@/locales/${locale}/pages.json`);
-    t = pagesModule.default?.student?.topUp || 
-        pagesModule.default?.student?.buyPages;
+    t =
+      pagesModule.default?.student?.topUp ||
+      pagesModule.default?.student?.buyPages;
   } catch {
     t = null;
   }

@@ -22,8 +22,9 @@ export default async function StudentRechargePage({
   let t;
   try {
     const pagesModule = await import(`@/locales/${locale}/pages.json`);
-    t = pagesModule.default?.student?.recharge || 
-        pagesModule.default?.student?.buyPages;
+    t =
+      pagesModule.default?.student?.recharge ||
+      pagesModule.default?.student?.buyPages;
   } catch {
     t = null;
   }
