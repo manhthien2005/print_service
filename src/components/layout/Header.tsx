@@ -4,6 +4,7 @@ import React from 'react';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { Button } from '@/components/ui/Button';
+import { NotificationContainer } from '@/components/notifications';
 
 export function Header() {
   const t = useTranslations('common');
@@ -14,7 +15,8 @@ export function Header() {
         <Link href="/" className="text-xl font-bold">
           Print Service
         </Link>
-        <nav className="flex items-center gap-4">
+        <nav className="flex items-center gap-3 sm:gap-4">
+          <NotificationContainer />
           <Link href="/">
             <Button variant="ghost">{t('welcome')}</Button>
           </Link>

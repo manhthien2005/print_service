@@ -2,6 +2,7 @@ import React from 'react';
 import { setRequestLocale } from 'next-intl/server';
 import { locales } from '@/lib/i18n/config';
 import LightRays from '@/components/LightRays';
+import { StudentHeader } from '@/components/layout/StudentHeader';
 import AppDock from '@/components/AppDock';
 import { ThemeSelection } from '@/components/settings/ThemeSelection';
 import { LanguageSelection } from '@/components/settings/LanguageSelection';
@@ -44,6 +45,7 @@ export default async function SettingsPage({
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_15%,rgba(59,130,246,0.08),transparent_35%),radial-gradient(circle_at_80%_5%,rgba(14,165,233,0.09),transparent_32%)] dark:hidden" />
       <div className="pointer-events-none absolute inset-0 hidden bg-[radial-gradient(circle_at_50%_-5%,rgba(255,255,255,0.11),transparent_45%),radial-gradient(circle_at_15%_20%,rgba(148,163,184,0.16),transparent_32%),radial-gradient(circle_at_85%_12%,rgba(148,163,184,0.14),transparent_32%)] dark:block" />
       <div className="pointer-events-none absolute inset-0 hidden bg-[linear-gradient(180deg,rgba(0,0,0,0.3)_0%,rgba(0,0,0,0.58)_60%,rgba(0,0,0,0.78)_100%)] dark:block" />
+      <StudentHeader />
 
       <div className="relative z-10 mx-auto flex min-h-screen max-w-7xl flex-col px-6 py-10 pb-24">
         <header className="mb-8">

@@ -103,10 +103,10 @@ export function mapHistoryItemToFE(
   item: StudentPrintHistoryItemResponse
 ): PrintHistoryItem {
   const status = mapPrintStatus(item.printStatus);
-  const colorMode = mapColorMode(item.colorMode);
-  const fileName = getFileName(item.fileUrl || null, item.fileName);
+  const colorMode = mapColorMode(item.colorMode || 'black-white');
+  const fileName = getFileName(item.fileUrl || null, item.fileName || null);
   const { buildingName, roomCode, location } = parsePrinterLocation(
-    item.printerLocation
+    item.printerLocation || null
   );
 
   // Determine if duplex based on printSide
@@ -133,6 +133,7 @@ export function mapHistoryItemToFE(
 
   return {
     id: item.jobId,
+    uploadedFileId: item.uploadedFileId ?? null,
     documentName: fileName,
     fileType: (item.fileType || 'PDF').toUpperCase(),
     fileSizeKB: getFileSizeKB(),
@@ -151,10 +152,13 @@ export function mapHistoryItemToFE(
     copies: item.numberOfCopy || 1,
     colorMode,
     duplex,
-    paperSize: undefined, // Not provided in history item
+    paperSize: item.paperSize || undefined,
     orientation:
-      (item.pageOrientation || 'portrait') === 'landscape' ? 'landscape' : 'portrait',
-    costVnd: 0, // Not provided by BE
+      (item.pageOrientation || 'portrait') === 'landscape'
+        ? 'landscape'
+        : 'portrait',
+    costVnd: Number(item.totalPrice ?? 0),
+    subtotalBeforeDiscount: item.subtotalBeforeDiscount ?? null,
     status,
     tags,
     errorMessage: status === 'failed' ? 'Lỗi khi in' : undefined,
@@ -168,10 +172,12 @@ export function mapJobDetailToFE(
   detail: StudentPrintJobDetailResponse
 ): PrintHistoryItem {
   const status = mapPrintStatus(detail.printStatus);
-  const colorModeValue = detail.colorMode || detail.config?.colorMode || 'black_white';
+  const colorModeValue =
+    detail.colorMode || detail.config?.colorMode || 'black_white';
   const colorMode = mapColorMode(colorModeValue as string);
   const fileUrl = detail.fileUrl || detail.uploadedFile?.fileUrl || null;
-  const fileName = detail.fileName || detail.uploadedFile?.fileName || 'Unknown';
+  const fileName =
+    detail.fileName || detail.uploadedFile?.fileName || 'Unknown';
   const fileType = detail.fileType || detail.uploadedFile?.fileType || 'PDF';
   const fileNameResult = getFileName(fileUrl, fileName);
 
@@ -192,7 +198,11 @@ export function mapJobDetailToFE(
       }
     }
   } else if (detail.printer?.location) {
-    const { buildingName: bName, roomCode: rCode, location: loc } = parsePrinterLocation(detail.printer.location);
+    const {
+      buildingName: bName,
+      roomCode: rCode,
+      location: loc,
+    } = parsePrinterLocation(detail.printer.location);
     buildingName = bName;
     roomCode = rCode;
     location = loc;
@@ -201,7 +211,8 @@ export function mapJobDetailToFE(
   const printSide = detail.printSide || detail.config?.printSide || 'one-sided';
   const duplex = printSide === 'double-sided';
 
-  const pageOrientation = detail.pageOrientation || detail.config?.pageOrientation || 'portrait';
+  const pageOrientation =
+    detail.pageOrientation || detail.config?.pageOrientation || 'portrait';
   const tags: string[] = [];
   if (pageOrientation === 'landscape') {
     tags.push('Ngang');
@@ -220,16 +231,33 @@ export function mapJobDetailToFE(
     tags.push('Đen trắng');
   }
 
-  const printerName = detail.printerDisplayName?.split(' - ')[1] || 
-    `${detail.printer?.brandName || ''} ${detail.printer?.modelName || ''}`.trim() || 
+  const printerName =
+    detail.printerDisplayName?.split(' - ')[1] ||
+    `${detail.printer?.brandName || ''} ${detail.printer?.modelName || ''}`.trim() ||
     'Unknown Printer';
   const numberOfCopy = detail.numberOfCopy || detail.config?.numberOfCopy || 1;
-  const totalPages = detail.totalPrintedPages || detail.originalPages || detail.pricing?.totalPages || 0;
+  const totalPages =
+    detail.totalPrintedPages ||
+    detail.originalPages ||
+    detail.pricing?.totalPages ||
+    0;
   const createdAt = detail.createdAt || detail.timing?.createdAt || '';
   const completedAt = detail.endTime || detail.timing?.completedAt || null;
+  const subtotalBeforeDiscount =
+    detail.subtotalBeforeDiscount ??
+    detail.pricing?.subtotalBeforeDiscount ??
+    null;
+  const totalPrice = detail.totalPrice ?? detail.pricing?.totalPrice ?? 0;
+  const discountAmount =
+    detail.discountAmount ??
+    detail.pricing?.discountAmount ??
+    (subtotalBeforeDiscount != null
+      ? Math.max(subtotalBeforeDiscount - totalPrice, 0)
+      : null);
 
   return {
     id: detail.jobId,
+    uploadedFileId: detail.uploadedFile?.uploadedFileId,
     documentName: fileNameResult,
     fileType: fileType.toUpperCase(),
     fileSizeKB: getFileSizeKB(),
@@ -250,7 +278,11 @@ export function mapJobDetailToFE(
     duplex,
     paperSize: detail.config?.paperSize || undefined,
     orientation: pageOrientation === 'landscape' ? 'landscape' : 'portrait',
-    costVnd: detail.pricing?.totalPrice || 0,
+    costVnd: totalPrice,
+    subtotalBeforeDiscount,
+    discountAmount: discountAmount ?? null,
+    discountPercent: detail.discountPercentage ?? null,
+    paymentMethod: detail.paymentMethod ?? null,
     status,
     tags,
     errorMessage: status === 'failed' ? 'Lỗi khi in' : undefined,

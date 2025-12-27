@@ -4,4 +4,3 @@ export const PAYMENT_CONSTANTS = {
   EXPIRY_DURATION_MINUTES: 10,
   MIN_CUSTOM_AMOUNT: 10000,
 } as const;
-

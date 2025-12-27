@@ -12,7 +12,16 @@
     "create": "Create",
     "search": "Search",
     "filter": "Filter",
-    "reset": "Reset"
+    "reset": "Reset",
+    "notifications": {
+      "title": "Notifications",
+      "markAllRead": "Mark all as read",
+      "noNotifications": "No notifications",
+      "empty": "You have no notifications",
+      "loading": "Loading...",
+      "markAsRead": "Mark as read",
+      "ago": "ago"
+    }
   },
   "validation": {
     "required": "This field is required",

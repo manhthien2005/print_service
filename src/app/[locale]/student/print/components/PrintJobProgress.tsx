@@ -1,14 +1,16 @@
 'use client';
 
-import { useEffect, useMemo } from 'react';
+import { useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import { useRouter } from 'next/navigation';
+import { useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/Button';
 import { Card, CardContent } from '@/components/ui/Card';
-import { usePrintJobProgress, useCancelPrintJob } from '../api';
-import { mapPrintJobProgressResponse } from '@/lib/utils/mappers/studentPrintMapper';
+import { useCancelPrintJob } from '../api';
+import { usePrintJobProgressData } from '../hooks/usePrintJobProgressData';
 import { toast } from '@/components/ui/Toast';
 import { cn } from '@/lib/utils/cn';
+import { printHistoryKeys } from '@/lib/api/services/student';
 
 interface PrintJobProgressProps {
   jobId: string;
@@ -19,25 +21,21 @@ export function PrintJobProgress({ jobId, onComplete }: PrintJobProgressProps) {
   const router = useRouter();
   const params = useParams();
   const locale = (params.locale as string) || 'vi';
+  const queryClient = useQueryClient();
 
-  const {
-    data: progressData,
-    isLoading,
-    error,
-  } = usePrintJobProgress(jobId, true);
+  const { progress, isLoading, error } = usePrintJobProgressData(jobId, true);
   const cancelJobMutation = useCancelPrintJob();
 
-  const progress = useMemo(() => {
-    if (progressData?.data?.data) {
-      return mapPrintJobProgressResponse(progressData.data.data);
-    }
-    return null;
-  }, [progressData]);
-
-  // Navigate to history when completed
+  // Navigate to history when completed and invalidate queries
   useEffect(() => {
     if (progress?.printStatus === 'completed') {
       toast.success('In thành công!');
+
+      // Invalidate print history queries để cập nhật dữ liệu
+      queryClient.invalidateQueries({
+        queryKey: printHistoryKeys.all,
+      });
+
       if (onComplete) {
         onComplete();
       } else {
@@ -48,13 +46,24 @@ export function PrintJobProgress({ jobId, onComplete }: PrintJobProgressProps) {
       }
     } else if (progress?.printStatus === 'failed') {
       toast.error('In thất bại. Vui lòng thử lại.');
+
+      // Invalidate print history queries khi failed
+      queryClient.invalidateQueries({
+        queryKey: printHistoryKeys.all,
+      });
     } else if (progress?.printStatus === 'cancelled') {
       toast.info('Đã hủy print job.');
+
+      // Invalidate print history queries khi cancelled
+      queryClient.invalidateQueries({
+        queryKey: printHistoryKeys.all,
+      });
+
       if (onComplete) {
         onComplete();
       }
     }
-  }, [progress?.printStatus, onComplete, router, locale]);
+  }, [progress?.printStatus, onComplete, router, locale, queryClient]);
 
   const handleCancel = async () => {
     if (!confirm('Bạn có chắc chắn muốn hủy print job này?')) {

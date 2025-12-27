@@ -1,4 +1,4 @@
-import type { Trend } from '@/data/staffDashboardMock';
+import type { Trend } from '../types';
 import { cn } from '@/lib/utils/cn';
 
 interface TrendBadgeProps {
@@ -19,4 +19,3 @@ export const TrendBadge = ({ trend, change }: TrendBadgeProps) => (
     {change}
   </span>
 );
-

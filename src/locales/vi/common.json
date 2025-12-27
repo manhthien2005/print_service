@@ -12,7 +12,16 @@
     "create": "Tạo mới",
     "search": "Tìm kiếm",
     "filter": "Lọc",
-    "reset": "Đặt lại"
+    "reset": "Đặt lại",
+    "notifications": {
+      "title": "Thông báo",
+      "markAllRead": "Đánh dấu tất cả đã đọc",
+      "noNotifications": "Không có thông báo",
+      "empty": "Bạn chưa có thông báo nào",
+      "loading": "Đang tải...",
+      "markAsRead": "Đánh dấu đã đọc",
+      "ago": "trước"
+    }
   },
   "validation": {
     "required": "Trường này là bắt buộc",

@@ -6,6 +6,7 @@ import type {
   DepositHistoryResponse,
   DepositDetailResponse,
   ApiResponse,
+  BonusPackageResponse,
 } from '@/types/api';
 import { useQueryClient, useMutation } from '@tanstack/react-query';
 import { AxiosResponse } from 'axios';
@@ -17,6 +18,7 @@ import { apiClient } from '../client';
 export const paymentKeys = {
   all: ['payment'] as const,
   packages: () => [...paymentKeys.all, 'packages'] as const,
+  bonusPackages: () => [...paymentKeys.all, 'bonus-packages'] as const,
   current: () => [...paymentKeys.all, 'current'] as const,
   deposits: (params?: {
     status?: string;
@@ -40,6 +42,20 @@ export function usePaymentPackages() {
     '/payment/packages',
     {
       staleTime: 5 * 60 * 1000, // 5 minutes
+      gcTime: 10 * 60 * 1000, // 10 minutes
+    }
+  );
+}
+
+/**
+ * Hook to fetch bonus packages (discount packages for printing)
+ */
+export function useBonusPackages() {
+  return useApiQuery<ApiResponse<BonusPackageResponse[]>>(
+    paymentKeys.bonusPackages(),
+    '/payment/bonus-packages',
+    {
+      staleTime: 5 * 60 * 1000, // 5 minutes (pricing doesn't change often)
       gcTime: 10 * 60 * 1000, // 10 minutes
     }
   );

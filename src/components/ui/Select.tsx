@@ -10,18 +10,29 @@ import React, {
 } from 'react';
 import { createPortal } from 'react-dom';
 import { cn } from '@/lib/utils/cn';
+import { Skeleton } from '@/components/common/Skeleton';
 
 export interface SelectProps extends Omit<
   SelectHTMLAttributes<HTMLSelectElement>,
   'onChange'
 > {
   error?: boolean;
+  isLoading?: boolean;
   onChange?: (e: { target: { value: string } }) => void;
 }
 
 export const Select = forwardRef<HTMLSelectElement, SelectProps>(
   (
-    { className, error, children, value, onChange, disabled, ...props },
+    {
+      className,
+      error,
+      isLoading,
+      children,
+      value,
+      onChange,
+      disabled,
+      ...props
+    },
     ref
   ) => {
     const [isOpen, setIsOpen] = useState(false);
@@ -165,27 +176,44 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
             className={cn(
               'flex h-10 w-full cursor-pointer items-center justify-between rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm text-slate-900 transition-colors',
               'hover:border-slate-400 hover:bg-slate-50',
-              'focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:ring-offset-0',
-              'disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-500 disabled:opacity-50 disabled:hover:border-slate-300 disabled:hover:bg-slate-50',
-              'dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100',
-              'dark:hover:border-slate-500 dark:hover:bg-slate-700',
-              'dark:focus:border-sky-400 dark:focus:ring-sky-400/20',
-              'dark:disabled:bg-slate-900 dark:disabled:text-slate-600 dark:disabled:hover:bg-slate-900',
+              'focus:border-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-400/20 focus:ring-offset-0',
+              'disabled:cursor-not-allowed disabled:text-slate-500 disabled:opacity-50 disabled:hover:border-slate-300',
+              'dark:border-white/20 dark:bg-white/5 dark:text-white',
+              'dark:hover:border-white/30 dark:hover:bg-white/10',
+              'dark:focus:border-white/30 dark:focus:ring-white/20',
+              'dark:disabled:text-white/40',
+              isLoading &&
+                'border-slate-300 bg-slate-200 hover:border-slate-300 hover:bg-slate-200 dark:border-white/20 dark:bg-white/10 dark:hover:border-white/20 dark:hover:bg-white/10',
+              !isLoading &&
+                disabled &&
+                'disabled:bg-slate-200 disabled:hover:bg-slate-200 dark:disabled:bg-white/10 dark:disabled:hover:bg-white/10',
               error &&
                 'border-rose-500 focus:border-rose-500 focus:ring-rose-500/20 dark:border-rose-400 dark:focus:border-rose-400 dark:focus:ring-rose-400/20',
               isOpen &&
-                'border-sky-500 ring-2 ring-sky-500/20 ring-offset-0 dark:border-sky-400 dark:ring-sky-400/20',
+                !isLoading &&
+                'border-slate-400 ring-2 ring-slate-400/20 ring-offset-0 dark:border-white/30 dark:ring-white/20',
               className
             )}
           >
             <span
               className={cn(
                 'flex-1 truncate text-left',
-                !selectedOption && 'text-slate-400 dark:text-slate-500',
-                selectedOption && 'text-slate-900 dark:text-slate-100'
+                isLoading && 'text-slate-400 dark:text-slate-500',
+                !isLoading &&
+                  !selectedOption &&
+                  'text-slate-400 dark:text-slate-500',
+                !isLoading &&
+                  selectedOption &&
+                  'text-slate-900 dark:text-slate-100'
               )}
             >
-              {selectedOption ? selectedOption.label : 'Chọn...'}
+              {isLoading ? (
+                <Skeleton className="h-4 w-16" variant="shimmer" />
+              ) : selectedOption ? (
+                selectedOption.label
+              ) : (
+                'Chọn...'
+              )}
             </span>
             <svg
               xmlns="http://www.w3.org/2000/svg"

@@ -261,6 +261,22 @@ export function UploadedFilesTable({ onStartPrint }: UploadedFilesTableProps) {
     }
   };
 
+  const handleViewFile = (file: UploadedFileItem) => {
+    const fileUrl = (file as any).file_url;
+    if (!fileUrl) {
+      toast.error('Không tìm thấy đường dẫn file');
+      return;
+    }
+
+    try {
+      // Open file in a new browser tab for viewing
+      window.open(fileUrl, '_blank', 'noopener,noreferrer');
+    } catch (err: any) {
+      toast.error('Có lỗi xảy ra khi mở file');
+      console.error('Open file error:', err);
+    }
+  };
+
   const handleDownloadFile = async (file: UploadedFileItem) => {
     const fileUrl = (file as any).file_url;
     if (!fileUrl) {
@@ -765,6 +781,28 @@ export function UploadedFilesTable({ onStartPrint }: UploadedFilesTableProps) {
                               <path d="M6 9V2h12v7" />
                               <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
                               <path d="M6 14h12v8H6z" />
+                            </svg>
+                          </Button>
+                        </Tooltip>
+                        <Tooltip content={t('table.view')}>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-8 w-8 p-0 hover:bg-slate-50 hover:text-slate-700 dark:hover:bg-slate-900/20 dark:hover:text-slate-200"
+                            onClick={() => handleViewFile(item)}
+                          >
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              className="h-4 w-4"
+                            >
+                              <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z" />
+                              <circle cx="12" cy="12" r="3" />
                             </svg>
                           </Button>
                         </Tooltip>

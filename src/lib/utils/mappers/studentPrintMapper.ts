@@ -195,7 +195,10 @@ export interface ColorMode {
 export function mapColorModeResponse(response: ColorModeResponse): ColorMode {
   return {
     colorModeId: response.colorModeId,
-    colorModeName: response.colorModeName as 'black_white' | 'grayscale' | 'color',
+    colorModeName: response.colorModeName as
+      | 'black_white'
+      | 'grayscale'
+      | 'color',
     description: response.description,
     colorMultiplier: response.colorMultiplier,
   };
@@ -262,6 +265,10 @@ export interface CreatePrintJob {
   paymentId: string;
   paymentStatus: 'pending' | 'completed' | 'failed' | 'refunded';
   paymentMethod: string;
+  qrUrl?: string;
+  paymentCode?: string;
+  transferContent?: string;
+  expiredAt?: string;
   printer: {
     printerId: string;
     location: string;
@@ -280,11 +287,24 @@ export function mapCreatePrintJobResponse(
 ): CreatePrintJob {
   return {
     jobId: response.jobId,
-    printStatus: response.printStatus as 'queued' | 'printing' | 'completed' | 'cancelled' | 'failed',
+    printStatus: response.printStatus as
+      | 'queued'
+      | 'printing'
+      | 'completed'
+      | 'cancelled'
+      | 'failed',
     totalPrice: response.totalPrice,
     paymentId: response.paymentId,
-    paymentStatus: response.paymentStatus as 'pending' | 'completed' | 'failed' | 'refunded',
+    paymentStatus: response.paymentStatus as
+      | 'pending'
+      | 'completed'
+      | 'failed'
+      | 'refunded',
     paymentMethod: response.paymentMethod,
+    qrUrl: response.qrUrl,
+    paymentCode: response.paymentCode,
+    transferContent: response.transferContent,
+    expiredAt: response.expiredAt,
     printer: response.printer,
     estimatedCompletionTime: response.estimatedCompletionTime,
     remainingBalance: response.remainingBalance,
@@ -331,7 +351,12 @@ export function mapPrintJobProgressResponse(
 ): PrintJobProgress {
   return {
     jobId: response.jobId,
-    printStatus: response.printStatus as 'queued' | 'printing' | 'completed' | 'cancelled' | 'failed',
+    printStatus: response.printStatus as
+      | 'queued'
+      | 'printing'
+      | 'completed'
+      | 'cancelled'
+      | 'failed',
     progress: response.progress,
     queueInfo: response.queueInfo,
     timing: response.timing,
@@ -365,4 +390,24 @@ export function mapStudentBalanceResponse(
     isSufficient: response.isSufficient,
     shortage: response.shortage,
   };
+}
+
+// ============================================================================
+// API Request Helpers
+// ============================================================================
+
+/**
+ * Maps frontend color mode value to backend API color mode name
+ * Frontend uses: 'black-white', 'grayscale', 'color'
+ * Backend API expects: 'bw' or 'color'
+ *
+ * @param colorMode - Frontend color mode value ('black-white' | 'grayscale' | 'color')
+ * @returns Backend API color mode name ('bw' | 'color')
+ */
+export function mapColorModeToApiValue(colorMode: string): 'bw' | 'color' {
+  if (colorMode === 'color') {
+    return 'color';
+  }
+  // black-white and grayscale both map to 'bw' for backend API
+  return 'bw';
 }

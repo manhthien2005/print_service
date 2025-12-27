@@ -2,8 +2,11 @@ import React from 'react';
 import { setRequestLocale } from 'next-intl/server';
 import { locales } from '@/lib/i18n/config';
 import { PageBackground } from '@/components/layout/PageBackground';
+import { StudentHeader } from '@/components/layout/StudentHeader';
 import AppDock from '@/components/AppDock';
 import { RechargeContent } from './components/RechargeContent';
+
+export const dynamic = 'force-dynamic';
 
 export function generateStaticParams() {
   return locales.map(locale => ({ locale }));
@@ -16,9 +19,17 @@ export default async function StudentRechargePage({
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
-  const t = await import(`@/locales/${locale}/pages.json`).then(
-    m => m.default.student.recharge
-  );
+  let t;
+  try {
+    const pagesModule = await import(`@/locales/${locale}/pages.json`);
+    t = pagesModule.default?.student?.recharge || 
+        pagesModule.default?.student?.buyPages;
+  } catch {
+    t = null;
+  }
+  if (!t) {
+    t = { title: 'Recharge', description: 'Recharge money into your account' };
+  }
 
   return (
     <main
@@ -26,6 +37,7 @@ export default async function StudentRechargePage({
       suppressHydrationWarning
     >
       <PageBackground />
+      <StudentHeader />
 
       <div className="relative z-10 mx-auto flex min-h-screen max-w-7xl flex-col px-6 py-10 pb-24">
         <header className="mb-8">
@@ -46,4 +58,3 @@ export default async function StudentRechargePage({
     </main>
   );
 }
-

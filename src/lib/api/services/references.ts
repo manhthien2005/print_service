@@ -5,6 +5,7 @@ import type {
   PageSizeResponse,
   PaginatedApiResponse,
   ApiResponse,
+  PricingConfigResponse,
 } from '@/types/api';
 
 /**
@@ -21,6 +22,7 @@ export const referenceKeys = {
   buildings: (params?: { page?: number; limit?: number; keyword?: string }) =>
     [...referenceKeys.all, 'buildings', params] as const,
   pageSizes: () => [...referenceKeys.all, 'pageSizes'] as const,
+  pricingConfig: () => [...referenceKeys.all, 'pricing-config'] as const,
 };
 
 /**
@@ -98,5 +100,19 @@ export function usePageSizes() {
   return useApiQuery<ApiResponse<PageSizeResponse[]>>(
     referenceKeys.pageSizes(),
     '/page-sizes'
+  );
+}
+
+/**
+ * Hook to fetch pricing configuration (including bonus packages)
+ */
+export function usePricingConfig() {
+  return useApiQuery<ApiResponse<PricingConfigResponse>>(
+    referenceKeys.pricingConfig(),
+    '/config/pricing',
+    {
+      staleTime: 5 * 60 * 1000, // 5 minutes (pricing doesn't change often)
+      gcTime: 10 * 60 * 1000, // 10 minutes
+    }
   );
 }

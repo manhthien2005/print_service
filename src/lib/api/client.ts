@@ -6,6 +6,7 @@ import axios, {
 } from 'axios';
 import { toast } from '../../components/ui/Toast';
 import { useAuthStore } from '../stores/useAuthStore';
+import { usePrintProgressStore } from '../stores/usePrintProgressStore';
 
 // Normalize API base URL - remove trailing slash to avoid double slashes
 const getApiBaseUrl = (): string => {
@@ -47,6 +48,19 @@ class ApiClient {
         const token = this.getToken();
         if (token && config.headers) {
           config.headers.Authorization = `Bearer ${token}`;
+        }
+        // Log API requests in development
+        if (
+          typeof window !== 'undefined' &&
+          process.env.NODE_ENV === 'development'
+        ) {
+          const fullUrl = `${config.baseURL}${config.url}`;
+          console.log('🌐 API Request:', {
+            method: config.method?.toUpperCase(),
+            url: fullUrl,
+            endpoint: config.url,
+            hasToken: !!token,
+          });
         }
         // Remove default Content-Type for FormData uploads
         // Axios will automatically set 'multipart/form-data' with proper boundary
@@ -130,6 +144,11 @@ class ApiClient {
 
   private clearAuthAndRedirect(): void {
     this.clearAuth();
+    // Clear print progress when session expires
+    if (typeof window !== 'undefined') {
+      const { clearProgress } = usePrintProgressStore.getState();
+      clearProgress();
+    }
     if (
       typeof window !== 'undefined' &&
       !window.location.pathname.includes('/login')

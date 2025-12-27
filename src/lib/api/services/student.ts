@@ -7,6 +7,7 @@ import type {
   StudentPrintHistoryItemResponse,
   StudentPrintJobDetailResponse,
   PrintHistoryStatsResponse,
+  StudentDashboardResponse,
 } from '@/types/api';
 import { useQueryClient } from '@tanstack/react-query';
 
@@ -16,6 +17,14 @@ import { useQueryClient } from '@tanstack/react-query';
 export const studentKeys = {
   all: ['student'] as const,
   profile: () => [...studentKeys.all, 'profile'] as const,
+};
+
+/**
+ * Query key factory for student dashboard
+ */
+export const studentDashboardKeys = {
+  all: ['student', 'dashboard'] as const,
+  dashboard: () => [...studentDashboardKeys.all, 'dashboard'] as const,
 };
 
 /**
@@ -74,6 +83,22 @@ export function useUpdateStudentProfile() {
       queryClient.invalidateQueries({ queryKey: studentKeys.profile() });
     },
   });
+}
+
+/**
+ * Hook to upload student avatar (multipart/form-data)
+ */
+export function useUploadStudentAvatar() {
+  const queryClient = useQueryClient();
+  return useApiMutation<ApiResponse<StudentProfileResponse>, FormData>(
+    '/student/profile/avatar',
+    'post',
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: studentKeys.profile() });
+      },
+    }
+  );
 }
 
 /**
@@ -143,6 +168,24 @@ export function usePrintJobDetail(jobId: string | null) {
       enabled: !!jobId,
       staleTime: 2 * 60 * 1000, // 2 minutes
       gcTime: 5 * 60 * 1000, // 5 minutes
+    }
+  );
+}
+
+/**
+ * Hook to fetch student dashboard data
+ */
+export function useStudentDashboard() {
+  return useApiQuery<ApiResponse<StudentDashboardResponse>>(
+    studentDashboardKeys.dashboard(),
+    '/student/dashboard',
+    {
+      staleTime: 2 * 60 * 1000, // 2 minutes
+      gcTime: 5 * 60 * 1000, // 5 minutes
+      // Ensure query runs immediately
+      enabled: true,
+      // Force refetch on mount if data is stale
+      refetchOnMount: true,
     }
   );
 }
