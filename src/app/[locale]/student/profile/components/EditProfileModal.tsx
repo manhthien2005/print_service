@@ -1,11 +1,14 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Modal } from '@/components/ui/Modal';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { toast } from '@/components/ui/Toast';
-import { useUpdateStudentProfile } from '@/lib/api/services/student';
+import {
+  useUpdateStudentProfile,
+  useUploadStudentAvatar,
+} from '@/lib/api/services/student';
 import type { StudentProfileResponse } from '@/types/api';
 import { phoneNumberSchema } from '@/lib/validations/common';
 import { z } from 'zod';
@@ -50,6 +53,8 @@ export default function EditProfileModal({
   const [phoneError, setPhoneError] = useState<string | null>(null);
 
   const updateProfile = useUpdateStudentProfile();
+  const uploadAvatar = useUploadStudentAvatar();
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
 
   // Reset state when modal opens/closes
   useEffect(() => {
@@ -58,8 +63,25 @@ export default function EditProfileModal({
       setAddress(initialData.address || '');
       setProfilePicture(initialData.profilePicture || '');
       setPhoneError(null);
+      setAvatarFile(null);
     }
   }, [isOpen, initialData]);
+
+  const avatarPreviewUrl = useMemo(() => {
+    if (avatarFile) {
+      return URL.createObjectURL(avatarFile);
+    }
+    return profilePicture || initialData.profilePicture || '';
+  }, [avatarFile, profilePicture, initialData.profilePicture]);
+
+  useEffect(() => {
+    return () => {
+      if (avatarFile) {
+        URL.revokeObjectURL(avatarPreviewUrl);
+      }
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [avatarFile]);
 
   // Validate phone number on change
   const handlePhoneChange = (value: string) => {
@@ -114,15 +136,6 @@ export default function EditProfileModal({
       return;
     }
 
-    // Validate profile picture URL (max 500 chars)
-    if (profilePicture && profilePicture.length > 500) {
-      toast.error(
-        t.profilePictureMaxLength ??
-          'URL ảnh đại diện không được vượt quá 500 ký tự'
-      );
-      return;
-    }
-
     // Build request payload - only include fields that have values
     const request: {
       phoneNumber?: string;
@@ -136,18 +149,32 @@ export default function EditProfileModal({
     if (address.trim() !== (initialData.address || '')) {
       request.address = address.trim();
     }
-    if (profilePicture.trim() !== (initialData.profilePicture || '')) {
+    // Only allow manual URL when no file selected
+    if (
+      !avatarFile &&
+      profilePicture.trim() !== (initialData.profilePicture || '')
+    ) {
       request.profilePicture = profilePicture.trim();
     }
 
-    // Check if there are any changes
-    if (Object.keys(request).length === 0) {
-      toast.error('Không có thay đổi nào để lưu');
-      return;
-    }
-
     try {
-      await updateProfile.mutateAsync(request);
+      // Nothing to do?
+      if (!avatarFile && Object.keys(request).length === 0) {
+        toast.error('Không có thay đổi nào để lưu');
+        return;
+      }
+
+      // Run updates
+      if (Object.keys(request).length > 0) {
+        await updateProfile.mutateAsync(request);
+      }
+
+      if (avatarFile) {
+        const formData = new FormData();
+        formData.append('avatar', avatarFile);
+        await uploadAvatar.mutateAsync(formData);
+      }
+
       toast.success(t.success ?? 'Cập nhật thông tin thành công');
       onSuccess?.();
       onClose();
@@ -160,7 +187,7 @@ export default function EditProfileModal({
     }
   };
 
-  const isSubmitting = updateProfile.isPending;
+  const isSubmitting = updateProfile.isPending || uploadAvatar.isPending;
 
   return (
     <Modal
@@ -234,27 +261,42 @@ export default function EditProfileModal({
             </p>
           </div>
 
-          {/* Profile Picture URL */}
+          {/* Profile Picture Upload */}
           <div className="space-y-2">
             <label className="text-sm font-medium text-slate-700 dark:text-white/90">
-              {t.profilePicture ?? 'Ảnh đại diện (URL)'}
+              {t.profilePicture ?? 'Ảnh đại diện'}
             </label>
             <Input
-              type="url"
-              value={profilePicture}
-              onChange={e => setProfilePicture(e.target.value)}
-              placeholder="https://example.com/avatar.jpg"
+              type="file"
+              accept="image/png,image/jpeg,image/jpg,image/gif,image/webp"
+              onChange={e => {
+                const file = e.target.files?.[0] || null;
+                setAvatarFile(file);
+              }}
               disabled={isSubmitting}
-              maxLength={500}
               className="h-11"
             />
             <p className="text-xs text-slate-500 dark:text-white/70">
-              Tối đa 500 ký tự ({profilePicture.length}/500)
+              Hỗ trợ JPG, JPEG, PNG, GIF, WEBP. Tối đa 5MB.
             </p>
-            {profilePicture && (
+            {!avatarFile && (
+              <Input
+                type="url"
+                value={profilePicture}
+                onChange={e => setProfilePicture(e.target.value)}
+                placeholder="https://example.com/avatar.jpg"
+                disabled={isSubmitting}
+                maxLength={500}
+                className="h-11"
+              />
+            )}
+            <p className="text-xs text-slate-500 dark:text-white/70">
+              Có thể dán URL hoặc chọn file để tải lên
+            </p>
+            {avatarPreviewUrl && (
               <div className="mt-2">
                 <img
-                  src={profilePicture}
+                  src={avatarPreviewUrl}
                   alt="Preview"
                   className="h-20 w-20 rounded-full border-2 border-slate-200 object-cover dark:border-slate-700"
                   onError={e => {

@@ -13,3 +13,80 @@ export const STATUS_STYLES = {
   },
 };
 
+// Quick actions for dashboard
+export interface StudentQuickAction {
+  id: string;
+  title: string;
+  description: string;
+  href: string;
+  badge?: string;
+}
+
+export const studentQuickActionsMock: StudentQuickAction[] = [
+  {
+    id: 'print',
+    title: 'In tài liệu',
+    description: 'Tải file và gửi lệnh in ngay',
+    href: '/student/print',
+    badge: 'Mới',
+  },
+  {
+    id: 'buy',
+    title: 'Nạp tiền',
+    description: 'Nạp tiền vào tài khoản bằng ví hoặc thẻ',
+    href: '/student/buy-pages',
+  },
+  {
+    id: 'history',
+    title: 'Lịch sử in',
+    description: 'Theo dõi trạng thái và chi phí',
+    href: '/student/history',
+  },
+  {
+    id: 'printers',
+    title: 'Máy in gần bạn',
+    description: 'Xem máy in online theo tòa nhà',
+    href: '/student/printers',
+  },
+];
+
+// Recent prints mock data (TODO: Replace with API data)
+export interface StudentPrintHistoryItem {
+  id: string;
+  fileName: string;
+  printer: string;
+  size: 'A3' | 'A4' | 'A5';
+  pagesUsedA4: number;
+  timeAgo: string;
+  status: 'completed' | 'pending' | 'failed';
+}
+
+export const studentRecentPrintsMock: StudentPrintHistoryItem[] = [
+  {
+    id: 'ph-01',
+    fileName: 'BaoCao_TotNghiep.pdf',
+    printer: 'HP 4100 • R305',
+    size: 'A4',
+    pagesUsedA4: 32,
+    timeAgo: '15 phút trước',
+    status: 'completed',
+  },
+  {
+    id: 'ph-02',
+    fileName: 'Slide-BaoVe.pptx',
+    printer: 'Canon G5500 • R402',
+    size: 'A3',
+    pagesUsedA4: 8,
+    timeAgo: '2 giờ trước',
+    status: 'completed',
+  },
+  {
+    id: 'ph-03',
+    fileName: 'HoSoThucTap.docx',
+    printer: 'Epson L8500 • R201',
+    size: 'A5',
+    pagesUsedA4: 6,
+    timeAgo: 'Hôm qua',
+    status: 'pending',
+  },
+];

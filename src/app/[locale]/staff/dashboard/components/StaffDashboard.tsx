@@ -1,6 +1,11 @@
 'use client';
 
 import { useDashboardPrinterStats } from '@/lib/api/services/dashboard';
+import {
+  useDashboardOverview,
+  useWeeklyActivity,
+  usePaperUsage,
+} from '@/lib/api/services/staffReports';
 // import { Card } from '@/components/ui/Card'; // Not used currently
 import { Button } from '@/components/ui/Button';
 import StaffDashboardSkeleton from './StaffDashboardSkeleton';
@@ -9,15 +14,26 @@ import { DashboardCharts } from './DashboardCharts';
 import { PrinterStatusCard } from './PrinterStatusCard';
 import { AlertsCard } from './AlertsCard';
 import type { StaffDashboardProps } from '../types';
-import {
-  weeklyPrintingActivity,
-  paperSizeUsage,
-  alerts,
-} from '@/data/staffDashboardMock';
+import type { AlertItem } from './AlertsCard';
 
 export default function StaffDashboard({ locale, t }: StaffDashboardProps) {
   const staff = t.staff ?? {};
-  const { data, isLoading, error, refetch } = useDashboardPrinterStats();
+  const {
+    data: printerStatsData,
+    isLoading: isLoadingPrinters,
+    error: printerError,
+    refetch: refetchPrinters,
+  } = useDashboardPrinterStats();
+  const {
+    data: dashboardOverviewData,
+    isLoading: isLoadingOverview,
+    error: overviewError,
+  } = useDashboardOverview();
+  const { data: weeklyActivityData } = useWeeklyActivity();
+  const { data: paperUsageData } = usePaperUsage();
+
+  const isLoading = isLoadingPrinters || isLoadingOverview;
+  const error = printerError || overviewError;
 
   // Handle loading state
   if (isLoading) {
@@ -44,7 +60,10 @@ export default function StaffDashboard({ locale, t }: StaffDashboardProps) {
               : 'Đã xảy ra lỗi khi tải dữ liệu dashboard'}
           </p>
           <Button
-            onClick={() => refetch()}
+            onClick={() => {
+              refetchPrinters();
+              // Note: useDashboardOverview doesn't expose refetch directly, but it will auto-refetch
+            }}
             className="bg-red-500 text-white hover:bg-red-600"
           >
             Thử lại
@@ -54,9 +73,15 @@ export default function StaffDashboard({ locale, t }: StaffDashboardProps) {
     );
   }
 
-  // Extract data from API response
-  const statsData = data?.data?.data;
-  if (!statsData) {
+  // Extract data from API responses
+  const statsData = printerStatsData?.data?.data;
+  const overviewData = dashboardOverviewData?.data?.data;
+  const weeklyActivity =
+    weeklyActivityData?.data?.data || overviewData?.weeklyActivity || [];
+  const paperUsage =
+    paperUsageData?.data?.data || overviewData?.paperSizeUsage || [];
+
+  if (!statsData || !overviewData) {
     return <StaffDashboardSkeleton />;
   }
 
@@ -85,16 +110,73 @@ export default function StaffDashboard({ locale, t }: StaffDashboardProps) {
     totalBrands: statsData.totalBrands || 0,
     totalModels: statsData.totalModels || 0,
     maintenanceWarning: statsData.maintenanceWarning || 0,
+    jobsToday: overviewData.jobsToday,
+    totalPagesThisMonth: overviewData.totalPagesThisMonth,
   };
 
-  // Map alerts (still using mock for now, can be replaced with API later)
-  const mappedAlerts = alerts.slice(0, 2).map(alert => ({
-    id: alert.id,
-    title: staff.alerts?.items?.[alert.id]?.title || alert.id,
-    time: staff.alerts?.items?.[alert.id]?.time || 'Vừa xong',
-    severity: alert.severity,
-    actionLabel: staff.alerts?.items?.[alert.id]?.action,
+  // Map weekly activity from API to chart format
+  const mappedWeeklyActivity = weeklyActivity.map(item => ({
+    day: item.dayName,
+    jobs: item.jobCount,
+    pages: item.pageCount,
   }));
+
+  // Map paper usage from API to chart format with colors
+  const paperSizeColors: Record<string, string> = {
+    A4: '#6366f1',
+    A3: '#22c55e',
+    A5: '#f59e0b',
+    Letter: '#8b5cf6',
+    Legal: '#ec4899',
+  };
+  const mappedPaperUsage = paperUsage.map(item => ({
+    name: item.sizeName,
+    value: item.percentage, // Use percentage as value for pie chart
+    color: paperSizeColors[item.sizeName] || '#64748b',
+  }));
+
+  // Map recent activities to alerts format
+  const mappedAlerts: AlertItem[] = (overviewData.recentActivities || [])
+    .slice(0, 2)
+    .map((activity, index) => {
+      // Determine severity based on activity type and status
+      let severity: 'info' | 'warning' | 'critical' = 'info';
+      if (activity.status === 'failed' || activity.type === 'ERROR') {
+        severity = 'critical';
+      } else if (
+        activity.status === 'queued' ||
+        activity.status === 'printing'
+      ) {
+        severity = 'warning';
+      }
+
+      // Format timestamp
+      const timestamp = new Date(activity.timestamp);
+      const now = new Date();
+      const diffMs = now.getTime() - timestamp.getTime();
+      const diffMins = Math.floor(diffMs / 60000);
+      let timeLabel = 'Vừa xong';
+      if (diffMins < 1) {
+        timeLabel = 'Vừa xong';
+      } else if (diffMins < 60) {
+        timeLabel = `${diffMins} phút trước`;
+      } else if (diffMins < 1440) {
+        const hours = Math.floor(diffMins / 60);
+        timeLabel = `${hours} giờ trước`;
+      } else {
+        const days = Math.floor(diffMins / 1440);
+        timeLabel = `${days} ngày trước`;
+      }
+
+      return {
+        id: activity.id || `activity-${index}`,
+        title: activity.description || activity.type,
+        time: timeLabel,
+        severity,
+        actionLabel:
+          activity.status === 'completed' ? 'Xem chi tiết' : undefined,
+      };
+    });
 
   return (
     <div className="space-y-8 pb-24">
@@ -121,8 +203,8 @@ export default function StaffDashboard({ locale, t }: StaffDashboardProps) {
 
       {/* Charts */}
       <DashboardCharts
-        weeklyActivity={weeklyPrintingActivity}
-        paperSizeUsage={paperSizeUsage}
+        weeklyActivity={mappedWeeklyActivity}
+        paperSizeUsage={mappedPaperUsage}
         translations={{
           weekly: {
             title: staff.weekly?.title ?? 'Hoạt động in theo tuần',

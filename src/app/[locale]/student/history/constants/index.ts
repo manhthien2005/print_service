@@ -16,4 +16,3 @@ export const historyStatusFilters = [
   { label: 'Đang chờ', value: 'queued' },
   { label: 'Lỗi', value: 'failed' },
 ] as const;
-

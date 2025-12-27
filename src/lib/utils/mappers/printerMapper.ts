@@ -50,4 +50,3 @@ export function mapPrintersResponse(
 ): PrinterPhysical[] {
   return responses.map(mapPrinterResponse);
 }
-

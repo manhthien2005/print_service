@@ -8,6 +8,8 @@ import { formatDate, getPrinterStatusMeta } from '../utils';
 import { StatusBadge } from './StatusBadge';
 import { DetailModalSkeleton } from './DetailModalSkeleton';
 import { cn } from '@/lib/utils/cn';
+import { usePrintJobProgressData } from '../../print/hooks/usePrintJobProgressData';
+import { formatCurrency } from '@/lib/utils/format';
 
 interface HistoryDetailModalProps {
   isOpen: boolean;
@@ -23,6 +25,17 @@ export function HistoryDetailModal({
   isLoading,
 }: HistoryDetailModalProps) {
   const [showLocation, setShowLocation] = useState(false);
+
+  const showProgress =
+    isOpen &&
+    item !== null &&
+    (item.status === 'processing' || item.status === 'queued');
+
+  const {
+    progress,
+    isLoading: progressLoading,
+    error: progressError,
+  } = usePrintJobProgressData(showProgress ? item!.id : null, showProgress);
 
   return (
     <>
@@ -44,7 +57,7 @@ export function HistoryDetailModal({
                     {item.documentName}
                   </div>
                   <div className="text-sm text-slate-500 dark:text-white/60">
-                    ID: {item.id} • {item.fileType} • {item.fileSizeKB} KB
+                    {item.fileType} • {item.fileSizeKB} KB
                   </div>
                 </div>
               </div>
@@ -114,27 +127,9 @@ export function HistoryDetailModal({
                       <div className="text-base font-semibold text-slate-900 dark:text-white">
                         {item.printerName}
                       </div>
-                      <div className="text-sm text-slate-500 dark:text-white/60">
-                        Serial: {item.printerSerial || '—'}
-                      </div>
-                      <div className="mt-1 flex items-center gap-2 text-sm text-slate-600 dark:text-white/70">
-                        <svg
-                          className="h-4 w-4 text-slate-500 dark:text-white/60"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="1.5"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            d="M4 21h16M4 10h16M9 21V6m6 15V6m3 4.5V4H6v6.5"
-                          />
-                        </svg>
-                        <span>
-                          {item.buildingName || '—'}{' '}
-                          {item.roomCode ? `- ${item.roomCode}` : ''}
-                        </span>
+                      <div className="mt-1 text-sm text-slate-600 dark:text-white/70">
+                        Vị trí: {item.buildingName || '—'}
+                        {item.roomCode ? ` - ${item.roomCode}` : ''}
                       </div>
                     </div>
                   </div>
@@ -233,24 +228,125 @@ export function HistoryDetailModal({
                     {item.status === 'processing'
                       ? 'Hoàn tất dự kiến:'
                       : 'Hoàn tất:'}{' '}
-                    {formatDate(item.completedAt)}
+                    {item.status === 'processing' &&
+                    progress?.timing?.estimatedCompletionTime
+                      ? formatDate(progress.timing.estimatedCompletionTime)
+                      : formatDate(item.completedAt)}
                   </div>
+                </div>
+              </div>
+
+              <div className="rounded-xl border border-slate-200/70 bg-slate-50/70 p-4 dark:border-white/10 dark:bg-white/5">
+                <div className="text-xs uppercase text-slate-500 dark:text-white/50">
+                  Chi phí
+                </div>
+                <div className="mt-2 space-y-2 text-sm">
+                  {(() => {
+                    const discountAmount =
+                      item.discountAmount ??
+                      (item.subtotalBeforeDiscount != null
+                        ? Math.max(
+                            item.subtotalBeforeDiscount - item.costVnd,
+                            0
+                          )
+                        : 0);
+                    const hasDiscount = (discountAmount ?? 0) > 0;
+
+                    return (
+                      <>
+                        {item.subtotalBeforeDiscount != null && (
+                          <div className="flex justify-between">
+                            <span className="text-slate-600 dark:text-white/70">
+                              Tạm tính
+                            </span>
+                            <span className="font-semibold text-slate-900 dark:text-white">
+                              {formatCurrency(item.subtotalBeforeDiscount)}
+                            </span>
+                          </div>
+                        )}
+                        {hasDiscount && (
+                          <div className="flex justify-between">
+                            <span className="text-slate-600 dark:text-white/70">
+                              Giảm giá
+                              {item.discountPercent != null
+                                ? ` (${item.discountPercent * 100}%)`
+                                : ''}
+                            </span>
+                            <span className="font-semibold text-rose-600 dark:text-rose-200">
+                              -{formatCurrency(discountAmount)}
+                            </span>
+                          </div>
+                        )}
+                      </>
+                    );
+                  })()}
+                  <div className="flex justify-between">
+                    <span className="text-slate-600 dark:text-white/70">
+                      Thanh toán
+                    </span>
+                    <span className="text-base font-semibold text-blue-600 dark:text-blue-200">
+                      {formatCurrency(item.costVnd || 0)}
+                    </span>
+                  </div>
+                  {item.paymentMethod && (
+                    <div className="flex justify-between text-xs text-slate-500 dark:text-white/60">
+                      <span>Phương thức</span>
+                      <span className="font-semibold text-slate-700 dark:text-white">
+                        {item.paymentMethod.toUpperCase()}
+                      </span>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
 
-            {item.status === 'processing' && (
+            {showProgress && (
               <div className="rounded-xl border border-blue-200 bg-blue-50 p-4 dark:border-blue-500/30 dark:bg-blue-500/10">
-                <div className="flex items-center justify-between text-sm font-semibold text-blue-800 dark:text-blue-200">
-                  <span>Đang in</span>
-                  <span>65%</span>
-                </div>
-                <div className="mt-2 h-2 rounded-full bg-blue-100 dark:bg-blue-900/40">
-                  <div className="h-full w-[65%] rounded-full bg-gradient-to-r from-blue-500 to-blue-600" />
-                </div>
-                <div className="mt-2 text-xs text-blue-700 dark:text-blue-200">
-                  Ước tính hoàn tất trong 2 phút...
-                </div>
+                {progressLoading && !progress ? (
+                  <div className="flex flex-col gap-2">
+                    <div className="flex items-center justify-between text-sm font-semibold text-blue-800 dark:text-blue-200">
+                      <span>Đang tải tiến độ in...</span>
+                    </div>
+                    <div className="mt-1 h-2 w-full animate-pulse rounded-full bg-blue-100 dark:bg-blue-900/40" />
+                  </div>
+                ) : progressError || !progress ? (
+                  <div className="text-sm text-blue-800 dark:text-blue-200">
+                    Không lấy được tiến độ in. Vui lòng thử lại sau.
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between text-sm font-semibold text-blue-800 dark:text-blue-200">
+                      <span>Tiến độ in</span>
+                      <span>
+                        {progress.progress.printedPages} /{' '}
+                        {progress.progress.totalPages} trang •{' '}
+                        {progress.progress.percentage.toFixed(1)}%
+                      </span>
+                    </div>
+                    <div className="mt-1 h-2 rounded-full bg-blue-100 dark:bg-blue-900/40">
+                      <div
+                        className="h-full rounded-full bg-gradient-to-r from-blue-500 to-blue-600"
+                        style={{ width: `${progress.progress.percentage}%` }}
+                      />
+                    </div>
+                    {progress.queueInfo.positionInQueue > 0 && (
+                      <div className="text-xs text-blue-700 dark:text-blue-200">
+                        Vị trí trong hàng đợi:{' '}
+                        {progress.queueInfo.positionInQueue + 1}
+                        {progress.queueInfo.jobsAhead > 0 &&
+                          ` (${progress.queueInfo.jobsAhead} job phía trước)`}
+                      </div>
+                    )}
+                    {progress.timing.estimatedCompletionTime && (
+                      <div className="text-xs text-blue-700 dark:text-blue-200">
+                        Ước tính hoàn tất:{' '}
+                        {new Date(
+                          progress.timing.estimatedCompletionTime
+                        ).toLocaleString('vi-VN')}
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             )}
 

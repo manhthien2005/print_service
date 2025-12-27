@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import {
   usePaymentPackages,
   useCreateDeposit,
@@ -15,7 +15,15 @@ import { PaymentSuccessModal } from './PaymentSuccessModal';
 import { DepositHistoryTable } from './DepositHistoryTable';
 import { RechargeSkeleton } from './RechargeSkeleton';
 import { toast } from '@/components/ui/Toast';
-import type { DepositBonusPackageResponse, DepositResponse } from '@/types/api';
+import { subscribeStomp } from '@/lib/api/ws';
+import type {
+  DepositBonusPackageResponse,
+  DepositResponse,
+  DepositStatusResponse,
+} from '@/types/api';
+import { useQueryClient } from '@tanstack/react-query';
+import { paymentKeys } from '@/lib/api/services/payment';
+import { studentPrintKeys } from '@/app/[locale]/student/print/api';
 
 interface RechargeContentProps {
   locale: string;
@@ -23,6 +31,7 @@ interface RechargeContentProps {
 }
 
 export function RechargeContent({ t }: RechargeContentProps) {
+  const queryClient = useQueryClient();
   const [currentDeposit, setCurrentDeposit] = useState<DepositResponse | null>(
     null
   );
@@ -41,6 +50,7 @@ export function RechargeContent({ t }: RechargeContentProps) {
   // Fetch current pending deposit
   const { data: currentData, refetch: refetchCurrent } = useCurrentDeposit({
     enabled: true,
+    refetchInterval: currentDeposit?.status === 'pending' ? 5000 : false,
   });
 
   // Create deposit mutation
@@ -48,6 +58,22 @@ export function RechargeContent({ t }: RechargeContentProps) {
 
   // Cancel deposit mutation
   const cancelDepositMutation = useCancelDeposit();
+
+  // Handle payment success
+  const handlePaymentSuccess = useCallback(
+    (amount: number) => {
+      setSuccessAmount(amount);
+      setShowQRModal(false);
+      setShowSuccessModal(true);
+      setCurrentDeposit(null);
+      // Refetch current deposit
+      refetchCurrent();
+      queryClient.invalidateQueries({ queryKey: paymentKeys.current() });
+      queryClient.invalidateQueries({ queryKey: paymentKeys.deposits() });
+      queryClient.invalidateQueries({ queryKey: studentPrintKeys.balance.all });
+    },
+    [queryClient, refetchCurrent]
+  );
 
   // Update current deposit state
   useEffect(() => {
@@ -59,6 +85,59 @@ export function RechargeContent({ t }: RechargeContentProps) {
       setCurrentDeposit(null);
     }
   }, [currentData]);
+
+  // React when polling returns a terminal status (fallback if WS misses)
+  useEffect(() => {
+    const deposit = currentData?.data?.data;
+    if (!deposit) return;
+
+    if (deposit.status === 'completed' && !showSuccessModal) {
+      handlePaymentSuccess(deposit.totalCredited ?? deposit.amount);
+    } else if (
+      (deposit.status === 'cancelled' || deposit.status === 'expired') &&
+      showQRModal
+    ) {
+      setShowQRModal(false);
+    }
+  }, [currentData, handlePaymentSuccess, showQRModal, showSuccessModal]);
+
+  // Listen for realtime deposit updates even if modal is closed
+  useEffect(() => {
+    if (!currentDeposit || currentDeposit.status !== 'pending') return;
+
+    const cleanup = subscribeStomp<{
+      type?: string;
+      data?: DepositStatusResponse;
+    }>({
+      topic: `/topic/deposits/${currentDeposit.depositId}/status`,
+      sendDestination: `/app/deposits/${currentDeposit.depositId}/subscribe`,
+      debugLabel: 'deposit-realtime',
+      onMessage: payload => {
+        const data =
+          payload?.data ?? (payload as unknown as DepositStatusResponse);
+        if (!data?.paymentStatus) return;
+
+        if (data.paymentStatus === 'completed') {
+          handlePaymentSuccess(
+            data.totalCredited ?? currentDeposit.totalCredited
+          );
+        } else if (
+          data.paymentStatus === 'cancelled' ||
+          data.paymentStatus === 'expired' ||
+          data.paymentStatus === 'failed'
+        ) {
+          setShowQRModal(false);
+          setCurrentDeposit(null);
+          refetchCurrent();
+        }
+      },
+      onError: () => {
+        // Fallback to polling already handled by refetchInterval
+      },
+    });
+
+    return () => cleanup();
+  }, [currentDeposit, handlePaymentSuccess, refetchCurrent]);
 
   // Handle package selection
   const handlePackageSelect = async (pkg: DepositBonusPackageResponse) => {
@@ -119,6 +198,8 @@ export function RechargeContent({ t }: RechargeContentProps) {
       setCurrentDeposit(null);
       // Refetch current deposit
       refetchCurrent();
+      queryClient.invalidateQueries({ queryKey: paymentKeys.current() });
+      queryClient.invalidateQueries({ queryKey: paymentKeys.deposits() });
     } catch (error: any) {
       const message =
         error?.response?.data?.message ||
@@ -126,16 +207,6 @@ export function RechargeContent({ t }: RechargeContentProps) {
         t.errors.cancelFailed;
       toast.error(message);
     }
-  };
-
-  // Handle payment success
-  const handlePaymentSuccess = (amount: number) => {
-    setSuccessAmount(amount);
-    setShowQRModal(false);
-    setShowSuccessModal(true);
-    setCurrentDeposit(null);
-    // Refetch current deposit
-    refetchCurrent();
   };
 
   // Handle close QR modal

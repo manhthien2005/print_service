@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/Button';
 import { Select } from '@/components/ui/Select';
@@ -15,15 +15,14 @@ import { PaperSizeComparisonModal } from './PaperSizeComparisonModal';
 import { ColorModeInfoModal } from './ColorModeInfoModal';
 import {
   useStudentPageSizes,
-  useColorModes,
   useCalculateCost,
   useStudentBalance,
 } from '../api';
 import {
   mapPageSizesResponse,
-  mapColorModesResponse,
   mapCalculateCostResponse,
   mapStudentBalanceResponse,
+  mapColorModeToApiValue,
 } from '@/lib/utils/mappers/studentPrintMapper';
 import { useDebounce } from '@/lib/hooks';
 
@@ -33,6 +32,13 @@ interface Step3ConfigurationProps {
   pageSizes?: MockPageSize[]; // Optional, will load from API if not provided
   uploadedFile: MockUploadedFile;
   onConfigChange: (config: MockPrintConfig) => void;
+  onPricingChange?: (summary: {
+    estimatedPages: number;
+    totalPrice: number;
+    discountAmount: number;
+    discountPercentage: number;
+    subtotalBeforeDiscount: number;
+  }) => void;
   onNext: () => void;
   onBack: () => void;
 }
@@ -43,6 +49,7 @@ export function Step3Configuration({
   pageSizes: propsPageSizes,
   uploadedFile,
   onConfigChange,
+  onPricingChange,
   onNext,
   onBack,
 }: Step3ConfigurationProps) {
@@ -56,6 +63,16 @@ export function Step3Configuration({
   const [showColorModeModal, setShowColorModeModal] = useState(false);
   const [calculatedCost, setCalculatedCost] = useState<number | null>(null);
   const [isCalculatingCost, setIsCalculatingCost] = useState(false);
+  const lastCostInputRef = useRef<string | null>(null);
+  const [costDetail, setCostDetail] = useState<{
+    subtotalBeforeDiscount: number | null;
+    discountAmount: number | null;
+    discountPercentage: number | null;
+  }>({
+    subtotalBeforeDiscount: null,
+    discountAmount: null,
+    discountPercentage: null,
+  });
 
   // Load page sizes from API
   const { data: pageSizesData } = useStudentPageSizes(
@@ -69,20 +86,13 @@ export function Step3Configuration({
   }, [pageSizesData]);
 
   // Use API page sizes if available, otherwise use props
-  const pageSizes =
-    apiPageSizes.length > 0 ? apiPageSizes : propsPageSizes || [];
-
-  // Load color modes from API
-  const { data: colorModesData } = useColorModes();
-  const colorModes = useMemo(() => {
-    if (colorModesData?.data?.data) {
-      return mapColorModesResponse(colorModesData.data.data);
-    }
-    return [];
-  }, [colorModesData]);
+  const pageSizes = useMemo(
+    () => (apiPageSizes.length > 0 ? apiPageSizes : propsPageSizes || []),
+    [apiPageSizes, propsPageSizes]
+  );
 
   // Load student balance
-  const { data: balanceData } = useStudentBalance();
+  const { data: balanceData, isLoading: balanceLoading } = useStudentBalance();
   const balance = useMemo(() => {
     if (balanceData?.data?.data) {
       return mapStudentBalanceResponse(balanceData.data.data);
@@ -96,7 +106,32 @@ export function Step3Configuration({
   // Debounce config changes for cost calculation
   const debouncedConfig = useDebounce(localConfig, 500);
 
-  // Calculate cost when config changes
+  const costInputKey = useMemo(
+    () =>
+      JSON.stringify({
+        uploadedFileId: uploadedFile.uploaded_file_id,
+        printerId: selectedPrinter?.printer_id,
+        pageSizeName: localConfig.paper_size,
+        colorModeName: mapColorModeToApiValue(localConfig.color_mode),
+        pageOrientation: localConfig.orientation,
+        printSide:
+          localConfig.print_side === 'double-sided'
+            ? 'double-sided'
+            : 'one-sided',
+        numberOfCopy: localConfig.number_of_copy,
+      }),
+    [
+      uploadedFile.uploaded_file_id,
+      selectedPrinter?.printer_id,
+      localConfig.paper_size,
+      localConfig.color_mode,
+      localConfig.orientation,
+      localConfig.print_side,
+      localConfig.number_of_copy,
+    ]
+  );
+
+  // Calculate cost when config changes (only once per unique input)
   useEffect(() => {
     if (
       !uploadedFile.uploaded_file_id ||
@@ -109,66 +144,57 @@ export function Step3Configuration({
       return;
     }
 
-    // Find page size ID and color mode ID
-    const pageSize = pageSizes.find(
-      ps => ps.size_name === localConfig.paper_size
-    );
-    const colorMode = colorModes.find(cm => {
-      // Map color_mode values: 'black-white' -> 'black_white', etc.
-      const modeMap: Record<string, string> = {
-        'black-white': 'black_white',
-        grayscale: 'grayscale',
-        color: 'color',
-      };
-      return (
-        cm.colorModeName === modeMap[localConfig.color_mode] ||
-        cm.colorModeName === localConfig.color_mode
-      );
-    });
-
-    if (!pageSize || !colorMode) {
-      setCalculatedCost(null);
+    // If nothing changed and we already have a cost, don't refetch
+    if (lastCostInputRef.current === costInputKey && calculatedCost !== null) {
       return;
     }
 
+    lastCostInputRef.current = costInputKey;
     setIsCalculatingCost(true);
     calculateCostMutation.mutate(
       {
         uploadedFileId: uploadedFile.uploaded_file_id!,
         printerId: selectedPrinter.printer_id,
-        paperSize: localConfig.paper_size,
-        colorMode: colorMode.colorModeName,
+        pageSizeName: localConfig.paper_size,
+        colorModeName: mapColorModeToApiValue(localConfig.color_mode),
+        pageOrientation: localConfig.orientation,
         printSide:
           localConfig.print_side === 'double-sided'
             ? 'double-sided'
             : 'one-sided',
-        orientation: localConfig.orientation,
         numberOfCopy: localConfig.number_of_copy,
       },
       {
         onSuccess: response => {
           const costData = mapCalculateCostResponse(response.data.data);
           setCalculatedCost(costData.totalPrice);
+          setCostDetail({
+            subtotalBeforeDiscount: Number(costData.subtotalBeforeDiscount),
+            discountAmount: Number(costData.discountAmount),
+            discountPercentage: Number(costData.discountPercentage),
+          });
           setIsCalculatingCost(false);
         },
         onError: error => {
           console.error('Calculate cost error:', error);
           setIsCalculatingCost(false);
-          // Don't show error toast, just use fallback calculation
+          // Khi BE lỗi, không tự tính cost fallback để tránh sai lệch
           setCalculatedCost(null);
+          setCostDetail({
+            subtotalBeforeDiscount: null,
+            discountAmount: null,
+            discountPercentage: null,
+          });
         },
       }
     );
-  }, [
-    debouncedConfig,
-    uploadedFile.uploaded_file_id,
-    selectedPrinter?.printer_id,
-    pageSizes,
-    colorModes,
-  ]);
+  }, [debouncedConfig, costInputKey]);
 
-  const handleChange = (field: keyof MockPrintConfig, value: any) => {
-    const newConfig = { ...localConfig, [field]: value };
+  const handleChange = <K extends keyof MockPrintConfig>(
+    field: K,
+    value: MockPrintConfig[K]
+  ) => {
+    const newConfig: MockPrintConfig = { ...localConfig, [field]: value };
 
     // Validate printer capabilities
     if (selectedPrinter) {
@@ -233,18 +259,38 @@ export function Step3Configuration({
     return totalPages;
   };
 
-  const calculateEstimatedCost = () => {
-    // Use calculated cost from API if available
-    if (calculatedCost !== null) {
-      return calculatedCost;
-    }
+  const estimatedPages = calculateEstimatedPages();
+  const hasCost = calculatedCost !== null;
+  const estimatedCost = hasCost ? calculatedCost! : null;
+  const remainingBalanceMoney = hasCost
+    ? Math.max(0, balance.balanceAmount - estimatedCost!)
+    : null;
+  const hasDiscount =
+    hasCost &&
+    costDetail.discountAmount !== null &&
+    (costDetail.discountAmount || 0) > 0;
 
-    // Fallback calculation if API call hasn't completed yet
-    const baseCostPerPage = localConfig.color_mode === 'color' ? 500 : 100; // VND
-    const pages = calculateEstimatedPages();
-    const sides = localConfig.print_side === 'double-sided' ? 0.7 : 1;
-    return Math.round(pages * baseCostPerPage * sides);
-  };
+  // Sync pricing summary lên wizard để Step 4 tái sử dụng, tránh gọi lại API
+  useEffect(() => {
+    if (!onPricingChange) return;
+    if (!hasCost || estimatedCost == null) return;
+    onPricingChange({
+      estimatedPages,
+      totalPrice: estimatedCost,
+      discountAmount: costDetail.discountAmount || 0,
+      discountPercentage: costDetail.discountPercentage || 0,
+      subtotalBeforeDiscount:
+        costDetail.subtotalBeforeDiscount || estimatedCost,
+    });
+  }, [
+    estimatedPages,
+    hasCost,
+    estimatedCost,
+    onPricingChange,
+    costDetail.discountAmount,
+    costDetail.discountPercentage,
+    costDetail.subtotalBeforeDiscount,
+  ]);
 
   return (
     <div className="space-y-6">
@@ -498,7 +544,12 @@ export function Step3Configuration({
                   ].map(mode => (
                     <button
                       key={mode.value}
-                      onClick={() => handleChange('color_mode', mode.value)}
+                      onClick={() =>
+                        handleChange(
+                          'color_mode',
+                          mode.value as MockPrintConfig['color_mode']
+                        )
+                      }
                       disabled={mode.disabled}
                       className={`group relative overflow-hidden rounded-xl border-2 p-4 text-center transition-all duration-300 disabled:cursor-not-allowed disabled:opacity-50 ${
                         localConfig.color_mode === mode.value
@@ -654,8 +705,11 @@ export function Step3Configuration({
                   {t('currentBalance')}:
                 </span>
                 <span className="text-lg font-bold text-slate-900 dark:text-white">
-                  {balance.balanceInPages} trang (
-                  {balance.balanceAmount.toLocaleString('vi-VN')} VNĐ)
+                  {balanceLoading ? (
+                    <span className="inline-block h-5 w-28 animate-pulse rounded bg-slate-200/80 align-middle dark:bg-white/10" />
+                  ) : (
+                    balance.balanceAmount.toLocaleString('vi-VN') + ' VNĐ'
+                  )}
                 </span>
               </div>
               <div className="flex items-center justify-between rounded-lg bg-blue-50/70 px-3 py-2 dark:bg-blue-500/10">
@@ -663,7 +717,48 @@ export function Step3Configuration({
                   {t('estimatedPages')}:
                 </span>
                 <span className="text-lg font-bold text-blue-700 dark:text-blue-300">
-                  {calculateEstimatedPages()} trang
+                  {estimatedPages} trang {localConfig.paper_size || ''}
+                </span>
+              </div>
+              <div className="flex items-center justify-between rounded-lg bg-white/70 px-3 py-2 dark:bg-white/5">
+                <span className="font-medium text-slate-700 dark:text-white/70">
+                  Tạm tính:
+                </span>
+                <span className="text-base font-bold text-slate-900 dark:text-white">
+                  {!hasCost || isCalculatingCost ? (
+                    <span className="inline-block h-5 w-28 animate-pulse rounded bg-slate-200/80 align-middle dark:bg-white/10" />
+                  ) : (
+                    (
+                      costDetail.subtotalBeforeDiscount || estimatedCost!
+                    ).toLocaleString('vi-VN') + ' VNĐ'
+                  )}
+                </span>
+              </div>
+              {hasDiscount && (
+                <div className="flex items-center justify-between rounded-lg bg-green-50/70 px-3 py-2 dark:bg-green-500/10">
+                  <span className="font-medium text-green-700 dark:text-green-300">
+                    Giảm giá
+                    {costDetail.discountPercentage
+                      ? ` (${(costDetail.discountPercentage * 100).toFixed(0)}%)`
+                      : ''}
+                    :
+                  </span>
+                  <span className="text-base font-bold text-green-700 dark:text-green-300">
+                    -{(costDetail.discountAmount || 0).toLocaleString('vi-VN')}{' '}
+                    VNĐ
+                  </span>
+                </div>
+              )}
+              <div className="mt-2 flex items-center justify-between rounded-lg bg-gradient-to-r from-blue-100 to-blue-200 px-3 py-2 dark:from-blue-500/20 dark:to-blue-600/20">
+                <span className="font-semibold text-blue-700 dark:text-blue-300">
+                  {t('estimatedCost')}:
+                </span>
+                <span className="text-xl font-bold text-blue-600 dark:text-blue-400">
+                  {!hasCost || isCalculatingCost ? (
+                    <span className="inline-block h-6 w-32 animate-pulse rounded bg-slate-200/80 align-middle dark:bg-white/10" />
+                  ) : (
+                    estimatedCost!.toLocaleString('vi-VN') + ' VNĐ'
+                  )}
                 </span>
               </div>
               <div className="flex items-center justify-between rounded-lg bg-green-50/70 px-3 py-2 dark:bg-green-500/10">
@@ -671,43 +766,10 @@ export function Step3Configuration({
                   {t('remainingBalance')}:
                 </span>
                 <span className="text-lg font-bold text-green-700 dark:text-green-300">
-                  {Math.max(
-                    0,
-                    balance.balanceInPages - calculateEstimatedPages()
-                  )}{' '}
-                  trang
-                </span>
-              </div>
-              <div className="mt-2 flex items-center justify-between rounded-lg bg-gradient-to-r from-blue-100 to-blue-200 px-3 py-2 dark:from-blue-500/20 dark:to-blue-600/20">
-                <span className="font-semibold text-blue-700 dark:text-blue-300">
-                  {t('estimatedCost')}:
-                </span>
-                <span className="text-xl font-bold text-blue-600 dark:text-blue-400">
-                  {isCalculatingCost ? (
-                    <span className="flex items-center gap-2">
-                      <svg
-                        className="h-4 w-4 animate-spin"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                      >
-                        <circle
-                          className="opacity-25"
-                          cx="12"
-                          cy="12"
-                          r="10"
-                          stroke="currentColor"
-                          strokeWidth="4"
-                        />
-                        <path
-                          className="opacity-75"
-                          fill="currentColor"
-                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                        />
-                      </svg>
-                      Đang tính...
-                    </span>
+                  {balanceLoading || !hasCost || isCalculatingCost ? (
+                    <span className="inline-block h-5 w-28 animate-pulse rounded bg-slate-200/80 align-middle dark:bg-white/10" />
                   ) : (
-                    calculateEstimatedCost().toLocaleString('vi-VN') + ' VNĐ'
+                    remainingBalanceMoney!.toLocaleString('vi-VN') + ' VNĐ'
                   )}
                 </span>
               </div>
@@ -734,7 +796,11 @@ export function Step3Configuration({
           </svg>
           {t('back')}
         </Button>
-        <Button onClick={onNext} className="min-w-32">
+        <Button
+          variant="outline"
+          onClick={onNext}
+          className="min-w-32 transition-transform duration-150 hover:scale-[1.01]"
+        >
           {t('next')}
           <svg
             className="ml-2 h-4 w-4"

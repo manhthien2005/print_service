@@ -2,6 +2,7 @@ import React from 'react';
 import { setRequestLocale } from 'next-intl/server';
 import { locales } from '@/lib/i18n/config';
 import { PageBackground } from '@/components/layout/PageBackground';
+import { StudentHeader } from '@/components/layout/StudentHeader';
 import AppDock from '@/components/AppDock';
 import StudentProfileContent from './components/StudentProfileContent';
 
@@ -26,6 +27,7 @@ export default async function StudentProfilePage({
       suppressHydrationWarning
     >
       <PageBackground />
+      <StudentHeader />
 
       <div className="relative z-10 mx-auto flex min-h-screen max-w-7xl flex-col px-6 pb-20 pt-10">
         <div className="flex-1">

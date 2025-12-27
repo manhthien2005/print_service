@@ -27,6 +27,7 @@ import type {
 import { useQueryClient, useMutation } from '@tanstack/react-query';
 import { AxiosResponse } from 'axios';
 import { apiClient } from '@/lib/api/client';
+import { printHistoryKeys } from '@/lib/api/services/student';
 
 /**
  * Query key factory for student print
@@ -370,12 +371,19 @@ export function useCreatePrintJob() {
 /**
  * Hook to fetch print job status
  */
-export function usePrintJobStatus(jobId: string | null) {
+export function usePrintJobStatus(
+  jobId: string | null,
+  options?: {
+    enabled?: boolean;
+    refetchInterval?: number | false;
+  }
+) {
   return useApiQuery<ApiResponse<PrintJobStatusResponse>>(
     studentPrintKeys.printJobs.status(jobId || ''),
     jobId ? `/students/print-jobs/${jobId}` : '',
     {
-      enabled: !!jobId,
+      enabled: options?.enabled ?? !!jobId,
+      refetchInterval: options?.refetchInterval,
       staleTime: 30 * 1000, // 30 seconds
       gcTime: 2 * 60 * 1000, // 2 minutes
     }
@@ -435,6 +443,9 @@ export function useCancelPrintJob() {
       queryClient.invalidateQueries({
         queryKey: studentPrintKeys.balance.all,
       });
+      queryClient.invalidateQueries({
+        queryKey: printHistoryKeys.all,
+      });
     },
   });
 }
@@ -489,4 +500,3 @@ export function useBalanceHistory(params: BalanceHistoryParams = {}) {
     }
   );
 }
-

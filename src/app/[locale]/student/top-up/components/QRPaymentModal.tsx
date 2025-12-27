@@ -5,7 +5,12 @@ import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
 import { useCurrentDeposit } from '@/lib/api/services/payment';
 import { PAYMENT_CONSTANTS } from '../constants';
-import type { DepositResponse, DepositBonusPackageResponse } from '@/types/api';
+import type {
+  DepositResponse,
+  DepositBonusPackageResponse,
+  DepositStatusResponse,
+} from '@/types/api';
+import { subscribeStomp } from '@/lib/api/ws';
 
 interface QRPaymentModalProps {
   isOpen: boolean;
@@ -57,6 +62,9 @@ export function QRPaymentModal({
   const [remainingTime, setRemainingTime] = useState<number>(0);
   const [isExpired, setIsExpired] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [connectionState, setConnectionState] = useState<
+    'connecting' | 'connected' | 'error'
+  >('connecting');
 
   // Polling for status updates
   const { data: currentDepositData } = useCurrentDeposit({
@@ -159,6 +167,43 @@ export function QRPaymentModal({
   const handleContentClick = () => {
     handleCopyContent();
   };
+
+  // WebSocket subscription for realtime status
+  useEffect(() => {
+    if (!isOpen || !deposit || deposit.status !== 'pending') return;
+
+    const cleanup = subscribeStomp<{
+      type?: string;
+      data?: DepositStatusResponse;
+    }>({
+      topic: `/topic/deposits/${deposit.depositId}/status`,
+      sendDestination: `/app/deposits/${deposit.depositId}/subscribe`,
+      debugLabel: 'deposit-payment',
+      onStateChange: setConnectionState,
+      onMessage: payload => {
+        const data =
+          payload?.data ?? (payload as unknown as DepositStatusResponse);
+        if (!data?.paymentStatus) return;
+
+        if (data.paymentStatus === 'completed') {
+          onSuccess(data.totalCredited ?? deposit.amount);
+          onClose();
+        } else if (
+          data.paymentStatus === 'cancelled' ||
+          data.paymentStatus === 'expired' ||
+          data.paymentStatus === 'failed'
+        ) {
+          onClose();
+        }
+      },
+      onError: () => setConnectionState('error'),
+    });
+
+    return () => {
+      cleanup();
+      setConnectionState('connecting');
+    };
+  }, [deposit, isOpen, onClose, onSuccess]);
 
   if (!deposit || !isOpen) return null;
 
@@ -287,6 +332,11 @@ export function QRPaymentModal({
             <p className="text-sm text-slate-600 dark:text-white/70">
               {t.qrModal.scanQR}
             </p>
+            {connectionState === 'error' && (
+              <p className="text-xs text-amber-600 dark:text-amber-300">
+                Mất kết nối realtime, đang dùng kiểm tra định kỳ.
+              </p>
+            )}
           </div>
 
           {/* Payment Info */}

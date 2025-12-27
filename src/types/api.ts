@@ -322,14 +322,22 @@ export interface PricingConfigResponse {
 export interface CalculateCostRequest {
   uploadedFileId: string; // UUID as string
   printerId: string; // UUID as string
-  pageSizeId?: string; // UUID as string
-  paperSize?: string; // Paper size name (for compatibility)
-  colorModeId?: string; // UUID as string
-  colorMode?: string; // Color mode name (for compatibility)
-  pageOrientation?: 'portrait' | 'landscape';
-  orientation?: 'portrait' | 'landscape'; // Alias for pageOrientation
+  pageSizeName: string; // Page size name: 'A3', 'A4', 'A5', 'Letter', 'Legal'
+  colorModeName: 'bw' | 'color'; // Color mode name: 'bw' or 'color'
+  pageOrientation: 'portrait' | 'landscape'; // Page orientation
   printSide: 'one-sided' | 'double-sided';
   numberOfCopy: number; // 1-99
+  // Deprecated fields (kept for backward compatibility, will be removed in future)
+  /** @deprecated Use pageSizeName instead */
+  pageSizeId?: string; // UUID as string
+  /** @deprecated Use pageSizeName instead */
+  paperSize?: string; // Paper size name (for compatibility)
+  /** @deprecated Use colorModeName instead */
+  colorModeId?: string; // UUID as string
+  /** @deprecated Use colorModeName instead */
+  colorMode?: string; // Color mode name (for compatibility)
+  /** @deprecated Use pageOrientation instead */
+  orientation?: 'portrait' | 'landscape'; // Alias for pageOrientation
 }
 
 export interface CalculateCostResponse {
@@ -348,14 +356,23 @@ export interface CalculateCostResponse {
 export interface CreatePrintJobRequest {
   uploadedFileId: string; // UUID as string
   printerId: string; // UUID as string
-  pageSizeId?: string; // UUID as string
-  paperSize?: string; // Paper size name (for compatibility)
-  colorModeId?: string; // UUID as string
-  colorMode?: string; // Color mode name (for compatibility)
-  pageOrientation?: 'portrait' | 'landscape';
-  orientation?: 'portrait' | 'landscape'; // Alias for pageOrientation
+  paymentMethod: 'balance' | 'qr';
+  pageSizeName: string; // Page size name: 'A3', 'A4', 'A5', 'Letter', 'Legal'
+  colorModeName: 'bw' | 'color'; // Color mode name: 'bw' or 'color'
+  pageOrientation: 'portrait' | 'landscape'; // Page orientation
   printSide: 'one-sided' | 'double-sided';
   numberOfCopy: number; // 1-99
+  // Deprecated fields (kept for backward compatibility, will be removed in future)
+  /** @deprecated Use pageSizeName instead */
+  pageSizeId?: string; // UUID as string
+  /** @deprecated Use pageSizeName instead */
+  paperSize?: string; // Paper size name (for compatibility)
+  /** @deprecated Use colorModeName instead */
+  colorModeId?: string; // UUID as string
+  /** @deprecated Use colorModeName instead */
+  colorMode?: string; // Color mode name (for compatibility)
+  /** @deprecated Use pageOrientation instead */
+  orientation?: 'portrait' | 'landscape'; // Alias for pageOrientation
 }
 
 export interface CreatePrintJobResponse {
@@ -373,6 +390,10 @@ export interface CreatePrintJobResponse {
   estimatedCompletionTime: string; // ISO LocalDateTime string
   remainingBalance: number;
   createdAt: string; // ISO LocalDateTime string
+  qrUrl?: string;
+  paymentCode?: string;
+  transferContent?: string;
+  expiredAt?: string; // ISO LocalDateTime string
 }
 
 export interface PrintJobStatusResponse {
@@ -430,6 +451,22 @@ export interface PrintJobProgressResponse {
   };
 }
 
+export interface PaymentStatusResponse {
+  paymentId: string;
+  paymentCode?: string;
+  paymentStatus:
+    | 'pending'
+    | 'completed'
+    | 'cancelled'
+    | 'expired'
+    | 'failed'
+    | string;
+  paymentMethod: string;
+  jobId: string;
+  totalAmount: number;
+  updatedAt: string;
+}
+
 export interface CancelPrintJobResponse {
   jobId: string; // UUID as string
   refundAmount: number;
@@ -479,16 +516,41 @@ export interface DepositResponse {
   qrUrl: string;
   transferContent: string;
   amount: number;
+  bonusAmount?: number;
+  totalCredited?: number;
   createdAt: string; // ISO LocalDateTime string
   expiredAt: string; // ISO LocalDateTime string
   serverTime: string; // ISO LocalDateTime string
   isReused: boolean;
-  status: 'pending' | 'completed' | 'cancelled' | 'expired' | 'failed' | 'refunded';
+  status:
+    | 'pending'
+    | 'completed'
+    | 'cancelled'
+    | 'expired'
+    | 'failed'
+    | 'refunded';
 }
 
 export interface CreateDepositRequest {
   packageId?: string; // UUID as string
   amount?: number;
+}
+
+export interface DepositStatusResponse {
+  depositId: string;
+  depositCode: string;
+  paymentStatus:
+    | 'pending'
+    | 'completed'
+    | 'cancelled'
+    | 'expired'
+    | 'failed'
+    | string;
+  paymentMethod: string;
+  depositAmount: number;
+  bonusAmount?: number;
+  totalCredited: number;
+  updatedAt: string;
 }
 
 export interface DepositHistoryResponse {
@@ -514,7 +576,13 @@ export interface DepositHistoryItem {
   depositAmount: number;
   bonusAmount: number;
   totalCredited: number;
-  paymentStatus: 'pending' | 'completed' | 'cancelled' | 'expired' | 'failed' | 'refunded';
+  paymentStatus:
+    | 'pending'
+    | 'completed'
+    | 'cancelled'
+    | 'expired'
+    | 'failed'
+    | 'refunded';
   paymentMethod: string;
   transactionDate: string; // ISO LocalDateTime string
   expiredAt: string | null; // ISO LocalDateTime string
@@ -527,7 +595,13 @@ export interface DepositDetailResponse {
   depositAmount: number;
   bonusAmount: number;
   totalCredited: number;
-  paymentStatus: 'pending' | 'completed' | 'cancelled' | 'expired' | 'failed' | 'refunded';
+  paymentStatus:
+    | 'pending'
+    | 'completed'
+    | 'cancelled'
+    | 'expired'
+    | 'failed'
+    | 'refunded';
   paymentMethod: string;
   paymentReference: string | null;
   transactionDate: string; // ISO LocalDateTime string
@@ -576,21 +650,24 @@ export interface UpdateStudentProfileRequest {
 export interface StudentPrintHistoryItemResponse {
   jobId: string; // UUID as string
   printStatus: string; // 'queued', 'printing', 'completed', 'cancelled', 'failed'
-  fileName: string;
-  fileType: string;
-  fileUrl?: string;
-  printerName: string;
-  printerLocation: string;
-  paperSize: string;
+  fileName: string | null;
+  fileType: string | null;
+  fileUrl?: string | null;
+  uploadedFileId?: string | null; // BE provides when available
+  printerName: string | null;
+  printerLocation: string | null;
+  paperSize?: string | null;
   colorMode: string;
   printSide: string;
-  pageOrientation?: string;
+  pageOrientation?: string | null;
   numberOfCopy: number;
   totalPages: number;
+  subtotalBeforeDiscount?: number | null;
   totalPrice: number;
   createdAt: string; // ISO LocalDateTime string
-  completedAt: string | null; // ISO LocalDateTime string
+  startTime?: string | null; // ISO LocalDateTime string
   endTime?: string | null; // ISO LocalDateTime string
+  completedAt?: string | null; // legacy support
 }
 
 export interface StudentPrintJobDetailResponse {
@@ -626,6 +703,11 @@ export interface StudentPrintJobDetailResponse {
   printSide?: string;
   pageOrientation?: string;
   numberOfCopy?: number;
+  paymentMethod?: string | null;
+  subtotalBeforeDiscount?: number | null;
+  discountPercentage?: number | null;
+  discountAmount?: number | null;
+  totalPrice?: number | null;
   pricing: {
     totalPages: number;
     basePricePerPage: number;
@@ -654,23 +736,65 @@ export interface StudentPrintJobDetailResponse {
   cancellationReason: string | null;
 }
 
+// Legacy PrintHistoryStatsResponse - kept for backward compatibility
 export interface PrintHistoryStatsResponse {
-  totalJobs: number;
-  completedJobs: number;
-  failedJobs: number;
-  cancelledJobs: number;
-  totalPages: number;
-  totalSpent: number;
-  averagePagesPerJob: number;
-  averageCostPerJob: number;
-  jobsThisMonth?: number;
+  totalJobs?: number;
+  completedJobs?: number;
+  failedJobs?: number;
+  cancelledJobs?: number;
+  totalPages?: number;
+  totalSpent?: number;
+  averagePagesPerJob?: number;
+  averageCostPerJob?: number;
+  jobsThisMonth?: number | JobsThisMonth;
   pagesLast30Days?: number;
-  successRate?: number;
+  successRate?: number | SuccessRate;
+  pagesThisMonth?: number;
+}
+
+// Dashboard-specific PrintHistoryStatsResponse structure
+export interface JobsThisMonth {
+  total: number;
+  color: number;
+  blackWhite: number;
+  growthPercent: number;
+}
+
+export interface SuccessRate {
+  percent: number;
+  status: string; // 'STABLE' | 'UP' | 'DOWN'
+}
+
+// Dashboard PrintHistoryStatsResponse (used by dashboard API)
+export interface DashboardPrintHistoryStatsResponse {
+  jobsThisMonth: JobsThisMonth;
+  pagesThisMonth: number;
+  pagesLast30Days: number;
+  successRate: SuccessRate;
 }
 
 // ============================================================================
 // Dashboard API Types
 // ============================================================================
+
+export interface StudentDashboardResponse {
+  userName: string;
+  balance: StudentBalanceResponse;
+  printHistoryStats: DashboardPrintHistoryStatsResponse;
+  recentFiles?: any[]; // Array of recent file items
+}
+
+// Bonus Package from /api/payment/bonus-packages
+export interface BonusPackageResponse {
+  packageId: string; // UUID as string
+  minPages: number;
+  discountPercentage: number; // 0-1 range
+  packageName: string;
+  description: string;
+  isActive: boolean;
+  createdAt: string; // ISO LocalDateTime string
+  updatedAt: string; // ISO LocalDateTime string
+}
 
 export interface DashboardPrinterStatsResponse {
   totalPrinters: number;
@@ -682,4 +806,208 @@ export interface DashboardPrinterStatsResponse {
   totalBrands?: number;
   totalModels?: number;
   maintenanceWarning?: number;
+}
+
+// ============================================================================
+// Notification API Types
+// ============================================================================
+
+export interface NotificationResponse {
+  notificationId: string; // UUID as string
+  notificationType: NotificationType;
+  title: string;
+  message: string;
+  isRead: boolean;
+  createdAt: string; // ISO LocalDateTime string
+  referenceId?: string; // UUID as string
+  referenceType?: string;
+}
+
+export type NotificationType =
+  | 'DEPOSIT_CREATED'
+  | 'DEPOSIT_SUCCESS'
+  | 'DEPOSIT_FAILED'
+  | 'DEPOSIT_EXPIRED'
+  | 'PRINT_JOB_CREATED'
+  | 'PRINT_JOB_QUEUED'
+  | 'PRINT_JOB_PRINTING'
+  | 'PRINT_JOB_COMPLETED'
+  | 'PRINT_JOB_FAILED'
+  | 'PRINT_JOB_CANCELLED'
+  | 'BALANCE_LOW'
+  | 'SYSTEM';
+
+export interface NotificationCountResponse {
+  unreadCount: number;
+}
+
+export interface NotificationListResponse {
+  content: NotificationResponse[];
+  currentPage: number;
+  totalPages: number;
+  totalElements: number;
+  size: number;
+}
+
+// ============================================================================
+// Staff Reports API Types
+// ============================================================================
+
+export interface WeeklyActivityItem {
+  date: string; // YYYY-MM-DD
+  dayName: string; // "Sat", "Sun", etc.
+  jobCount: number;
+  pageCount: number;
+  revenue: number;
+}
+
+export interface PrinterStatusResponse {
+  idle: number;
+  printing: number;
+  maintained: number;
+  unplugged: number;
+  error: number;
+}
+
+export interface PaperSizeUsageItem {
+  sizeName: string;
+  count: number;
+  percentage: number;
+}
+
+export interface RecentActivity {
+  id: string; // UUID
+  type: string; // "PRINT_JOB", etc.
+  description: string;
+  studentName: string;
+  studentCode: string;
+  timestamp: string; // ISO LocalDateTime string
+  status: string;
+}
+
+export interface StaffDashboardOverviewResponse {
+  printersOnline: number;
+  totalPrinters: number;
+  jobsToday: number;
+  jobsThisMonth: number;
+  completedJobsToday: number;
+  queuedJobs: number;
+  printingJobs: number;
+  revenueToday: number;
+  revenueThisMonth: number;
+  depositsToday: number;
+  depositsThisMonth: number;
+  totalPagestoday: number; // Note: typo in API response
+  totalPagesThisMonth: number;
+  activeStudents: number;
+  newStudentsThisMonth: number;
+  weeklyActivity: WeeklyActivityItem[];
+  printerStatus: PrinterStatusResponse;
+  paperSizeUsage: PaperSizeUsageItem[];
+  recentActivities: RecentActivity[];
+}
+
+export interface PrintJobStats {
+  totalJobs: number;
+  completedJobs: number;
+  failedJobs: number;
+  cancelledJobs: number;
+  completionRate: number; // percentage
+  totalPages: number;
+  colorPages?: number;
+  bwPages?: number;
+  duplexPages?: number;
+  a4Pages?: number;
+  a3Pages?: number;
+  jobGrowthRate?: number; // vs previous period
+}
+
+export interface RevenueStats {
+  totalRevenue: number;
+  printRevenue?: number;
+  depositAmount: number;
+  bonusGiven?: number;
+  refundAmount?: number;
+  avgDepositAmount?: number;
+  avgJobCost: number;
+  revenueGrowthRate?: number; // vs previous period
+}
+
+export interface UserStats {
+  totalActiveStudents: number;
+  newRegistrations: number;
+  activeUsers?: number; // users who printed at least once
+  usageRate?: number; // activeUsers / totalActiveStudents
+}
+
+export interface PrinterStats {
+  totalPrinters: number;
+  activePrinters: number;
+  maintenanceEvents?: number;
+  avgUtilizationRate?: number;
+  paperJamEvents?: number;
+  outOfPaperEvents?: number;
+}
+
+export interface SystemReportData {
+  printJobStats: PrintJobStats;
+  revenueStats: RevenueStats;
+  userStats: UserStats;
+  printerStats: PrinterStats;
+}
+
+export interface SystemReportResponse {
+  reportId: string; // UUID
+  reportType: 'MONTHLY' | 'YEARLY';
+  reportPeriod: string; // "2025-12" for monthly, "2025" for yearly
+  periodStart: string; // ISO LocalDate string
+  periodEnd: string; // ISO LocalDate string
+  generatedAt: string; // ISO LocalDateTime string
+  generatedBy: string; // "SYSTEM" or user name
+  printJobStats: PrintJobStats;
+  revenueStats: RevenueStats;
+  userStats: UserStats;
+  printerStats: PrinterStats;
+}
+
+export interface CustomReportResponse {
+  printJobStats: PrintJobStats;
+  revenueStats: RevenueStats;
+  userStats: UserStats;
+  printerStats: PrinterStats;
+  // Additional fields that might be available
+  printJobsByDate?: Array<{
+    date: string;
+    completed: number;
+    failed: number;
+    queued: number;
+    total: number;
+  }>;
+  pagesPrintedByDate?: Array<{
+    date: string;
+    pages: number;
+    colorPages: number;
+    blackWhitePages: number;
+  }>;
+  revenueByMonth?: Array<{
+    month: string;
+    revenue: number;
+    purchases: number;
+  }>;
+  topPrinters?: Array<{
+    printerName: string;
+    totalJobs: number;
+    totalPages: number;
+    successRate: number;
+  }>;
+  colorModeDistribution?: Array<{
+    name: string;
+    value: number;
+    color?: string;
+  }>;
+  paperSizeDistribution?: Array<{
+    size: string;
+    count: number;
+    percentage: number;
+  }>;
 }

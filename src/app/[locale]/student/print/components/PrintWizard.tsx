@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useImperativeHandle, forwardRef } from 'react';
+import { useState, useImperativeHandle, forwardRef, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { StepIndicator } from './StepIndicator';
 import { Step1UploadDocument } from './Step1UploadDocument';
@@ -15,6 +15,7 @@ import {
   UploadedFileItem,
 } from '../types';
 import { Card, CardContent } from '@/components/ui/Card';
+import { usePrintProgressStore } from '@/lib/stores/usePrintProgressStore';
 
 export interface PrintWizardRef {
   startPrintWithFile: (file: UploadedFileItem) => void;
@@ -28,6 +29,8 @@ interface PrintWizardProps {
 export const PrintWizard = forwardRef<PrintWizardRef, PrintWizardProps>(
   ({ onStepChange }, ref) => {
     const t = useTranslations('student.print');
+    const { saveProgress, loadProgress, clearProgress } =
+      usePrintProgressStore();
     const [currentStep, setCurrentStep] = useState(1);
     const [uploadedFile, setUploadedFile] = useState<MockUploadedFile>({
       file: null,
@@ -39,6 +42,51 @@ export const PrintWizard = forwardRef<PrintWizardRef, PrintWizardProps>(
       null
     );
     const [config, setConfig] = useState<MockPrintConfig>(defaultPrintConfig);
+    const [isRestored, setIsRestored] = useState(false);
+    const [pricingSummary, setPricingSummary] = useState<{
+      estimatedPages: number;
+      totalPrice: number;
+      discountAmount: number;
+      discountPercentage: number;
+      subtotalBeforeDiscount: number;
+    } | null>(null);
+
+    // Restore progress on mount
+    useEffect(() => {
+      const savedProgress = loadProgress();
+      if (savedProgress && !isRestored) {
+        setCurrentStep(savedProgress.currentStep);
+        setUploadedFile(
+          savedProgress.uploadedFile || {
+            file: null,
+            file_name: '',
+            file_type: '',
+            file_size_kb: 0,
+          }
+        );
+        setSelectedPrinter(savedProgress.selectedPrinter);
+        setConfig(savedProgress.config);
+        // pricingSummary sẽ được tính lại ở Step 3 khi người dùng quay lại cấu hình
+        setIsRestored(true);
+        onStepChange?.(savedProgress.currentStep);
+      } else {
+        setIsRestored(true);
+      }
+    }, [loadProgress, onStepChange, isRestored]);
+
+    // Save progress whenever state changes
+    useEffect(() => {
+      if (!isRestored) return; // Don't save during initial restore
+
+      saveProgress(currentStep, uploadedFile, selectedPrinter, config);
+    }, [
+      currentStep,
+      uploadedFile,
+      selectedPrinter,
+      config,
+      saveProgress,
+      isRestored,
+    ]);
 
     const steps = [
       { label: t('steps.upload') },
@@ -74,6 +122,7 @@ export const PrintWizard = forwardRef<PrintWizardRef, PrintWizardProps>(
     const handleConfirm = (_jobId: string) => {
       // Job created successfully, reset wizard
       // Reset wizard after successful print job creation
+      clearProgress(); // Clear saved progress
       setCurrentStep(1);
       onStepChange?.(1);
       setUploadedFile({
@@ -86,6 +135,7 @@ export const PrintWizard = forwardRef<PrintWizardRef, PrintWizardProps>(
       });
       setSelectedPrinter(null);
       setConfig(defaultPrintConfig);
+      setPricingSummary(null);
     };
 
     // Expose method to start print with existing file
@@ -136,6 +186,7 @@ export const PrintWizard = forwardRef<PrintWizardRef, PrintWizardProps>(
                 selectedPrinter={selectedPrinter}
                 uploadedFile={uploadedFile}
                 onConfigChange={setConfig}
+                onPricingChange={setPricingSummary}
                 onNext={handleNext}
                 onBack={handleBack}
               />
@@ -146,6 +197,7 @@ export const PrintWizard = forwardRef<PrintWizardRef, PrintWizardProps>(
                 uploadedFile={uploadedFile}
                 selectedPrinter={selectedPrinter}
                 config={config}
+                pricingSummary={pricingSummary}
                 onConfirm={handleConfirm}
                 onBack={handleBack}
               />

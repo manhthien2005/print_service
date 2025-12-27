@@ -40,4 +40,3 @@ export interface PrinterNotice {
   severity: 'info' | 'warning' | 'critical';
   actionLabel?: string;
 }
-

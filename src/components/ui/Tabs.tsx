@@ -66,7 +66,7 @@ export function Tabs<T extends string = string>({
   return (
     <div className={cn('relative flex w-full items-center gap-0', className)}>
       <div
-        className="pointer-events-none absolute left-0 top-0 rounded-lg border border-blue-500/50 bg-blue-500/20 transition-all duration-300 ease-out dark:border-blue-400/50 dark:bg-blue-400/10"
+        className="pointer-events-none absolute left-0 top-0 rounded-lg border border-blue-500/50 bg-blue-500/30 transition-all duration-300 ease-out dark:border-blue-400/50 dark:bg-blue-400/20"
         style={{
           width: activeRect.width,
           height: activeRect.height,

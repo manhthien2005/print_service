@@ -392,8 +392,9 @@ export function Step1UploadDocument({
       {(uploadedFile.file_name || localFile) && !isUploading && (
         <div className="flex justify-end gap-3">
           <Button
+            variant="outline"
             onClick={onNext}
-            className="min-w-32"
+            className="min-w-32 transition-transform duration-150 hover:scale-[1.01]"
             disabled={!uploadedFile.uploaded_file_id}
           >
             {t('next')}

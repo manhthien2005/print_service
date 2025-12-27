@@ -1,6 +1,7 @@
 import type { PrintHistoryItem } from '../types';
 import { FileIcon } from '../../print/components/FileIcon';
 import { formatDate } from '../utils';
+import { formatCurrency } from '@/lib/utils/format';
 import { StatusBadge } from './StatusBadge';
 import { tagExcludes } from '../constants';
 
@@ -63,6 +64,9 @@ export function HistoryRow({ item, onClick }: HistoryRowProps) {
       <div className="col-span-1">
         <div className="text-sm font-semibold text-slate-900 dark:text-white">
           {item.pageCount} trang
+        </div>
+        <div className="text-xs text-slate-500 dark:text-white/60">
+          {formatCurrency(item.costVnd || 0)}
         </div>
       </div>
 

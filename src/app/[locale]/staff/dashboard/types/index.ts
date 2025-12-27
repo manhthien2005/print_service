@@ -5,6 +5,8 @@ export interface StaffDashboardProps {
   t: any;
 }
 
+export type Trend = 'up' | 'down' | 'flat';
+
 export type ChartTooltipProps = TooltipProps<number, string> & {
   payload?: Array<{
     name?: string;
@@ -13,4 +15,3 @@ export type ChartTooltipProps = TooltipProps<number, string> & {
   }>;
   label?: string | number;
 };
-

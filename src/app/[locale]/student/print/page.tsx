@@ -2,6 +2,7 @@ import React from 'react';
 import { setRequestLocale } from 'next-intl/server';
 import { locales } from '@/lib/i18n/config';
 import { PageBackground } from '@/components/layout/PageBackground';
+import { StudentHeader } from '@/components/layout/StudentHeader';
 import AppDock from '@/components/AppDock';
 import { PrintPageContent } from './components/PrintPageContent';
 
@@ -26,6 +27,7 @@ export default async function StudentPrintPage({
       suppressHydrationWarning
     >
       <PageBackground />
+      <StudentHeader />
 
       <div className="relative z-10 mx-auto flex min-h-screen w-full max-w-[95vw] flex-col px-4 py-10 pb-24 sm:px-6 lg:px-8 xl:max-w-[1600px]">
         <header className="mb-8">

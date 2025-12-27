@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils/cn';
 import { Button } from '@/components/ui/Button';
 import { Select } from '@/components/ui/Select';
+import { Skeleton } from '@/components/common/Skeleton';
 import { MockPrinter } from '../types';
 import { PrinterLocationModal } from '../../printers/components/PrinterLocationModal';
 import { useAvailablePrinters } from '../api';
@@ -197,6 +198,8 @@ export function Step2ChoosePrinter({
                 setSelectedRoom('all'); // Reset room when building changes
                 setPage(0); // Reset to first page
               }}
+              isLoading={isLoadingPrinters && printers.length === 0}
+              disabled={isLoadingPrinters && printers.length === 0}
             >
               <option value="all">{t('allBuildings')}</option>
               {buildings.map(building => (
@@ -216,8 +219,11 @@ export function Step2ChoosePrinter({
                 setSelectedRoom(e.target.value);
                 setPage(0); // Reset to first page
               }}
+              isLoading={isLoadingPrinters && printers.length === 0}
               disabled={
-                selectedBuilding !== 'all' && availableRooms.length === 0
+                isLoadingPrinters && printers.length === 0
+                  ? true
+                  : selectedBuilding !== 'all' && availableRooms.length === 0
               }
             >
               <option value="all">{t('allRooms')}</option>
@@ -252,6 +258,8 @@ export function Step2ChoosePrinter({
                 setSupportsColorFilter(value);
                 setPage(0);
               }}
+              isLoading={isLoadingPrinters && printers.length === 0}
+              disabled={isLoadingPrinters && printers.length === 0}
             >
               <option value="all">Tất cả</option>
               <option value="true">Có</option>
@@ -278,6 +286,8 @@ export function Step2ChoosePrinter({
                 setSupportsDuplexFilter(value);
                 setPage(0);
               }}
+              isLoading={isLoadingPrinters && printers.length === 0}
+              disabled={isLoadingPrinters && printers.length === 0}
             >
               <option value="all">Tất cả</option>
               <option value="true">Có</option>
@@ -287,33 +297,37 @@ export function Step2ChoosePrinter({
         </div>
       </div>
 
-      {/* Loading State */}
-      {isLoadingPrinters && (
-        <div className="flex items-center justify-center py-12">
-          <div className="flex flex-col items-center gap-3">
-            <svg
-              className="h-8 w-8 animate-spin text-blue-600 dark:text-blue-400"
-              fill="none"
-              viewBox="0 0 24 24"
+      {/* Printer List Skeleton Loading */}
+      {isLoadingPrinters && printers.length === 0 && (
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4">
+          {[1, 2, 3, 4, 5, 6, 7, 8].map(i => (
+            <div
+              key={i}
+              className="group relative flex flex-col overflow-hidden rounded-xl border-2 border-slate-200 bg-white p-5 dark:border-white/10 dark:bg-white/5"
             >
-              <circle
-                className="opacity-25"
-                cx="12"
-                cy="12"
-                r="10"
-                stroke="currentColor"
-                strokeWidth="4"
-              />
-              <path
-                className="opacity-75"
-                fill="currentColor"
-                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-              />
-            </svg>
-            <p className="text-sm text-slate-600 dark:text-white/70">
-              Đang tải danh sách máy in...
-            </p>
-          </div>
+              {/* Header skeleton */}
+              <div className="mb-3 flex items-start justify-between gap-3">
+                <div className="min-w-0 flex-1">
+                  <Skeleton className="mb-2 h-5 w-3/4" variant="shimmer" />
+                  <Skeleton className="h-4 w-1/2" variant="shimmer" />
+                </div>
+                <Skeleton className="h-3 w-3 rounded-full" variant="shimmer" />
+              </div>
+
+              {/* Location skeleton */}
+              <div className="mb-3 flex items-center gap-2">
+                <Skeleton className="h-4 w-4" variant="shimmer" />
+                <Skeleton className="h-4 w-24" variant="shimmer" />
+              </div>
+
+              {/* Features tags skeleton */}
+              <div className="mt-auto flex flex-wrap gap-2">
+                <Skeleton className="h-6 w-16 rounded-lg" variant="shimmer" />
+                <Skeleton className="h-6 w-16 rounded-lg" variant="shimmer" />
+                <Skeleton className="h-6 w-24 rounded-lg" variant="shimmer" />
+              </div>
+            </div>
+          ))}
         </div>
       )}
 
@@ -328,22 +342,57 @@ export function Step2ChoosePrinter({
         </div>
       )}
 
-      {/* Results count */}
+      {/* Results count + Pagination */}
       {!isLoadingPrinters &&
         !printersError &&
         filteredAndSortedPrinters.length > 0 && (
-          <div className="text-sm text-slate-600 dark:text-white/70">
-            {t('found')}{' '}
-            <span className="font-semibold text-blue-600 dark:text-blue-400">
-              {printersData?.data?.pagination?.totalItems ||
-                filteredAndSortedPrinters.length}
-            </span>{' '}
-            {t('printers')}
-            {printersData?.data?.pagination && (
-              <span className="ml-2 text-slate-500">
-                (Trang {page + 1} / {printersData.data.pagination.totalPages})
-              </span>
-            )}
+          <div className="flex flex-col items-start justify-between gap-3 text-sm text-slate-600 dark:text-white/70 md:flex-row md:items-center">
+            <div>
+              {t('found')}{' '}
+              <span className="font-semibold text-blue-600 dark:text-blue-400">
+                {printersData?.data?.pagination?.totalItems ||
+                  filteredAndSortedPrinters.length}
+              </span>{' '}
+              {t('printers')}
+            </div>
+
+            {printersData?.data?.pagination &&
+              printersData.data.pagination.totalPages > 1 && (
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setPage(p => Math.max(0, p - 1))}
+                    disabled={page === 0}
+                    className="h-8 w-8 rounded-full p-0 transition-transform duration-150 hover:scale-[1.02]"
+                    aria-label="Trang trước"
+                  >
+                    <span className="text-base">&lt;</span>
+                  </Button>
+                  <span className="text-sm text-slate-600 dark:text-white/70">
+                    Trang {page + 1} / {printersData.data.pagination.totalPages}
+                  </span>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() =>
+                      setPage(p =>
+                        Math.min(
+                          printersData.data.pagination.totalPages - 1,
+                          p + 1
+                        )
+                      )
+                    }
+                    disabled={
+                      page >= printersData.data.pagination.totalPages - 1
+                    }
+                    className="h-8 w-8 rounded-full p-0 transition-transform duration-150 hover:scale-[1.02]"
+                    aria-label="Trang tiếp theo"
+                  >
+                    <span className="text-base">&gt;</span>
+                  </Button>
+                </div>
+              )}
           </div>
         )}
 
@@ -524,38 +573,6 @@ export function Step2ChoosePrinter({
           </div>
         )}
 
-      {/* Pagination */}
-      {!isLoadingPrinters &&
-        !printersError &&
-        printersData?.data?.pagination &&
-        printersData.data.pagination.totalPages > 1 && (
-          <div className="flex items-center justify-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setPage(p => Math.max(0, p - 1))}
-              disabled={page === 0}
-            >
-              Trước
-            </Button>
-            <span className="text-sm text-slate-600 dark:text-white/70">
-              Trang {page + 1} / {printersData.data.pagination.totalPages}
-            </span>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() =>
-                setPage(p =>
-                  Math.min(printersData.data.pagination.totalPages - 1, p + 1)
-                )
-              }
-              disabled={page >= printersData.data.pagination.totalPages - 1}
-            >
-              Sau
-            </Button>
-          </div>
-        )}
-
       {/* Navigation */}
       <div className="flex justify-between">
         <Button variant="outline" onClick={onBack}>
@@ -575,9 +592,10 @@ export function Step2ChoosePrinter({
           {t('back')}
         </Button>
         <Button
+          variant="outline"
           onClick={onNext}
           disabled={!selectedPrinter}
-          className="min-w-32"
+          className="min-w-32 transition-transform duration-150 hover:scale-[1.01]"
         >
           {t('next')}
           <svg

@@ -4,6 +4,7 @@ export type PrintJobStatus = 'completed' | 'processing' | 'queued' | 'failed';
 
 export interface PrintHistoryItem {
   id: string;
+  uploadedFileId?: string | null;
   documentName: string;
   fileType: string;
   fileSizeKB: number;
@@ -25,6 +26,10 @@ export interface PrintHistoryItem {
   paperSize?: string;
   orientation?: 'portrait' | 'landscape';
   costVnd: number;
+  subtotalBeforeDiscount?: number | null;
+  discountAmount?: number | null;
+  discountPercent?: number | null;
+  paymentMethod?: string | null;
   status: PrintJobStatus;
   tags?: string[];
   errorMessage?: string;

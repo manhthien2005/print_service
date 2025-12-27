@@ -19,6 +19,7 @@ export const API_ENDPOINTS = {
   },
   STUDENT: {
     PROFILE: '/student/profile',
+    AVATAR: '/student/profile/avatar',
   },
 } as const;
 
