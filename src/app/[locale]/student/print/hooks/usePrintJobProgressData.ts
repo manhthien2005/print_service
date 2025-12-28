@@ -24,3 +24,4 @@ export function usePrintJobProgressData(jobId: string | null, enabled = true) {
     error,
   };
 }
+

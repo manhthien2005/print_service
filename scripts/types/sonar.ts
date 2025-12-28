@@ -95,3 +95,4 @@ export interface IssueSummary {
   byRiskLevel: Record<RiskLevel, number>;
   groups: IssueGroup[];
 }
+

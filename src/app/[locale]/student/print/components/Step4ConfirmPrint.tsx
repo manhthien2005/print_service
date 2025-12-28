@@ -58,6 +58,10 @@ export function Step4ConfirmPrint({
   const { data: balanceData, isLoading: balanceLoading } = useStudentBalance();
   const calculateCostMutation = useCalculateCost();
 
+  // Note: We don't validate printer availability at frontend
+  // Backend will validate with the latest data from database when creating the job
+  // This ensures consistency and avoids race conditions
+
   const balance = useMemo(() => {
     if (balanceData?.data?.data) {
       return mapStudentBalanceResponse(balanceData.data.data);
@@ -271,6 +275,10 @@ export function Step4ConfirmPrint({
     setError(null);
 
     try {
+      // Note: We skip frontend validation and let backend handle it
+      // Backend will validate printer availability with the latest data from database
+      // This avoids race conditions and ensures consistency
+
       const response = await createPrintJobMutation.mutateAsync({
         uploadedFileId: uploadedFile.uploaded_file_id,
         printerId: selectedPrinter.printer_id,
@@ -322,9 +330,16 @@ export function Step4ConfirmPrint({
         setError('Số dư không đủ để thực hiện in. Vui lòng nạp thêm tiền.');
       } else if (
         errorMessage.includes('not available') ||
-        errorMessage.includes('không khả dụng')
+        errorMessage.includes('không khả dụng') ||
+        errorMessage.includes('no longer available')
       ) {
-        setError('Máy in đã không còn khả dụng. Vui lòng chọn máy in khác.');
+        setError(
+          'Máy in đã không còn khả dụng. Vui lòng quay lại bước 2 để chọn máy in khác.'
+        );
+        // Invalidate printer queries to refresh list
+        queryClient.invalidateQueries({
+          queryKey: studentPrintKeys.printers.all,
+        });
       } else {
         setError(errorMessage);
       }
