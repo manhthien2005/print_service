@@ -8,7 +8,11 @@ import { DatePicker } from '@/components/ui/DatePicker';
 import { Pagination } from '@/components/ui/Pagination';
 import { Modal } from '@/components/ui/Modal';
 import { Tooltip } from '@/components/ui/Tooltip';
-import { UploadedFileItem, fileTypeFilters, dateRangeFilters } from '../types';
+import {
+  UploadedFileItem,
+  fileTypeFilters,
+  dateRangeFilters,
+} from '@/app/[locale]/student/print/types';
 import { FileIcon } from './FileIcon';
 import { UploadedFilesTableSkeleton } from './UploadedFilesTableSkeleton';
 import {
@@ -17,7 +21,7 @@ import {
   useUploadFile,
   usePermittedFileTypes,
   studentPrintKeys,
-} from '../api';
+} from '@/app/[locale]/student/print/api';
 import { mapUploadedFilesResponse } from '@/lib/utils/mappers/studentPrintMapper';
 import { toast } from '@/components/ui/Toast';
 import { useQueryClient } from '@tanstack/react-query';
@@ -151,7 +155,7 @@ export function UploadedFilesTable({ onStartPrint }: UploadedFilesTableProps) {
     if (sortColumn !== column || !sortDirection)
       return (
         <svg
-          className="ml-1 h-4 w-4 text-slate-400"
+          className="ml-1 h-4 w-4 text-muted-foreground"
           viewBox="0 0 20 20"
           fill="none"
           stroke="currentColor"
@@ -166,7 +170,7 @@ export function UploadedFilesTable({ onStartPrint }: UploadedFilesTableProps) {
       );
     return sortDirection === 'asc' ? (
       <svg
-        className="ml-1 h-4 w-4 text-blue-500"
+        className="ml-1 h-4 w-4 text-primary"
         viewBox="0 0 20 20"
         fill="none"
         stroke="currentColor"
@@ -180,7 +184,7 @@ export function UploadedFilesTable({ onStartPrint }: UploadedFilesTableProps) {
       </svg>
     ) : (
       <svg
-        className="ml-1 h-4 w-4 text-blue-500"
+        className="ml-1 h-4 w-4 text-primary"
         viewBox="0 0 20 20"
         fill="none"
         stroke="currentColor"
@@ -226,10 +230,15 @@ export function UploadedFilesTable({ onStartPrint }: UploadedFilesTableProps) {
       toast.success('Xóa file thành công');
       setDeleteModalOpen(false);
       setFileToDelete(null);
-    } catch (err: any) {
+    } catch (err: unknown) {
       const errorMessage =
-        err?.response?.data?.message ||
-        err?.message ||
+        (
+          err as {
+            response?: { data?: { message?: string } };
+            message?: string;
+          }
+        )?.response?.data?.message ||
+        (err as { message?: string })?.message ||
         'Có lỗi xảy ra khi xóa file.';
       toast.error(errorMessage);
     }
@@ -271,7 +280,7 @@ export function UploadedFilesTable({ onStartPrint }: UploadedFilesTableProps) {
     try {
       // Open file in a new browser tab for viewing
       window.open(fileUrl, '_blank', 'noopener,noreferrer');
-    } catch (err: any) {
+    } catch (err: unknown) {
       toast.error('Có lỗi xảy ra khi mở file');
       console.error('Open file error:', err);
     }
@@ -295,7 +304,7 @@ export function UploadedFilesTable({ onStartPrint }: UploadedFilesTableProps) {
       document.body.removeChild(link);
 
       toast.success('Đã tải xuống file');
-    } catch (err: any) {
+    } catch (err: unknown) {
       toast.error('Có lỗi xảy ra khi tải xuống file');
       console.error('Download error:', err);
     }
@@ -330,7 +339,7 @@ export function UploadedFilesTable({ onStartPrint }: UploadedFilesTableProps) {
 
       toast.success(`Đã tải xuống ${selectedFiles.size} file`);
       setSelectedFiles(new Set());
-    } catch (err: any) {
+    } catch (err: unknown) {
       toast.error('Có lỗi xảy ra khi tải xuống file');
       console.error('Download error:', err);
     }
@@ -393,16 +402,23 @@ export function UploadedFilesTable({ onStartPrint }: UploadedFilesTableProps) {
     // Validate all files first
     for (const file of selectedFilesToUpload) {
       const fileExtension = '.' + file.name.split('.').pop()?.toLowerCase();
-      const isValidType = permittedFileTypes.some((type: any) => {
-        const ext =
-          type.fileExtension ||
-          (type.extension ? type.extension.replace('.', '') : '');
-        return (
-          (ext && `.${ext}`.toLowerCase() === fileExtension.toLowerCase()) ||
-          type.mimeType === file.type ||
-          type.mime_type === file.type
-        );
-      });
+      const isValidType = permittedFileTypes.some(
+        (type: {
+          fileExtension?: string;
+          extension?: string;
+          mimeType?: string;
+          mime_type?: string;
+        }) => {
+          const ext =
+            type.fileExtension ||
+            (type.extension ? type.extension.replace('.', '') : '');
+          return (
+            (ext && `.${ext}`.toLowerCase() === fileExtension.toLowerCase()) ||
+            type.mimeType === file.type ||
+            type.mime_type === file.type
+          );
+        }
+      );
 
       if (!isValidType) {
         toast.error(`File ${file.name} không được hỗ trợ`);
@@ -428,11 +444,16 @@ export function UploadedFilesTable({ onStartPrint }: UploadedFilesTableProps) {
         await uploadFileMutation.mutateAsync(file);
         successCount++;
         setUploadProgress(prev => ({ ...prev, [fileId]: 100 }));
-      } catch (err: any) {
+      } catch (err: unknown) {
         errorCount++;
         const errorMessage =
-          err?.response?.data?.message ||
-          err?.message ||
+          (
+            err as {
+              response?: { data?: { message?: string } };
+              message?: string;
+            }
+          )?.response?.data?.message ||
+          (err as { message?: string })?.message ||
           'Có lỗi xảy ra khi upload file';
         toast.error(`${file.name}: ${errorMessage}`);
       } finally {
@@ -483,10 +504,10 @@ export function UploadedFilesTable({ onStartPrint }: UploadedFilesTableProps) {
     <div className="flex flex-col gap-4 rounded-2xl border border-slate-200/70 bg-white/80 p-5 shadow-[0_20px_60px_rgba(15,23,42,0.08)] backdrop-blur dark:border-white/10 dark:bg-white/5 dark:shadow-[0_20px_60px_rgba(0,0,0,0.35)]">
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <div>
-          <div className="text-lg font-semibold text-slate-900 dark:text-white">
+          <div className="text-lg font-semibold text-foreground dark:text-foreground">
             {t('title')}
           </div>
-          <div className="text-sm text-slate-500 dark:text-white/60">
+          <div className="text-sm text-muted-foreground dark:text-muted-foreground">
             {t('description')}
           </div>
         </div>
@@ -496,7 +517,7 @@ export function UploadedFilesTable({ onStartPrint }: UploadedFilesTableProps) {
             onClick={() => setUploadModalOpen(true)}
             variant="default"
             size="sm"
-            className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600"
+            className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700"
           >
             <svg
               className="h-4 w-4"
@@ -515,7 +536,7 @@ export function UploadedFilesTable({ onStartPrint }: UploadedFilesTableProps) {
           </Button>
           <div className="flex items-center rounded-full border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm transition focus-within:ring-2 focus-within:ring-blue-500/50 dark:border-white/10 dark:bg-white/5">
             <svg
-              className="h-4 w-4 text-slate-400"
+              className="h-4 w-4 text-muted-foreground"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -530,7 +551,7 @@ export function UploadedFilesTable({ onStartPrint }: UploadedFilesTableProps) {
             <input
               value={search}
               onChange={e => setSearch(e.target.value)}
-              className="ml-2 w-56 bg-transparent text-slate-800 outline-none placeholder:text-slate-400 dark:text-white"
+              className="ml-2 w-56 bg-transparent text-foreground outline-none placeholder:text-muted-foreground dark:text-foreground"
               placeholder={t('searchPlaceholder')}
             />
           </div>
@@ -540,7 +561,7 @@ export function UploadedFilesTable({ onStartPrint }: UploadedFilesTableProps) {
             variant="outline"
             size="sm"
             onClick={() => setShowFilters(prev => !prev)}
-            className="flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-slate-300 hover:bg-slate-50 dark:border-white/10 dark:bg-white/5 dark:text-white"
+            className="dark:bg-background/5 flex items-center gap-2 rounded-full border border-border bg-background px-4 py-2 text-sm font-semibold text-foreground shadow-sm transition hover:border-primary hover:bg-muted dark:border-border dark:text-foreground"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -566,7 +587,7 @@ export function UploadedFilesTable({ onStartPrint }: UploadedFilesTableProps) {
           <Select
             value={fileType}
             onChange={e => setFileType(e.target.value as FileTypeFilterValue)}
-            className="rounded-xl border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 shadow-sm transition hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500/50 dark:border-white/10 dark:bg-white/5 dark:text-white"
+            className="focus:ring-primary/50 dark:bg-background/5 rounded-xl border-border bg-background px-3 py-2 text-sm text-foreground shadow-sm transition hover:border-primary focus:outline-none focus:ring-2 dark:border-border dark:text-foreground"
           >
             {fileTypeFilters.map(filter => (
               <option key={filter.value} value={filter.value}>
@@ -577,7 +598,7 @@ export function UploadedFilesTable({ onStartPrint }: UploadedFilesTableProps) {
           <Select
             value={dateRange}
             onChange={e => setDateRange(e.target.value as DateRangeFilterValue)}
-            className="rounded-xl border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 shadow-sm transition hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500/50 dark:border-white/10 dark:bg-white/5 dark:text-white"
+            className="focus:ring-primary/50 dark:bg-background/5 rounded-xl border-border bg-background px-3 py-2 text-sm text-foreground shadow-sm transition hover:border-primary focus:outline-none focus:ring-2 dark:border-border dark:text-foreground"
           >
             {dateRangeFilters.map(filter => (
               <option key={filter.value} value={filter.value}>
@@ -606,8 +627,8 @@ export function UploadedFilesTable({ onStartPrint }: UploadedFilesTableProps) {
 
       {/* Error State */}
       {error && !isLoading && (
-        <div className="rounded-lg border border-red-200 bg-red-50 p-4 dark:border-red-500/30 dark:bg-red-500/10">
-          <p className="text-sm text-red-600 dark:text-red-400">
+        <div className="border-destructive/30 bg-destructive/10 dark:border-destructive/30 dark:bg-destructive/10 rounded-lg border p-4">
+          <p className="text-sm text-destructive dark:text-destructive">
             {(error as any)?.response?.data?.message ||
               (error as any)?.message ||
               'Có lỗi xảy ra khi tải danh sách file. Vui lòng thử lại.'}
@@ -617,9 +638,9 @@ export function UploadedFilesTable({ onStartPrint }: UploadedFilesTableProps) {
 
       {/* Bulk Action Bar */}
       {selectedFiles.size > 0 && (
-        <div className="flex items-center justify-between rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 dark:border-blue-500/30 dark:bg-blue-500/10">
+        <div className="border-primary/30 bg-primary/10 dark:border-primary/30 dark:bg-primary/10 flex items-center justify-between rounded-lg border px-4 py-3">
           <div className="flex items-center gap-3">
-            <span className="text-sm font-semibold text-blue-700 dark:text-blue-300">
+            <span className="text-sm font-semibold text-primary dark:text-primary">
               Đã chọn {selectedFiles.size} file
             </span>
           </div>
@@ -628,7 +649,7 @@ export function UploadedFilesTable({ onStartPrint }: UploadedFilesTableProps) {
               variant="outline"
               size="sm"
               onClick={handleDeselectAll}
-              className="h-7 border-slate-300 bg-white text-xs text-slate-700 hover:bg-slate-50 dark:border-white/10 dark:bg-white/5 dark:text-white dark:hover:bg-white/10"
+              className="dark:bg-background/5 dark:hover:bg-background/10 h-7 border-input bg-background text-xs text-foreground hover:bg-muted dark:border-input dark:text-foreground"
             >
               Bỏ chọn tất cả
             </Button>
@@ -636,7 +657,7 @@ export function UploadedFilesTable({ onStartPrint }: UploadedFilesTableProps) {
               variant="outline"
               size="sm"
               onClick={handleBulkDownload}
-              className="flex items-center gap-2 border-blue-300 bg-white text-blue-700 hover:bg-blue-50 dark:border-blue-500/50 dark:bg-white/5 dark:text-blue-400 dark:hover:bg-blue-500/20"
+              className="hover:bg-primary/10 dark:border-primary/50 dark:bg-background/5 dark:hover:bg-primary/20 flex items-center gap-2 border-primary bg-background text-primary dark:text-primary"
             >
               <svg
                 className="h-4 w-4"
@@ -925,7 +946,10 @@ export function UploadedFilesTable({ onStartPrint }: UploadedFilesTableProps) {
             multiple
             className="hidden"
             accept={permittedFileTypesData?.data?.data
-              ?.map((t: any) => t.mimeType || t.mime_type)
+              ?.map(
+                (t: { mimeType?: string; mime_type?: string }) =>
+                  t.mimeType || t.mime_type
+              )
               .join(',')}
             onChange={handleInputChange}
             disabled={uploadingFiles.size > 0}

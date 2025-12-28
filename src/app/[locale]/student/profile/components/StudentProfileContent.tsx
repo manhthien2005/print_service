@@ -5,10 +5,10 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import SpotlightCard from '@/components/ui/SpotlightCard';
-import BalanceCountUp from './BalanceCountUp';
-import ChangePasswordModal from './ChangePasswordModal';
-import EditProfileModal from './EditProfileModal';
-import ProfileSkeleton from './ProfileSkeleton';
+import BalanceCountUp from '@/app/[locale]/student/profile/components/BalanceCountUp';
+import ChangePasswordModal from '@/app/[locale]/student/profile/components/ChangePasswordModal';
+import EditProfileModal from '@/app/[locale]/student/profile/components/EditProfileModal';
+import ProfileSkeleton from '@/app/[locale]/student/profile/components/ProfileSkeleton';
 import { useStudentProfile } from '@/lib/api/services/student';
 import { formatDate } from '@/lib/utils/date';
 // import { formatNumber } from '@/lib/utils/format'; // Not used currently
@@ -41,12 +41,12 @@ export default function StudentProfileContent({
   if (error) {
     return (
       <div className="mx-auto max-w-5xl space-y-8">
-        <Card className="border-red-200 bg-red-50 p-8 dark:border-red-800 dark:bg-red-900/20">
+        <Card className="border-destructive/30 bg-destructive/10 dark:border-destructive/30 dark:bg-destructive/20 p-8">
           <div className="text-center">
-            <h3 className="mb-2 text-lg font-semibold text-red-900 dark:text-red-300">
+            <h3 className="mb-2 text-lg font-semibold text-destructive dark:text-destructive">
               {t.error?.title ?? 'Không thể tải thông tin'}
             </h3>
-            <p className="mb-4 text-red-700 dark:text-red-400">
+            <p className="mb-4 text-destructive dark:text-destructive">
               {error instanceof Error
                 ? error.message
                 : (t.error?.message ??
@@ -54,7 +54,7 @@ export default function StudentProfileContent({
             </p>
             <Button
               onClick={() => refetch()}
-              className="bg-red-500 text-white hover:bg-red-600 dark:bg-red-600 dark:hover:bg-red-700"
+              className="hover:bg-destructive/90 dark:hover:bg-destructive/90 bg-destructive text-destructive-foreground dark:bg-destructive"
             >
               {t.error?.retry ?? 'Thử lại'}
             </Button>
@@ -69,9 +69,9 @@ export default function StudentProfileContent({
   if (!profileData) {
     return (
       <div className="mx-auto max-w-5xl space-y-8">
-        <Card className="border-slate-200 bg-slate-50 p-8 dark:border-white/10 dark:bg-white/5">
+        <Card className="dark:bg-background/5 border-border bg-muted p-8 dark:border-border">
           <div className="text-center">
-            <p className="text-slate-600 dark:text-white/70">
+            <p className="text-muted-foreground dark:text-muted-foreground">
               {t.error?.notFound ?? 'Không tìm thấy thông tin profile'}
             </p>
           </div>
@@ -159,7 +159,7 @@ export default function StudentProfileContent({
               <Button
                 variant="outline"
                 onClick={() => setIsEditProfileOpen(true)}
-                className="border-slate-200 bg-white/80 text-slate-700 shadow-sm hover:bg-white hover:shadow-md dark:border-white/15 dark:bg-white/5 dark:text-white dark:hover:bg-white/10"
+                className="bg-background/80 dark:bg-background/5 border-slate-200/50 text-slate-900 hover:bg-slate-50 hover:text-slate-900 dark:border-white/10 dark:text-white dark:hover:bg-white/10"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -186,7 +186,7 @@ export default function StudentProfileContent({
               <Button
                 variant="outline"
                 onClick={() => setIsChangePasswordOpen(true)}
-                className="border-slate-200 bg-white/80 text-slate-700 shadow-sm hover:bg-white hover:shadow-md dark:border-white/15 dark:bg-white/5 dark:text-white dark:hover:bg-white/10"
+                className="bg-background/80 dark:bg-background/5 border-slate-200/50 text-slate-900 hover:bg-slate-50 hover:text-slate-900 dark:border-white/10 dark:text-white dark:hover:bg-white/10"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -230,7 +230,7 @@ export default function StudentProfileContent({
                     />
                     <span className="ml-1">₫</span>
                   </div>
-                  <p className="text-sm text-slate-500 dark:text-white/60">
+                  <p className="text-sm text-slate-600 dark:text-white/70">
                     {t.balance?.subtitle ?? 'Số dư khả dụng'}
                   </p>
                 </div>
@@ -263,7 +263,7 @@ export default function StudentProfileContent({
           {/* Contact Info */}
           <Card className="border-slate-200/70 bg-white/80 shadow-lg backdrop-blur dark:border-white/10 dark:bg-white/5">
             <div className="p-6">
-              <h3 className="mb-6 text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-white/70">
+              <h3 className="mb-6 text-sm font-semibold uppercase tracking-wide text-slate-600 dark:text-white/70">
                 {t.contactInfo?.title ?? 'CONTACT INFO'}
               </h3>
               <div className="space-y-5">
@@ -289,7 +289,7 @@ export default function StudentProfileContent({
                     <div className="font-semibold text-slate-900 dark:text-white">
                       {profileData.email}
                     </div>
-                    <div className="mt-1 text-sm text-slate-500 dark:text-white/70">
+                    <div className="mt-1 text-sm text-slate-600 dark:text-white/70">
                       {t.contactInfo?.universityEmail ?? 'University Email'}
                     </div>
                   </div>
@@ -317,7 +317,7 @@ export default function StudentProfileContent({
                     <div className="font-semibold text-slate-900 dark:text-white">
                       {displayPhone}
                     </div>
-                    <div className="mt-1 text-sm text-slate-500 dark:text-white/70">
+                    <div className="mt-1 text-sm text-slate-600 dark:text-white/70">
                       {t.contactInfo?.mobileNumber ?? 'Mobile Number'}
                     </div>
                   </div>
@@ -345,7 +345,7 @@ export default function StudentProfileContent({
                     <div className="font-semibold text-slate-900 dark:text-white">
                       {formattedDateOfBirth}
                     </div>
-                    <div className="mt-1 text-sm text-slate-500 dark:text-white/70">
+                    <div className="mt-1 text-sm text-slate-600 dark:text-white/70">
                       {t.contactInfo?.dateOfBirth ?? 'Date of Birth'}
                     </div>
                   </div>
@@ -357,7 +357,7 @@ export default function StudentProfileContent({
           {/* Academic Details */}
           <Card className="border-slate-200/70 bg-white/80 shadow-lg backdrop-blur dark:border-white/10 dark:bg-white/5">
             <div className="p-6">
-              <h3 className="mb-6 text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-white/70">
+              <h3 className="mb-6 text-sm font-semibold uppercase tracking-wide text-slate-600 dark:text-white/70">
                 {t.academicDetails?.title ?? 'ACADEMIC DETAILS'}
               </h3>
               <div className="space-y-5">
@@ -383,7 +383,7 @@ export default function StudentProfileContent({
                     <div className="font-semibold text-slate-900 dark:text-white">
                       {displayStudentCode}
                     </div>
-                    <div className="mt-1 text-sm text-slate-500 dark:text-white/70">
+                    <div className="mt-1 text-sm text-slate-600 dark:text-white/70">
                       {t.academicDetails?.studentId ?? 'Student ID'}
                     </div>
                   </div>
@@ -412,7 +412,7 @@ export default function StudentProfileContent({
                       <div className="font-semibold text-slate-900 dark:text-white">
                         {displayClass}
                       </div>
-                      <div className="mt-1 text-sm text-slate-500 dark:text-white/70">
+                      <div className="mt-1 text-sm text-slate-600 dark:text-white/70">
                         {t.academicDetails?.class ?? 'Class'}
                       </div>
                     </div>
@@ -441,7 +441,7 @@ export default function StudentProfileContent({
                     <div className="font-semibold text-slate-900 dark:text-white">
                       {displayFaculty}
                     </div>
-                    <div className="mt-1 text-sm text-slate-500 dark:text-white/70">
+                    <div className="mt-1 text-sm text-slate-600 dark:text-white/70">
                       {t.academicDetails?.faculty ?? 'Faculty'}
                     </div>
                   </div>
@@ -469,7 +469,7 @@ export default function StudentProfileContent({
                     <div className="font-semibold text-slate-900 dark:text-white">
                       {displayMajor}
                     </div>
-                    <div className="mt-1 text-sm text-slate-500 dark:text-white/70">
+                    <div className="mt-1 text-sm text-slate-600 dark:text-white/70">
                       {t.academicDetails?.major ?? 'Major'}
                     </div>
                   </div>

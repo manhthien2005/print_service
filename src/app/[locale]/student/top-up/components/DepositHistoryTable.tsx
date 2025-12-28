@@ -5,13 +5,13 @@ import { useDepositHistory } from '@/lib/api/services/payment';
 import { Pagination } from '@/components/ui/Pagination';
 import { Select } from '@/components/ui/Select';
 import CountUp from '@/components/ui/CountUp';
-import BalanceCountUp from '../../profile/components/BalanceCountUp';
+import BalanceCountUp from '@/app/[locale]/student/profile/components/BalanceCountUp';
 import { DepositHistoryTableSkeleton } from './DepositHistoryTableSkeleton';
 import type { DepositHistoryItem } from '@/types/api';
 import { cn } from '@/lib/utils/cn';
 
 interface DepositHistoryTableProps {
-  t: any; // Translation object
+  t: Record<string, any>;
   onDepositClick?: (depositId: string) => void;
 }
 
@@ -80,17 +80,17 @@ export function DepositHistoryTable({
       cancelled: {
         label: t.history.status.cancelled,
         className:
-          'bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-300',
+          'bg-muted text-muted-foreground dark:bg-muted dark:text-muted-foreground',
       },
       expired: {
         label: t.history.status.expired,
         className:
-          'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400',
+          'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
       },
       failed: {
         label: t.history.status.failed,
         className:
-          'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400',
+          'bg-destructive/10 text-destructive dark:bg-destructive/30 dark:text-destructive',
       },
       refunded: {
         label: t.history.status.refunded,
@@ -150,7 +150,7 @@ export function DepositHistoryTable({
           <div className="text-lg font-semibold text-slate-900 dark:text-white">
             {t.history.title}
           </div>
-          <div className="text-sm text-slate-500 dark:text-white/60">
+          <div className="text-sm text-slate-600 dark:text-white/70">
             {t.history.description ||
               'Xem lịch sử các giao dịch nạp tiền của bạn'}
           </div>
@@ -161,7 +161,7 @@ export function DepositHistoryTable({
       {statistics && (
         <div className="grid grid-cols-2 gap-4 md:grid-cols-5">
           <div className="rounded-lg border border-slate-200/70 bg-white/50 p-4 shadow-sm backdrop-blur dark:border-white/10 dark:bg-white/5">
-            <div className="text-sm text-slate-600 dark:text-white/60">
+            <div className="text-sm text-slate-600 dark:text-white/70">
               {t.history.statistics.totalTransactions}
             </div>
             <div className="mt-1 text-2xl font-bold text-slate-900 dark:text-white">
@@ -169,7 +169,7 @@ export function DepositHistoryTable({
             </div>
           </div>
           <div className="rounded-lg border border-slate-200/70 bg-white/50 p-4 shadow-sm backdrop-blur dark:border-white/10 dark:bg-white/5">
-            <div className="text-sm text-slate-600 dark:text-white/60">
+            <div className="text-sm text-slate-600 dark:text-white/70">
               {t.history.statistics.completedTransactions}
             </div>
             <div className="mt-1 text-2xl font-bold text-slate-900 dark:text-white">
@@ -177,7 +177,7 @@ export function DepositHistoryTable({
             </div>
           </div>
           <div className="rounded-lg border border-slate-200/70 bg-white/50 p-4 shadow-sm backdrop-blur dark:border-white/10 dark:bg-white/5">
-            <div className="text-sm text-slate-600 dark:text-white/60">
+            <div className="text-sm text-slate-600 dark:text-white/70">
               {t.history.statistics.totalDeposited}
             </div>
             <div className="mt-1 text-lg font-bold text-slate-900 dark:text-white">
@@ -190,10 +190,12 @@ export function DepositHistoryTable({
             </div>
           </div>
           <div className="rounded-lg border border-slate-200/70 bg-white/50 p-4 shadow-sm backdrop-blur dark:border-white/10 dark:bg-white/5">
-            <div className="text-sm text-slate-600 dark:text-white/60">
+            <div className="text-sm text-slate-600 dark:text-white/70">
               {t.history.statistics.totalBonus}
             </div>
             <div className="mt-1 text-lg font-bold text-green-600 dark:text-green-400">
+              {' '}
+              {/* Success color - keep specific */}
               <BalanceCountUp
                 to={statistics.totalBonus}
                 duration={1.5}
@@ -203,7 +205,7 @@ export function DepositHistoryTable({
             </div>
           </div>
           <div className="rounded-lg border border-slate-200/70 bg-white/50 p-4 shadow-sm backdrop-blur dark:border-white/10 dark:bg-white/5">
-            <div className="text-sm text-slate-600 dark:text-white/60">
+            <div className="text-sm text-slate-600 dark:text-white/70">
               {t.history.statistics.totalSpent}
             </div>
             <div className="mt-1 text-lg font-bold text-red-600 dark:text-red-400">
@@ -222,7 +224,7 @@ export function DepositHistoryTable({
       <div className="flex flex-col gap-3 md:flex-row md:items-center">
         <div className="flex flex-1 items-center rounded-full border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm transition focus-within:ring-2 focus-within:ring-blue-500/50 dark:border-white/10 dark:bg-white/5 md:max-w-md">
           <svg
-            className="h-4 w-4 text-slate-400"
+            className="h-4 w-4 text-muted-foreground"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -263,26 +265,26 @@ export function DepositHistoryTable({
       <div className="overflow-x-auto">
         <table className="w-full">
           <thead>
-            <tr className="border-b border-slate-200 dark:border-white/10">
-              <th className="px-4 py-3 text-left text-sm font-semibold text-slate-700 dark:text-white/90">
+            <tr className="border-b border-slate-200/70 dark:border-white/10">
+              <th className="px-4 py-2.5 text-left text-sm font-semibold text-slate-900 dark:text-white">
                 {t.history.table.depositCode}
               </th>
-              <th className="px-4 py-3 text-left text-sm font-semibold text-slate-700 dark:text-white/90">
+              <th className="px-4 py-2.5 text-left text-sm font-semibold text-slate-900 dark:text-white">
                 {t.history.table.transactionDate}
               </th>
-              <th className="px-4 py-3 text-left text-sm font-semibold text-slate-700 dark:text-white/90">
+              <th className="px-4 py-2.5 text-left text-sm font-semibold text-slate-900 dark:text-white">
                 {t.history.table.packageName}
               </th>
-              <th className="px-4 py-3 text-right text-sm font-semibold text-slate-700 dark:text-white/90">
+              <th className="px-4 py-2.5 text-right text-sm font-semibold text-slate-900 dark:text-white">
                 {t.history.table.depositAmount}
               </th>
-              <th className="px-4 py-3 text-right text-sm font-semibold text-slate-700 dark:text-white/90">
+              <th className="px-4 py-2.5 text-right text-sm font-semibold text-slate-900 dark:text-white">
                 {t.history.table.bonusAmount}
               </th>
-              <th className="px-4 py-3 text-right text-sm font-semibold text-slate-700 dark:text-white/90">
+              <th className="px-4 py-2.5 text-right text-sm font-semibold text-slate-900 dark:text-white">
                 {t.history.table.totalCredited}
               </th>
-              <th className="px-4 py-3 text-center text-sm font-semibold text-slate-700 dark:text-white/90">
+              <th className="px-4 py-2.5 text-center text-sm font-semibold text-slate-900 dark:text-white">
                 {t.history.table.status}
               </th>
             </tr>
@@ -301,7 +303,7 @@ export function DepositHistoryTable({
               <tr>
                 <td
                   colSpan={7}
-                  className="px-4 py-8 text-center text-slate-500 dark:text-white/50"
+                  className="px-4 py-8 text-center text-slate-600 dark:text-white/70"
                 >
                   {t.history.empty}
                 </td>
@@ -316,13 +318,13 @@ export function DepositHistoryTable({
                     }
                   }}
                   className={cn(
-                    'border-b border-slate-100 transition-colors dark:border-white/5',
+                    'border-b border-slate-200/70 transition-colors dark:border-white/10',
                     item.paymentStatus === 'pending' && onDepositClick
                       ? 'cursor-pointer hover:bg-slate-50/50 dark:hover:bg-white/5'
                       : ''
                   )}
                 >
-                  <td className="px-4 py-3">
+                  <td className="px-4 py-2.5">
                     <div className="flex items-center gap-2">
                       <span className="font-mono text-sm font-medium text-slate-900 dark:text-white">
                         {item.depositCode}
@@ -334,20 +336,20 @@ export function DepositHistoryTable({
                       )}
                     </div>
                   </td>
-                  <td className="px-4 py-3 text-sm text-slate-600 dark:text-white/70">
+                  <td className="px-4 py-2.5 text-sm text-slate-600 dark:text-white/70">
                     {formatDate(item.transactionDate)}
                   </td>
-                  <td className="px-4 py-3 text-sm text-slate-600 dark:text-white/70">
+                  <td className="px-4 py-2.5 text-sm text-slate-600 dark:text-white/70">
                     {item.packageName || (
                       <span className="text-slate-400 dark:text-slate-500">
                         {t.history.table.customAmount}
                       </span>
                     )}
                   </td>
-                  <td className="px-4 py-3 text-right text-sm font-medium text-slate-900 dark:text-white">
+                  <td className="px-4 py-2.5 text-right text-sm font-medium text-slate-900 dark:text-white">
                     {formatCurrency(item.depositAmount)}
                   </td>
-                  <td className="px-4 py-3 text-right text-sm font-medium text-slate-900 dark:text-white">
+                  <td className="px-4 py-2.5 text-right text-sm font-medium text-slate-900 dark:text-white">
                     {item.bonusAmount > 0 ? (
                       <span className="text-green-600 dark:text-green-400">
                         +{formatCurrency(item.bonusAmount)}
@@ -358,10 +360,10 @@ export function DepositHistoryTable({
                       </span>
                     )}
                   </td>
-                  <td className="px-4 py-3 text-right text-sm font-bold text-slate-900 dark:text-white">
+                  <td className="px-4 py-2.5 text-right text-sm font-bold text-slate-900 dark:text-white">
                     {formatCurrency(item.totalCredited)}
                   </td>
-                  <td className="px-4 py-3 text-center">
+                  <td className="px-4 py-2.5 text-center">
                     {getStatusBadge(item.paymentStatus)}
                   </td>
                 </tr>
@@ -374,7 +376,7 @@ export function DepositHistoryTable({
       {/* Pagination */}
       {pagination && totalItems > ITEMS_PER_PAGE && (
         <div className="flex items-center justify-between border-t border-slate-200 pt-4 dark:border-white/10">
-          <div className="text-sm text-slate-600 dark:text-white/60">
+          <div className="text-sm text-slate-600 dark:text-white/70">
             {t.history.pagination?.showing || 'Hiển thị'}{' '}
             <span className="font-medium text-slate-900 dark:text-white">
               {(displayPage - 1) * ITEMS_PER_PAGE + 1}

@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
 import { useCurrentDeposit } from '@/lib/api/services/payment';
-import { PAYMENT_CONSTANTS } from '../constants';
+import { PAYMENT_CONSTANTS } from '@/app/[locale]/student/top-up/constants';
 import type {
   DepositResponse,
   DepositBonusPackageResponse,
@@ -218,18 +218,12 @@ export function QRPaymentModal({
       <div className="space-y-6 p-6">
         {/* Package Info - Only show if selected from package */}
         {selectedPackage && (
-          <div className="relative overflow-hidden rounded-2xl border border-blue-200/70 bg-gradient-to-br from-blue-50 via-blue-50/80 to-indigo-50/70 p-5 shadow-lg backdrop-blur dark:border-blue-500/30 dark:from-blue-500/10 dark:via-blue-500/5 dark:to-indigo-500/10">
-            {/* Decorative background pattern */}
-            <div className="absolute inset-0 opacity-5">
-              <div className="absolute right-0 top-0 h-32 w-32 rounded-full bg-blue-400 blur-3xl" />
-              <div className="absolute bottom-0 left-0 h-24 w-24 rounded-full bg-indigo-400 blur-2xl" />
-            </div>
-
+          <div className="relative overflow-hidden rounded-2xl border border-slate-200/70 bg-white/90 p-5 shadow-lg backdrop-blur dark:border-white/10 dark:bg-white/10">
             <div className="relative">
               <div className="mb-3 flex items-center gap-2">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-500/20 dark:bg-blue-400/20">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100 dark:bg-white/10">
                   <svg
-                    className="h-5 w-5 text-blue-600 dark:text-blue-400"
+                    className="h-5 w-5 text-slate-700 dark:text-white"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -242,46 +236,46 @@ export function QRPaymentModal({
                     />
                   </svg>
                 </div>
-                <p className="text-base font-bold text-blue-900 dark:text-blue-200">
+                <p className="text-base font-bold text-slate-900 dark:text-white">
                   {t.qrModal.packageInfo || 'Thông tin gói đã chọn'}
                 </p>
               </div>
 
               <div className="grid gap-3 sm:grid-cols-2">
-                <div className="rounded-lg border border-blue-200/50 bg-white/60 p-3 backdrop-blur dark:border-blue-500/20 dark:bg-white/5">
-                  <p className="text-xs font-medium uppercase tracking-wide text-blue-600 dark:text-blue-400">
+                <div className="rounded-lg border border-slate-200/70 bg-white/80 p-3 backdrop-blur dark:border-white/10 dark:bg-white/5">
+                  <p className="text-xs font-medium uppercase tracking-wide text-slate-600 dark:text-white/70">
                     {t.packages.packageName}
                   </p>
-                  <p className="mt-1 text-sm font-semibold text-blue-900 dark:text-blue-200">
+                  <p className="mt-1 text-sm font-semibold text-slate-900 dark:text-white">
                     {selectedPackage.packageName}
                   </p>
                 </div>
 
-                <div className="rounded-lg border border-blue-200/50 bg-white/60 p-3 backdrop-blur dark:border-blue-500/20 dark:bg-white/5">
-                  <p className="text-xs font-medium uppercase tracking-wide text-blue-600 dark:text-blue-400">
+                <div className="rounded-lg border border-slate-200/70 bg-white/80 p-3 backdrop-blur dark:border-white/10 dark:bg-white/5">
+                  <p className="text-xs font-medium uppercase tracking-wide text-slate-600 dark:text-white/70">
                     {t.qrModal.amount}
                   </p>
-                  <p className="mt-1 text-base font-bold text-blue-900 dark:text-blue-200">
+                  <p className="mt-1 text-base font-bold text-slate-900 dark:text-white">
                     {formatPrice(selectedPackage.amount)}
                   </p>
                 </div>
 
                 {selectedPackage.bonusAmount > 0 && (
-                  <div className="rounded-lg border border-green-200/50 bg-gradient-to-br from-green-50 to-emerald-50/70 p-3 backdrop-blur dark:border-green-500/20 dark:from-green-500/10 dark:to-emerald-500/10">
-                    <p className="text-xs font-medium uppercase tracking-wide text-green-600 dark:text-green-400">
+                  <div className="rounded-lg border border-green-300 bg-gradient-to-br from-green-100 to-green-200 p-3 backdrop-blur dark:border-green-500/50 dark:from-green-900/40 dark:to-green-800/40">
+                    <p className="text-xs font-medium uppercase tracking-wide text-green-700 dark:text-green-300">
                       {t.packages.bonusAmount}
                     </p>
-                    <p className="mt-1 text-base font-bold text-green-700 dark:text-green-300">
+                    <p className="mt-1 text-base font-bold text-green-800 dark:text-green-200">
                       +{formatPrice(selectedPackage.bonusAmount)}
                     </p>
                   </div>
                 )}
 
-                <div className="rounded-lg border border-indigo-200/50 bg-gradient-to-br from-indigo-50 to-purple-50/70 p-3 backdrop-blur dark:border-indigo-500/20 dark:from-indigo-500/10 dark:to-purple-500/10">
-                  <p className="text-xs font-medium uppercase tracking-wide text-indigo-600 dark:text-indigo-400">
+                <div className="rounded-lg border border-blue-300 bg-gradient-to-br from-blue-100 to-blue-200 p-3 backdrop-blur dark:border-blue-500/50 dark:from-blue-900/40 dark:to-blue-800/40">
+                  <p className="text-xs font-medium uppercase tracking-wide text-blue-700 dark:text-blue-300">
                     {t.packages.totalReceived}
                   </p>
-                  <p className="mt-1 text-lg font-bold text-indigo-900 dark:text-indigo-200">
+                  <p className="mt-1 text-lg font-bold text-blue-900 dark:text-blue-200">
                     {formatPrice(selectedPackage.totalReceived)}
                   </p>
                 </div>
@@ -292,8 +286,8 @@ export function QRPaymentModal({
 
         {/* Expired message - Only show if status is actually expired */}
         {deposit.status === 'expired' && (
-          <div className="rounded-xl border border-red-200 bg-red-50 p-4 dark:border-red-500/30 dark:bg-red-500/10">
-            <p className="text-sm font-semibold text-red-800 dark:text-red-200">
+          <div className="border-destructive/30 bg-destructive/10 dark:border-destructive/30 dark:bg-destructive/10 rounded-xl border p-4">
+            <p className="text-sm font-semibold text-destructive dark:text-destructive">
               {t.qrModal.expired}
             </p>
           </div>
@@ -302,7 +296,7 @@ export function QRPaymentModal({
         <div className="grid gap-6 md:grid-cols-2">
           {/* QR Code */}
           <div className="flex flex-col items-center space-y-4">
-            <div className="rounded-xl border border-slate-200/70 bg-white p-4 dark:border-white/10 dark:bg-white/5">
+            <div className="rounded-xl border border-slate-200/70 bg-white p-4 dark:border-white/10 dark:bg-white/10">
               {deposit.status !== 'expired' && deposit.qrUrl ? (
                 <img
                   src={deposit.qrUrl}
@@ -314,14 +308,14 @@ export function QRPaymentModal({
                     target.style.display = 'none';
                     const fallback = document.createElement('div');
                     fallback.className =
-                      'flex h-64 w-64 items-center justify-center text-sm text-slate-500 dark:text-white/60';
+                      'flex h-64 w-64 items-center justify-center text-sm text-slate-600 dark:text-white/70';
                     fallback.textContent = 'Không thể tải QR code';
                     target.parentElement?.appendChild(fallback);
                   }}
                 />
               ) : (
                 <div className="flex h-64 w-64 items-center justify-center">
-                  <p className="text-sm text-slate-500 dark:text-white/60">
+                  <p className="text-sm text-slate-600 dark:text-white/70">
                     {deposit.status === 'expired'
                       ? t.qrModal.expired
                       : 'Đang tải QR code...'}
@@ -334,6 +328,8 @@ export function QRPaymentModal({
             </p>
             {connectionState === 'error' && (
               <p className="text-xs text-amber-600 dark:text-amber-300">
+                {' '}
+                {/* Warning color - keep specific */}
                 Mất kết nối realtime, đang dùng kiểm tra định kỳ.
               </p>
             )}
@@ -344,7 +340,7 @@ export function QRPaymentModal({
             <div className="rounded-xl border border-slate-200/70 bg-slate-50/70 p-4 dark:border-white/10 dark:bg-white/5">
               <div className="space-y-3">
                 <div>
-                  <p className="text-xs uppercase text-slate-500 dark:text-white/50">
+                  <p className="text-xs uppercase text-slate-600 dark:text-white/70">
                     {t.qrModal.amount}
                   </p>
                   <p className="mt-1 text-2xl font-bold text-slate-900 dark:text-white">
@@ -352,7 +348,7 @@ export function QRPaymentModal({
                   </p>
                 </div>
                 <div>
-                  <p className="text-xs uppercase text-slate-500 dark:text-white/50">
+                  <p className="text-xs uppercase text-slate-600 dark:text-white/70">
                     {t.qrModal.expiresIn}
                   </p>
                   <p
@@ -366,7 +362,7 @@ export function QRPaymentModal({
                   </p>
                 </div>
                 <div>
-                  <p className="text-xs uppercase text-slate-500 dark:text-white/50">
+                  <p className="text-xs uppercase text-slate-600 dark:text-white/70">
                     {t.qrModal.transferContent}
                   </p>
                   <div className="mt-1 flex items-center gap-2">

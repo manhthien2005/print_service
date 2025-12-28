@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { Modal } from '@/components/ui/Modal';
-import { MockUploadedFile } from '../types';
+import { MockUploadedFile } from '@/app/[locale]/student/print/types';
 import { FileIcon } from './FileIcon';
 import { useTranslations } from 'next-intl';
 
@@ -46,7 +46,7 @@ export function PrintPreviewModal({
       size="xl"
     >
       <div className="space-y-4">
-        <div className="flex min-h-[480px] items-center justify-center overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm dark:border-white/10 dark:bg-white/5">
+        <div className="dark:bg-background/5 flex min-h-[480px] items-center justify-center overflow-hidden rounded-xl border border-border bg-background shadow-sm dark:border-border">
           {isImage && uploadedFile.preview_url && (
             <img
               src={uploadedFile.preview_url}
@@ -64,7 +64,7 @@ export function PrintPreviewModal({
           )}
 
           {!isImage && !isPDF && (
-            <div className="flex flex-col items-center gap-3 p-6 text-center text-sm text-slate-600 dark:text-white/70">
+            <div className="flex flex-col items-center gap-3 p-6 text-center text-sm text-muted-foreground dark:text-muted-foreground">
               <FileIcon fileName={uploadedFile.file_name} size={64} />
               <p>{t('previewUnavailable')}</p>
               {objectUrl && (
@@ -72,7 +72,7 @@ export function PrintPreviewModal({
                   href={objectUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="text-blue-600 hover:underline dark:text-blue-400"
+                  className="text-primary hover:underline dark:text-primary"
                 >
                   {t('openInNewTab')}
                 </a>

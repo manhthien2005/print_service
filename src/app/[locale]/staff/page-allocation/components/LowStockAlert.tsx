@@ -34,7 +34,10 @@ export default function LowStockAlert({
           </h3>
         </div>
         <p className="mt-1 text-sm text-orange-200/80">
-          {translations.message.replace('{count}', lowStockItems.length.toString())}
+          {translations.message.replace(
+            '{count}',
+            lowStockItems.length.toString()
+          )}
         </p>
       </CardHeader>
       <CardContent>
@@ -60,4 +63,3 @@ export default function LowStockAlert({
     </Card>
   );
 }
-

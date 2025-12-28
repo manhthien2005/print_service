@@ -131,7 +131,7 @@ export function PageSizePricesSection() {
                     <div className="mt-1 text-xs text-slate-500 dark:text-white/60">
                       {t('updated')}:{' '}
                       {new Date(item.updatedAt).toLocaleString('vi-VN')}{' '}
-                      {t('by')} {item.updatedByEmail}
+                      {t('by')} {item.updatedByName || item.updatedByEmail}
                     </div>
                   </div>
                   <div className="ml-4 flex items-center gap-4">

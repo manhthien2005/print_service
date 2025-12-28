@@ -4,7 +4,6 @@ import { locales } from '@/lib/i18n/config';
 import { PageBackground } from '@/components/layout/PageBackground';
 import { StudentHeader } from '@/components/layout/StudentHeader';
 import AppDock from '@/components/AppDock';
-import { PrinterInfoContent } from './components/PrinterInfoContent';
 
 export function generateStaticParams() {
   return locales.map(locale => ({ locale }));
@@ -17,6 +16,33 @@ export default async function StudentPrintersPage({
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
+
+  // TODO: Tạm ẩn trang máy in, sẽ sửa sau
+  return (
+    <main
+      className="relative min-h-screen overflow-hidden bg-slate-50 text-slate-900 transition-colors duration-200 dark:bg-[#0b0b16] dark:text-white"
+      suppressHydrationWarning
+    >
+      <PageBackground />
+      <StudentHeader />
+
+      <div className="relative z-10 mx-auto flex min-h-screen max-w-7xl flex-col items-center justify-center px-6 py-10">
+        <div className="text-center">
+          <h1 className="mb-4 text-4xl font-bold text-slate-900 dark:text-white">
+            Trang đang được bảo trì
+          </h1>
+          <p className="text-lg text-slate-600 dark:text-white/70">
+            Trang thông tin máy in đang được cập nhật. Vui lòng quay lại sau.
+          </p>
+        </div>
+      </div>
+
+      <AppDock locale={locale} />
+    </main>
+  );
+
+  // Original content - commented out temporarily
+  /*
   const t = await import(`@/locales/${locale}/pages.json`).then(
     m => m.default.student.printers
   );
@@ -47,4 +73,5 @@ export default async function StudentPrintersPage({
       <AppDock locale={locale} />
     </main>
   );
+  */
 }

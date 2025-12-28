@@ -15,14 +15,14 @@ import {
 import { toast } from '@/components/ui/Toast';
 import { useDebounce } from '@/lib/hooks/useDebounce';
 import { formatNumber } from '@/lib/utils/format';
-import PageAllocationSkeleton from './PageAllocationSkeleton';
-import PageAllocationEmpty from './PageAllocationEmpty';
-import PageAllocationTable from './PageAllocationTable';
-import LowStockAlert from './LowStockAlert';
-import AddPagesModal from './AddPagesModal';
-import UpdateAllocationModal from './UpdateAllocationModal';
-import CheckAvailabilityModal from './CheckAvailabilityModal';
-import { DEBOUNCE_DELAY } from '../constants';
+import PageAllocationSkeleton from '@/app/[locale]/staff/page-allocation/components/PageAllocationSkeleton';
+import PageAllocationEmpty from '@/app/[locale]/staff/page-allocation/components/PageAllocationEmpty';
+import PageAllocationTable from '@/app/[locale]/staff/page-allocation/components/PageAllocationTable';
+import LowStockAlert from '@/app/[locale]/staff/page-allocation/components/LowStockAlert';
+import AddPagesModal from '@/app/[locale]/staff/page-allocation/components/AddPagesModal';
+import UpdateAllocationModal from '@/app/[locale]/staff/page-allocation/components/UpdateAllocationModal';
+import CheckAvailabilityModal from '@/app/[locale]/staff/page-allocation/components/CheckAvailabilityModal';
+import { DEBOUNCE_DELAY } from '@/app/[locale]/staff/page-allocation/constants';
 
 interface PageAllocationContentProps {
   translations: {
@@ -126,9 +126,7 @@ export default function PageAllocationContent({
     if (debouncedSearch) {
       filtered = filtered.filter(
         item =>
-          item.sizeName
-            .toLowerCase()
-            .includes(debouncedSearch.toLowerCase()) ||
+          item.sizeName.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
           item.sizeDescription
             ?.toLowerCase()
             .includes(debouncedSearch.toLowerCase())
@@ -206,12 +204,12 @@ export default function PageAllocationContent({
   // Error state
   if (error) {
     return (
-      <Card className="border-red-400/30 bg-red-500/10 backdrop-blur-md">
+      <Card className="border-destructive/30 bg-destructive/10 backdrop-blur-md">
         <CardContent className="py-12 text-center">
-          <h3 className="mb-2 text-lg font-semibold text-red-300">
+          <h3 className="mb-2 text-lg font-semibold text-destructive">
             {translations.errors.fetchFailed}
           </h3>
-          <p className="mb-4 text-red-200">
+          <p className="text-destructive/80 mb-4">
             {error instanceof Error
               ? error.message
               : translations.errors.generic}
@@ -240,40 +238,42 @@ export default function PageAllocationContent({
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card className="border-white/10 bg-white/5 backdrop-blur-md">
           <CardContent className="p-6">
-            <div className="text-sm text-slate-600 dark:text-white/70">
+            <div className="text-sm text-muted-foreground dark:text-muted-foreground">
               {translations.stats.totalTypes}
             </div>
-            <div className="mt-2 text-3xl font-bold text-slate-900 dark:text-white">
+            <div className="mt-2 text-3xl font-bold text-foreground dark:text-foreground">
               {stats.totalTypes}
             </div>
           </CardContent>
         </Card>
         <Card className="border-white/10 bg-white/5 backdrop-blur-md">
           <CardContent className="p-6">
-            <div className="text-sm text-slate-600 dark:text-white/70">
+            <div className="text-sm text-muted-foreground dark:text-muted-foreground">
               {translations.stats.totalAvailable}
             </div>
-            <div className="mt-2 text-3xl font-bold text-slate-900 dark:text-white">
+            <div className="mt-2 text-3xl font-bold text-foreground dark:text-foreground">
               {formatNumber(stats.totalAvailable)}
             </div>
           </CardContent>
         </Card>
         <Card className="border-white/10 bg-white/5 backdrop-blur-md">
           <CardContent className="p-6">
-            <div className="text-sm text-slate-600 dark:text-white/70">
+            <div className="text-sm text-muted-foreground dark:text-muted-foreground">
               {translations.stats.lowStockCount}
             </div>
             <div className="mt-2 text-3xl font-bold text-orange-400">
+              {' '}
+              {/* Warning color - keep specific */}
               {stats.lowStockCount}
             </div>
           </CardContent>
         </Card>
         <Card className="border-white/10 bg-white/5 backdrop-blur-md">
           <CardContent className="p-6">
-            <div className="text-sm text-slate-600 dark:text-white/70">
+            <div className="text-sm text-muted-foreground dark:text-muted-foreground">
               {translations.stats.totalReserved}
             </div>
-            <div className="mt-2 text-3xl font-bold text-slate-900 dark:text-white">
+            <div className="mt-2 text-3xl font-bold text-foreground dark:text-foreground">
               {formatNumber(stats.totalReserved)}
             </div>
           </CardContent>
@@ -306,7 +306,7 @@ export default function PageAllocationContent({
                   checked={lowStockOnly}
                   onChange={e => setLowStockOnly(e.target.checked)}
                 />
-                <span className="text-sm text-slate-700 dark:text-slate-300">
+                <span className="text-sm text-foreground dark:text-foreground">
                   {translations.filters.lowStockOnly}
                 </span>
               </label>
@@ -368,4 +368,3 @@ export default function PageAllocationContent({
     </div>
   );
 }
-

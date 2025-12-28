@@ -149,13 +149,7 @@ export default function EditProfileModal({
     if (address.trim() !== (initialData.address || '')) {
       request.address = address.trim();
     }
-    // Only allow manual URL when no file selected
-    if (
-      !avatarFile &&
-      profilePicture.trim() !== (initialData.profilePicture || '')
-    ) {
-      request.profilePicture = profilePicture.trim();
-    }
+    // Avatar is only uploaded via file, not URL
 
     try {
       // Nothing to do?
@@ -200,25 +194,25 @@ export default function EditProfileModal({
         <div className="space-y-4">
           {/* Email - Read Only */}
           <div className="space-y-2">
-            <label className="text-sm font-medium text-slate-700 dark:text-white/90">
+            <label className="text-sm font-medium text-slate-900 dark:text-white">
               {t.email ?? 'Email'}
             </label>
             <Input
               type="email"
               value={initialData.email}
               disabled
-              className="h-11 bg-slate-50 dark:bg-slate-800"
+              className="h-11 bg-muted dark:bg-muted"
             />
-            <p className="text-xs text-slate-500 dark:text-white/70">
+            <p className="text-xs text-slate-600 dark:text-white/80">
               Email không thể thay đổi
             </p>
           </div>
 
           {/* Phone Number */}
           <div className="space-y-2">
-            <label className="text-sm font-medium text-slate-700 dark:text-white/90">
+            <label className="text-sm font-medium text-slate-900 dark:text-white">
               {t.phone ?? 'Số điện thoại'}{' '}
-              <span className="text-red-500">*</span>
+              <span className="text-destructive">*</span>
             </label>
             <Input
               type="tel"
@@ -232,11 +226,11 @@ export default function EditProfileModal({
               className={`h-11 ${phoneError ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''}`}
             />
             {phoneError ? (
-              <p className="text-xs text-red-600 dark:text-red-400">
+              <p className="text-xs text-destructive dark:text-destructive">
                 {phoneError}
               </p>
             ) : (
-              <p className="text-xs text-slate-500 dark:text-white/70">
+              <p className="text-xs text-slate-600 dark:text-white/80">
                 Tối đa 15 ký tự, chỉ chứa số (10-15 chữ số)
               </p>
             )}
@@ -244,7 +238,7 @@ export default function EditProfileModal({
 
           {/* Address */}
           <div className="space-y-2">
-            <label className="text-sm font-medium text-slate-700 dark:text-white/90">
+            <label className="text-sm font-medium text-slate-900 dark:text-white">
               {t.address ?? 'Địa chỉ'}
             </label>
             <Input
@@ -256,55 +250,96 @@ export default function EditProfileModal({
               maxLength={500}
               className="h-11"
             />
-            <p className="text-xs text-slate-500 dark:text-white/70">
+            <p className="text-xs text-slate-600 dark:text-white/80">
               Tối đa 500 ký tự ({address.length}/500)
             </p>
           </div>
 
           {/* Profile Picture Upload */}
           <div className="space-y-2">
-            <label className="text-sm font-medium text-slate-700 dark:text-white/90">
+            <label className="text-sm font-medium text-slate-900 dark:text-white">
               {t.profilePicture ?? 'Ảnh đại diện'}
             </label>
-            <Input
-              type="file"
-              accept="image/png,image/jpeg,image/jpg,image/gif,image/webp"
-              onChange={e => {
-                const file = e.target.files?.[0] || null;
-                setAvatarFile(file);
-              }}
-              disabled={isSubmitting}
-              className="h-11"
-            />
-            <p className="text-xs text-slate-500 dark:text-white/70">
-              Hỗ trợ JPG, JPEG, PNG, GIF, WEBP. Tối đa 5MB.
-            </p>
-            {!avatarFile && (
-              <Input
-                type="url"
-                value={profilePicture}
-                onChange={e => setProfilePicture(e.target.value)}
-                placeholder="https://example.com/avatar.jpg"
+            <label
+              htmlFor="avatar-upload"
+              className="relative flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-slate-300 bg-slate-50 p-6 transition-all hover:border-sky-400 hover:bg-sky-50/50 dark:border-slate-600 dark:bg-slate-800/50 dark:hover:border-sky-500 dark:hover:bg-slate-800/80"
+            >
+              <input
+                id="avatar-upload"
+                type="file"
+                accept="image/png,image/jpeg,image/jpg,image/gif,image/webp"
+                onChange={e => {
+                  const file = e.target.files?.[0] || null;
+                  setAvatarFile(file);
+                }}
                 disabled={isSubmitting}
-                maxLength={500}
-                className="h-11"
+                className="hidden"
               />
-            )}
-            <p className="text-xs text-slate-500 dark:text-white/70">
-              Có thể dán URL hoặc chọn file để tải lên
-            </p>
-            {avatarPreviewUrl && (
-              <div className="mt-2">
-                <img
-                  src={avatarPreviewUrl}
-                  alt="Preview"
-                  className="h-20 w-20 rounded-full border-2 border-slate-200 object-cover dark:border-slate-700"
-                  onError={e => {
-                    (e.target as HTMLImageElement).style.display = 'none';
-                  }}
-                />
-              </div>
-            )}
+              {avatarPreviewUrl ? (
+                <div className="flex flex-col items-center gap-3">
+                  <div className="relative">
+                    <img
+                      src={avatarPreviewUrl}
+                      alt="Preview"
+                      className="h-24 w-24 rounded-full border-2 border-slate-200 object-cover shadow-md dark:border-slate-700"
+                      onError={e => {
+                        (e.target as HTMLImageElement).style.display = 'none';
+                      }}
+                    />
+                    {avatarFile && (
+                      <div className="absolute inset-0 flex items-center justify-center rounded-full bg-black/50">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-6 w-6 text-white"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"
+                          />
+                        </svg>
+                      </div>
+                    )}
+                  </div>
+                  <span className="text-sm font-medium text-slate-700 dark:text-white/90">
+                    {avatarFile
+                      ? 'Nhấn để chọn ảnh khác'
+                      : 'Nhấn để thay đổi ảnh'}
+                  </span>
+                </div>
+              ) : (
+                <div className="flex flex-col items-center gap-3">
+                  <div className="rounded-full bg-slate-200 p-4 dark:bg-slate-700">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-8 w-8 text-slate-500 dark:text-slate-300"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                      />
+                    </svg>
+                  </div>
+                  <div className="text-center">
+                    <span className="text-sm font-medium text-slate-700 dark:text-white/90">
+                      Nhấn để chọn ảnh đại diện
+                    </span>
+                    <p className="mt-1 text-xs text-slate-500 dark:text-white/70">
+                      JPG, JPEG, PNG, GIF, WEBP (tối đa 5MB)
+                    </p>
+                  </div>
+                </div>
+              )}
+            </label>
           </div>
         </div>
 
@@ -315,7 +350,7 @@ export default function EditProfileModal({
             variant="outline"
             onClick={onClose}
             disabled={isSubmitting}
-            className="border-slate-200 text-slate-700 hover:bg-slate-50 dark:border-white/15 dark:bg-white/5 dark:text-white dark:hover:bg-white/10"
+            className="border-slate-300 text-slate-700 hover:bg-slate-100 hover:text-slate-900 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700 dark:hover:text-white"
           >
             Hủy
           </Button>

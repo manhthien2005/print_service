@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
-import { PAYMENT_CONSTANTS } from '../constants';
+import { PAYMENT_CONSTANTS } from '@/app/[locale]/student/recharge/constants';
 
 interface CustomAmountInputProps {
   onRecharge: (amount: number) => void;

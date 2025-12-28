@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
-import { PAYMENT_CONSTANTS } from '../constants';
+import { PAYMENT_CONSTANTS } from '@/app/[locale]/student/top-up/constants';
 
 interface CustomAmountInputProps {
   onRecharge: (amount: number) => void;
@@ -118,7 +118,7 @@ export function CustomAmountInput({
       </div>
 
       <div className="flex flex-col gap-4">
-        <label className="block text-sm font-semibold text-slate-700 dark:text-white">
+        <label className="block text-sm font-semibold text-slate-900 dark:text-white">
           {t.custom.amountLabel}
         </label>
         <div className="flex flex-col gap-4 md:flex-row md:flex-nowrap md:items-start">
@@ -129,7 +129,7 @@ export function CustomAmountInput({
               value={customAmount}
               onChange={handleAmountChange}
               placeholder={t.custom.amountPlaceholder}
-              className="w-full border-slate-300 bg-slate-50 font-mono focus-visible:border-slate-400 focus-visible:ring-slate-400/20 dark:border-slate-700 dark:bg-slate-900/50 dark:focus-visible:border-slate-500 dark:focus-visible:ring-slate-500/20"
+              className="focus-visible:ring-primary/20 dark:bg-muted/50 dark:focus-visible:ring-primary/20 w-full border-input bg-muted font-mono focus-visible:border-primary dark:border-input dark:focus-visible:border-primary"
               disabled={isLoading}
             />
           </div>
@@ -144,7 +144,9 @@ export function CustomAmountInput({
           </div>
         </div>
         {error && (
-          <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
+          <p className="text-sm text-destructive dark:text-destructive">
+            {error}
+          </p>
         )}
       </div>
     </div>

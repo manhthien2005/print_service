@@ -102,4 +102,3 @@ export function BulkStatusModal({
 }
 
 export default BulkStatusModal;
-

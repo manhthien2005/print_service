@@ -50,13 +50,10 @@ export const createCheckAvailabilitySchema = (t: (key: string) => string) =>
       .int(t('validation.pagesNeeded.integer')),
   });
 
-export type AddPagesFormData = z.infer<
-  ReturnType<typeof createAddPagesSchema>
->;
+export type AddPagesFormData = z.infer<ReturnType<typeof createAddPagesSchema>>;
 export type UpdateAllocationFormData = z.infer<
   ReturnType<typeof createUpdateAllocationSchema>
 >;
 export type CheckAvailabilityFormData = z.infer<
   ReturnType<typeof createCheckAvailabilitySchema>
 >;
-

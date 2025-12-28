@@ -9,10 +9,7 @@ export default function PageAllocationSkeleton() {
       {/* Stats Cards Skeleton */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         {[1, 2, 3, 4].map(i => (
-          <Card
-            key={i}
-            className="border-white/10 bg-white/5 backdrop-blur-md"
-          >
+          <Card key={i} className="border-white/10 bg-white/5 backdrop-blur-md">
             <CardHeader className="pb-3">
               <Skeleton className="h-5 w-32" variant="shimmer" />
               <div className="mt-4 flex items-center justify-between gap-3">
@@ -33,7 +30,7 @@ export default function PageAllocationSkeleton() {
         <CardContent>
           <div className="space-y-3">
             {/* Table Header */}
-            <div className="grid grid-cols-9 gap-4 pb-2 border-b border-white/10">
+            <div className="grid grid-cols-9 gap-4 border-b border-white/10 pb-2">
               {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(i => (
                 <Skeleton key={i} className="h-4 w-full" variant="shimmer" />
               ))}
@@ -42,7 +39,7 @@ export default function PageAllocationSkeleton() {
             {[1, 2, 3, 4, 5].map(i => (
               <div
                 key={i}
-                className="grid grid-cols-9 gap-4 py-3 border-b border-white/10"
+                className="grid grid-cols-9 gap-4 border-b border-white/10 py-3"
               >
                 {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(j => (
                   <Skeleton key={j} className="h-4 w-full" variant="shimmer" />
@@ -55,4 +52,3 @@ export default function PageAllocationSkeleton() {
     </div>
   );
 }
-

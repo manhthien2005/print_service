@@ -1,4 +1,4 @@
-import type { PrintHistoryItem } from '../types';
+import type { PrintHistoryItem } from '@/app/[locale]/student/history/types';
 
 export function formatDate(value?: string) {
   if (!value) return '--';
@@ -46,4 +46,3 @@ export function getPrinterStatusMeta(
     dot: 'bg-slate-400',
   };
 }
-

@@ -8,10 +8,11 @@ import { Input } from '@/components/ui/Input';
 import GlareHover from '@/components/GlareHover';
 import { Captcha } from '@/components/ui/Captcha';
 import { useZodForm } from '@/lib/hooks/useZodForm';
+import { useApiMutation } from '@/lib/hooks/useApiMutation';
 import { loginSchema, type LoginFormData } from '../schemas';
-import { apiClient } from '@/lib/api/client';
 import { useAuthStore } from '@/lib/stores/useAuthStore';
 import { toast } from '@/components/ui/Toast';
+import { setAuthCookies } from '@/lib/auth/cookie-utils';
 import type { LoginFormProps } from '../types';
 import {
   FAILED_LOGIN_KEY,
@@ -20,9 +21,31 @@ import {
   PASSWORD_MAX_LENGTH,
 } from '../constants';
 
+interface LoginResponse {
+  accessToken: string;
+  refreshToken: string;
+  tokenType: string;
+  expiresIn: number;
+  user: {
+    userId: string;
+    email: string;
+    fullName: string;
+    userType: string;
+    phoneNumber?: string;
+    isActive?: boolean;
+  };
+  message?: string;
+  timestamp?: string;
+}
+
+interface LoginRequest {
+  email: string;
+  password: string;
+  recaptchaToken?: string;
+}
+
 export default function LoginForm({ locale, copy: t }: LoginFormProps) {
   const [showPassword, setShowPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const [failedAttempts, setFailedAttempts] = useState(0);
   const [showCaptcha, setShowCaptcha] = useState(false);
   const [captchaValid, setCaptchaValid] = useState(false);
@@ -96,6 +119,11 @@ export default function LoginForm({ locale, copy: t }: LoginFormProps) {
     },
   });
 
+  const loginMutation = useApiMutation<LoginResponse, LoginRequest>(
+    '/auth/login',
+    'post'
+  );
+
   const handleFailedLogin = (error: unknown) => {
     // Only count failed attempts for authentication errors (401, 403) or credential errors
     const isAuthError =
@@ -163,33 +191,14 @@ export default function LoginForm({ locale, copy: t }: LoginFormProps) {
       }
     }
 
-    try {
-      setIsLoading(true);
-      const response = await apiClient.post<{
-        accessToken: string;
-        refreshToken: string;
-        tokenType: string;
-        expiresIn: number;
-        user: {
-          userId: string;
-          email: string;
-          fullName: string;
-          userType: string;
-          phoneNumber?: string;
-          isActive?: boolean;
-        };
-        message?: string;
-        timestamp?: string;
-      }>('/auth/login', {
-        email: data.email,
-        password: data.password,
-        ...(showCaptcha && captchaToken && { recaptchaToken: captchaToken }),
-      });
+    const loginData: LoginRequest = {
+      email: data.email,
+      password: data.password,
+      ...(showCaptcha && captchaToken && { recaptchaToken: captchaToken }),
+    };
 
-      console.log('Login response:', response.data);
-
-      // Handle response - API returns data directly: { accessToken, refreshToken, user, ... }
-      if (response.data && response.data.accessToken && response.data.user) {
+    loginMutation.mutate(loginData, {
+      onSuccess: response => {
         const { accessToken, refreshToken, user } = response.data;
 
         // Save to store
@@ -200,6 +209,20 @@ export default function LoginForm({ locale, copy: t }: LoginFormProps) {
           name: user.fullName,
           userType: user.userType as 'student' | 'staff',
         });
+
+        // Save to cookies for middleware authentication
+        setAuthCookies(
+          accessToken,
+          {
+            userId: user.userId,
+            email: user.email,
+            fullName: user.fullName,
+            userType: user.userType as 'student' | 'staff',
+            phoneNumber: user.phoneNumber,
+            isActive: user.isActive,
+          },
+          data.rememberMe
+        );
 
         // Save refresh token if remember me, otherwise clear any existing
         if (data.rememberMe && refreshToken) {
@@ -223,42 +246,34 @@ export default function LoginForm({ locale, copy: t }: LoginFormProps) {
         setTimeout(() => {
           window.location.href = redirectPath;
         }, 500);
-      } else {
-        // Handle unexpected response format
-        console.error('Unexpected response format:', response.data);
-        toast.error(
+      },
+      onError: (error: unknown) => {
+        handleFailedLogin(error);
+        let errorMessage =
           t.login === 'Login'
-            ? 'Login failed. Invalid response format.'
-            : 'Đăng nhập thất bại. Định dạng phản hồi không hợp lệ.'
-        );
-      }
-    } catch (error: unknown) {
-      handleFailedLogin(error);
-      let errorMessage =
-        t.login === 'Login'
-          ? 'Login failed. Please check your credentials.'
-          : 'Đăng nhập thất bại. Vui lòng kiểm tra thông tin đăng nhập.';
+            ? 'Login failed. Please check your credentials.'
+            : 'Đăng nhập thất bại. Vui lòng kiểm tra thông tin đăng nhập.';
 
-      if (error instanceof Error) {
-        errorMessage = error.message;
-      } else if (
-        typeof error === 'object' &&
-        error !== null &&
-        'response' in error &&
-        typeof error.response === 'object' &&
-        error.response !== null &&
-        'data' in error.response &&
-        typeof error.response.data === 'object' &&
-        error.response.data !== null &&
-        'message' in error.response.data
-      ) {
-        errorMessage = String(error.response.data.message);
-      }
+        if (error instanceof Error) {
+          errorMessage = error.message;
+        } else if (
+          typeof error === 'object' &&
+          error !== null &&
+          'response' in error
+        ) {
+          const errorWithResponse = error as {
+            response?: {
+              data?: { message?: string };
+            };
+          };
+          if (errorWithResponse.response?.data?.message) {
+            errorMessage = String(errorWithResponse.response.data.message);
+          }
+        }
 
-      toast.error(errorMessage);
-    } finally {
-      setIsLoading(false);
-    }
+        toast.error(errorMessage);
+      },
+    });
   };
 
   return (
@@ -435,10 +450,10 @@ export default function LoginForm({ locale, copy: t }: LoginFormProps) {
           >
             <button
               type="submit"
-              disabled={isLoading}
+              disabled={loginMutation.isPending}
               className="relative z-10 h-[44px] w-full rounded-lg border border-white/35 bg-transparent px-4 text-sm font-semibold text-white shadow-[0_12px_35px_rgba(0,0,0,0.35)] transition hover:bg-white/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900 disabled:cursor-not-allowed disabled:opacity-50"
             >
-              {isLoading
+              {loginMutation.isPending
                 ? t.login === 'Login'
                   ? 'Logging in...'
                   : 'Đang đăng nhập...'

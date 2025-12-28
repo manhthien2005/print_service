@@ -9,7 +9,7 @@ import type { BalanceHistoryItem } from '@/types/api';
 import { cn } from '@/lib/utils/cn';
 
 interface TransactionHistoryTableProps {
-  t: any; // Translation object
+  t: Record<string, any>;
 }
 
 const ITEMS_PER_PAGE = 10;
@@ -63,11 +63,13 @@ export function TransactionHistoryTable({ t }: TransactionHistoryTableProps) {
         className={cn(
           'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium',
           isIn
-            ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
-            : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'
+            ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' // Success color - keep specific
+            : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
         )}
       >
-        {isIn ? t.transactionHistory.direction.in : t.transactionHistory.direction.out}
+        {isIn
+          ? t.transactionHistory.direction.in
+          : t.transactionHistory.direction.out}
       </span>
     );
   };
@@ -84,15 +86,16 @@ export function TransactionHistoryTable({ t }: TransactionHistoryTableProps) {
   };
 
   // Filter data client-side (since API doesn't support these filters yet)
-  const filteredData = historyData?.data?.filter(item => {
-    if (directionFilter !== 'all' && item.direction !== directionFilter) {
-      return false;
-    }
-    if (sourceTypeFilter !== 'all' && item.sourceType !== sourceTypeFilter) {
-      return false;
-    }
-    return true;
-  }) || [];
+  const filteredData =
+    historyData?.data?.filter(item => {
+      if (directionFilter !== 'all' && item.direction !== directionFilter) {
+        return false;
+      }
+      if (sourceTypeFilter !== 'all' && item.sourceType !== sourceTypeFilter) {
+        return false;
+      }
+      return true;
+    }) || [];
 
   // Reset page when filter changes
   useEffect(() => {
@@ -116,7 +119,7 @@ export function TransactionHistoryTable({ t }: TransactionHistoryTableProps) {
           <div className="text-lg font-semibold text-slate-900 dark:text-white">
             {t.transactionHistory.title}
           </div>
-          <div className="text-sm text-slate-500 dark:text-white/60">
+          <div className="text-sm text-slate-600 dark:text-white/70">
             {t.transactionHistory.description ||
               'Xem tất cả các giao dịch số dư của bạn'}
           </div>
@@ -129,7 +132,7 @@ export function TransactionHistoryTable({ t }: TransactionHistoryTableProps) {
           <Select
             value={directionFilter}
             onChange={e => setDirectionFilter(e.target.value)}
-            className="rounded-xl border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 shadow-sm transition hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500/50 dark:border-white/10 dark:bg-white/5 dark:text-white"
+            className="dark:bg-background/5 rounded-xl border-border bg-background px-3 py-2 text-sm text-foreground shadow-sm transition hover:border-primary focus:outline-none focus:ring-2 focus:ring-ring dark:border-border dark:text-foreground"
           >
             <option value="all">{t.transactionHistory.filters.all}</option>
             <option value="IN">{t.transactionHistory.filters.in}</option>
@@ -140,12 +143,18 @@ export function TransactionHistoryTable({ t }: TransactionHistoryTableProps) {
           <Select
             value={sourceTypeFilter}
             onChange={e => setSourceTypeFilter(e.target.value)}
-            className="rounded-xl border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 shadow-sm transition hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500/50 dark:border-white/10 dark:bg-white/5 dark:text-white"
+            className="dark:bg-background/5 rounded-xl border-border bg-background px-3 py-2 text-sm text-foreground shadow-sm transition hover:border-primary focus:outline-none focus:ring-2 focus:ring-ring dark:border-border dark:text-foreground"
           >
             <option value="all">{t.transactionHistory.filters.all}</option>
-            <option value="DEPOSIT">{t.transactionHistory.filters.deposit}</option>
-            <option value="PAYMENT">{t.transactionHistory.filters.payment}</option>
-            <option value="REFUND">{t.transactionHistory.filters.refund}</option>
+            <option value="DEPOSIT">
+              {t.transactionHistory.filters.deposit}
+            </option>
+            <option value="PAYMENT">
+              {t.transactionHistory.filters.payment}
+            </option>
+            <option value="REFUND">
+              {t.transactionHistory.filters.refund}
+            </option>
             <option value="SEMESTER_BONUS">
               {t.transactionHistory.filters.semester_bonus}
             </option>
@@ -157,20 +166,20 @@ export function TransactionHistoryTable({ t }: TransactionHistoryTableProps) {
       <div className="overflow-x-auto">
         <table className="w-full">
           <thead>
-            <tr className="border-b border-slate-200 dark:border-white/10">
-              <th className="px-4 py-3 text-left text-sm font-semibold text-slate-700 dark:text-white/90">
+            <tr className="border-b border-slate-200/70 dark:border-white/10">
+              <th className="px-4 py-2.5 text-left text-sm font-semibold text-slate-900 dark:text-white">
                 {t.transactionHistory.table.transactionDate}
               </th>
-              <th className="px-4 py-3 text-left text-sm font-semibold text-slate-700 dark:text-white/90">
+              <th className="px-4 py-2.5 text-left text-sm font-semibold text-slate-900 dark:text-white">
                 {t.transactionHistory.table.type}
               </th>
-              <th className="px-4 py-3 text-left text-sm font-semibold text-slate-700 dark:text-white/90">
+              <th className="px-4 py-2.5 text-left text-sm font-semibold text-slate-900 dark:text-white">
                 {t.transactionHistory.table.description}
               </th>
-              <th className="px-4 py-3 text-right text-sm font-semibold text-slate-700 dark:text-white/90">
+              <th className="px-4 py-2.5 text-right text-sm font-semibold text-slate-900 dark:text-white">
                 {t.transactionHistory.table.amount}
               </th>
-              <th className="px-4 py-3 text-center text-sm font-semibold text-slate-700 dark:text-white/90">
+              <th className="px-4 py-2.5 text-center text-sm font-semibold text-slate-900 dark:text-white">
                 {t.transactionHistory.table.direction}
               </th>
             </tr>
@@ -180,7 +189,7 @@ export function TransactionHistoryTable({ t }: TransactionHistoryTableProps) {
               <tr>
                 <td
                   colSpan={5}
-                  className="px-4 py-8 text-center text-red-600 dark:text-red-400"
+                  className="px-4 py-8 text-center text-destructive dark:text-destructive"
                 >
                   {t.transactionHistory.errors.loadFailed}
                 </td>
@@ -189,7 +198,7 @@ export function TransactionHistoryTable({ t }: TransactionHistoryTableProps) {
               <tr>
                 <td
                   colSpan={5}
-                  className="px-4 py-8 text-center text-slate-500 dark:text-white/50"
+                  className="px-4 py-8 text-center text-slate-600 dark:text-white/70"
                 >
                   {t.transactionHistory.empty}
                 </td>
@@ -200,29 +209,29 @@ export function TransactionHistoryTable({ t }: TransactionHistoryTableProps) {
                 return (
                   <tr
                     key={item.ledgerId}
-                    className="border-b border-slate-100 transition-colors hover:bg-slate-50/50 dark:border-white/5 dark:hover:bg-white/5"
+                    className="border-b border-slate-200/70 transition-colors hover:bg-slate-50/50 dark:border-white/10 dark:hover:bg-white/5"
                   >
-                    <td className="px-4 py-3 text-sm text-slate-600 dark:text-white/70">
+                    <td className="px-4 py-2.5 text-sm text-slate-600 dark:text-white/70">
                       {formatDate(item.createdAt)}
                     </td>
-                    <td className="px-4 py-3 text-sm text-slate-600 dark:text-white/70">
+                    <td className="px-4 py-2.5 text-sm text-slate-600 dark:text-white/70">
                       {getSourceTypeLabel(item.sourceType)}
                     </td>
-                    <td className="px-4 py-3 text-sm text-slate-600 dark:text-white/70">
+                    <td className="px-4 py-2.5 text-sm text-slate-600 dark:text-white/70">
                       {item.description || '-'}
                     </td>
                     <td
                       className={cn(
                         'px-4 py-3 text-right text-sm font-medium',
                         isIn
-                          ? 'text-green-600 dark:text-green-400'
+                          ? 'text-green-600 dark:text-green-400' // Success color - keep specific
                           : 'text-red-600 dark:text-red-400'
                       )}
                     >
                       {isIn ? '+' : '-'}
                       {formatCurrency(item.amount)}
                     </td>
-                    <td className="px-4 py-3 text-center">
+                    <td className="px-4 py-2.5 text-center">
                       {getDirectionBadge(item.direction)}
                     </td>
                   </tr>
@@ -235,8 +244,8 @@ export function TransactionHistoryTable({ t }: TransactionHistoryTableProps) {
 
       {/* Pagination */}
       {pagination && totalItems > ITEMS_PER_PAGE && (
-        <div className="flex items-center justify-between border-t border-slate-200 pt-4 dark:border-white/10">
-          <div className="text-sm text-slate-600 dark:text-white/60">
+        <div className="flex items-center justify-between border-t border-border pt-4 dark:border-border">
+          <div className="text-sm text-slate-600 dark:text-white/70">
             {t.transactionHistory.pagination?.showing || 'Hiển thị'}{' '}
             <span className="font-medium text-slate-900 dark:text-white">
               {(displayPage - 1) * ITEMS_PER_PAGE + 1}
@@ -262,4 +271,3 @@ export function TransactionHistoryTable({ t }: TransactionHistoryTableProps) {
     </div>
   );
 }
-

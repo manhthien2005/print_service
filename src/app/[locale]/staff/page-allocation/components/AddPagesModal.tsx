@@ -6,12 +6,11 @@ import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { useZodForm } from '@/lib/hooks/useZodForm';
-import { createAddPagesSchema } from '../schemas';
+import { createAddPagesSchema } from '@/app/[locale]/staff/page-allocation/schemas';
 import { useAddPages } from '@/lib/api/services/pageAllocation';
 import { toast } from '@/components/ui/Toast';
 import { formatNumber } from '@/lib/utils/format';
 import type { PageAllocation } from '@/lib/api/services/pageAllocation';
-
 
 interface AddPagesModalProps {
   isOpen: boolean;
@@ -71,21 +70,16 @@ export default function AddPagesModal({
   if (!allocation) return null;
 
   return (
-    <Modal
-      isOpen={isOpen}
-      onClose={onClose}
-      title={t('title')}
-      size="md"
-    >
+    <Modal isOpen={isOpen} onClose={onClose} title={t('title')} size="md">
       <form onSubmit={handleSubmit(onSubmit)} className="p-6">
         <div className="space-y-6">
           {/* Quantity */}
           <div className="space-y-2">
             <label
               htmlFor="quantity"
-              className="text-sm font-medium text-slate-700 dark:text-slate-300"
+              className="text-sm font-medium text-foreground dark:text-foreground"
             >
-              {t('quantity')} <span className="text-red-500">*</span>
+              {t('quantity')} <span className="text-destructive">*</span>
             </label>
             <Input
               id="quantity"
@@ -97,7 +91,9 @@ export default function AddPagesModal({
               error={!!errors.quantity}
             />
             {errors.quantity && (
-              <p className="text-xs text-red-500">{errors.quantity.message}</p>
+              <p className="text-xs text-destructive">
+                {errors.quantity.message}
+              </p>
             )}
           </div>
 
@@ -105,7 +101,7 @@ export default function AddPagesModal({
           <div className="space-y-2">
             <label
               htmlFor="note"
-              className="text-sm font-medium text-slate-700 dark:text-slate-300"
+              className="text-sm font-medium text-foreground dark:text-foreground"
             >
               {t('note')}
             </label>
@@ -114,7 +110,7 @@ export default function AddPagesModal({
               rows={3}
               placeholder={t('notePlaceholder')}
               {...register('note')}
-              className="w-full rounded-lg border border-slate-300 bg-white px-4 py-2 text-slate-900 placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-white/10 dark:bg-white/5 dark:text-white dark:placeholder:text-white/40 dark:focus:border-blue-400"
+              className="focus:ring-primary/20 dark:bg-background/5 w-full rounded-lg border border-input bg-background px-4 py-2 text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 dark:border-input dark:text-foreground dark:placeholder:text-muted-foreground dark:focus:border-primary"
             />
           </div>
 
@@ -128,11 +124,7 @@ export default function AddPagesModal({
             >
               {tCommon('cancel')}
             </Button>
-            <Button
-              type="submit"
-              variant="default"
-              disabled={isSubmitting}
-            >
+            <Button type="submit" variant="default" disabled={isSubmitting}>
               {isSubmitting ? t('submitting') : t('submit')}
             </Button>
           </div>
@@ -141,4 +133,3 @@ export default function AddPagesModal({
     </Modal>
   );
 }
-

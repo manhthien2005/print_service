@@ -1,13 +1,14 @@
 'use client';
 
 import { useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 import { useParams } from 'next/navigation';
 import { useRouter } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/Button';
 import { Card, CardContent } from '@/components/ui/Card';
-import { useCancelPrintJob } from '../api';
-import { usePrintJobProgressData } from '../hooks/usePrintJobProgressData';
+import { useCancelPrintJob } from '@/app/[locale]/student/print/api';
+import { usePrintJobProgressData } from '@/app/[locale]/student/print/hooks/usePrintJobProgressData';
 import { toast } from '@/components/ui/Toast';
 import { cn } from '@/lib/utils/cn';
 import { printHistoryKeys } from '@/lib/api/services/student';
@@ -18,6 +19,7 @@ interface PrintJobProgressProps {
 }
 
 export function PrintJobProgress({ jobId, onComplete }: PrintJobProgressProps) {
+  const t = useTranslations('student.print.printJobProgress');
   const router = useRouter();
   const params = useParams();
   const locale = (params.locale as string) || 'vi';
@@ -29,7 +31,7 @@ export function PrintJobProgress({ jobId, onComplete }: PrintJobProgressProps) {
   // Navigate to history when completed and invalidate queries
   useEffect(() => {
     if (progress?.printStatus === 'completed') {
-      toast.success('In thành công!');
+      toast.success(t('toasts.printSuccess'));
 
       // Invalidate print history queries để cập nhật dữ liệu
       queryClient.invalidateQueries({
@@ -45,14 +47,14 @@ export function PrintJobProgress({ jobId, onComplete }: PrintJobProgressProps) {
         }, 2000);
       }
     } else if (progress?.printStatus === 'failed') {
-      toast.error('In thất bại. Vui lòng thử lại.');
+      toast.error(t('toasts.printFailed'));
 
       // Invalidate print history queries khi failed
       queryClient.invalidateQueries({
         queryKey: printHistoryKeys.all,
       });
     } else if (progress?.printStatus === 'cancelled') {
-      toast.info('Đã hủy print job.');
+      toast.info(t('toasts.cancelled'));
 
       // Invalidate print history queries khi cancelled
       queryClient.invalidateQueries({
@@ -66,20 +68,23 @@ export function PrintJobProgress({ jobId, onComplete }: PrintJobProgressProps) {
   }, [progress?.printStatus, onComplete, router, locale, queryClient]);
 
   const handleCancel = async () => {
-    if (!confirm('Bạn có chắc chắn muốn hủy print job này?')) {
+    if (!confirm(t('confirmCancel'))) {
       return;
     }
 
     try {
       await cancelJobMutation.mutateAsync(jobId);
-      toast.success(
-        'Đã hủy print job thành công. Số tiền sẽ được hoàn lại vào tài khoản.'
-      );
-    } catch (err: any) {
+      toast.success(t('toasts.cancelSuccess'));
+    } catch (err: unknown) {
       const errorMessage =
-        err?.response?.data?.message ||
-        err?.message ||
-        'Có lỗi xảy ra khi hủy print job.';
+        (
+          err as {
+            response?: { data?: { message?: string } };
+            message?: string;
+          }
+        )?.response?.data?.message ||
+        (err as { message?: string })?.message ||
+        t('errors.cancelFailed');
       toast.error(errorMessage);
     }
   };
@@ -87,44 +92,44 @@ export function PrintJobProgress({ jobId, onComplete }: PrintJobProgressProps) {
   const getStatusLabel = (status: string) => {
     switch (status) {
       case 'queued':
-        return 'Đang chờ trong hàng đợi';
+        return t('status.queued');
       case 'printing':
-        return 'Đang in';
+        return t('status.printing');
       case 'completed':
-        return 'Hoàn thành';
+        return t('status.completed');
       case 'cancelled':
-        return 'Đã hủy';
+        return t('status.cancelled');
       case 'failed':
-        return 'Thất bại';
+        return t('status.failed');
       default:
-        return 'Không xác định';
+        return t('status.unknown');
     }
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'queued':
-        return 'text-yellow-600 dark:text-yellow-400';
+        return 'text-yellow-600 dark:text-yellow-400'; // Warning color - keep specific
       case 'printing':
-        return 'text-blue-600 dark:text-blue-400';
+        return 'text-primary dark:text-primary';
       case 'completed':
-        return 'text-green-600 dark:text-green-400';
+        return 'text-green-600 dark:text-green-400'; // Success color - keep specific
       case 'cancelled':
-        return 'text-gray-600 dark:text-gray-400';
+        return 'text-muted-foreground dark:text-muted-foreground';
       case 'failed':
-        return 'text-red-600 dark:text-red-400';
+        return 'text-destructive dark:text-destructive';
       default:
-        return 'text-slate-600 dark:text-slate-400';
+        return 'text-muted-foreground dark:text-muted-foreground';
     }
   };
 
   if (isLoading && !progress) {
     return (
-      <Card className="border-slate-200/70 bg-white/80 shadow-lg dark:border-white/10 dark:bg-white/5">
+      <Card className="bg-background/80 dark:bg-background/5 border-border shadow-lg dark:border-border">
         <CardContent className="p-8">
           <div className="flex flex-col items-center justify-center py-12">
             <svg
-              className="h-8 w-8 animate-spin text-blue-600 dark:text-blue-400"
+              className="h-8 w-8 animate-spin text-primary dark:text-primary"
               fill="none"
               viewBox="0 0 24 24"
             >
@@ -142,8 +147,8 @@ export function PrintJobProgress({ jobId, onComplete }: PrintJobProgressProps) {
                 d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
               />
             </svg>
-            <p className="mt-4 text-sm text-slate-600 dark:text-white/70">
-              Đang tải thông tin print job...
+            <p className="mt-4 text-sm text-muted-foreground dark:text-muted-foreground">
+              {t('loading')}
             </p>
           </div>
         </CardContent>
@@ -153,13 +158,13 @@ export function PrintJobProgress({ jobId, onComplete }: PrintJobProgressProps) {
 
   if (error || !progress) {
     return (
-      <Card className="border-slate-200/70 bg-white/80 shadow-lg dark:border-white/10 dark:bg-white/5">
+      <Card className="bg-background/80 dark:bg-background/5 border-border shadow-lg dark:border-border">
         <CardContent className="p-8">
-          <div className="rounded-lg border border-red-200 bg-red-50 p-4 dark:border-red-500/30 dark:bg-red-500/10">
-            <p className="text-sm text-red-600 dark:text-red-400">
+          <div className="border-destructive/30 bg-destructive/10 dark:border-destructive/30 dark:bg-destructive/10 rounded-lg border p-4">
+            <p className="text-sm text-destructive dark:text-destructive">
               {(error as any)?.response?.data?.message ||
                 (error as any)?.message ||
-                'Có lỗi xảy ra khi tải thông tin print job. Vui lòng thử lại.'}
+                t('errors.loadFailed')}
             </p>
           </div>
         </CardContent>
@@ -173,11 +178,11 @@ export function PrintJobProgress({ jobId, onComplete }: PrintJobProgressProps) {
         <div className="space-y-6">
           {/* Header */}
           <div>
-            <h3 className="text-xl font-semibold text-slate-900 dark:text-white">
-              Theo dõi tiến trình in
+            <h3 className="text-xl font-semibold text-foreground dark:text-foreground">
+              {t('title')}
             </h3>
-            <p className="mt-1 text-sm text-slate-600 dark:text-white/70">
-              Job ID: {jobId}
+            <p className="mt-1 text-sm text-muted-foreground dark:text-muted-foreground">
+              {t('jobId')}: {jobId}
             </p>
           </div>
 
@@ -219,17 +224,17 @@ export function PrintJobProgress({ jobId, onComplete }: PrintJobProgressProps) {
           progress.printStatus === 'queued' ? (
             <div className="space-y-2">
               <div className="flex items-center justify-between text-sm">
-                <span className="text-slate-600 dark:text-white/70">
-                  Tiến trình: {progress.progress.printedPages} /{' '}
-                  {progress.progress.totalPages} trang
+                <span className="text-muted-foreground dark:text-muted-foreground">
+                  {t('progress')}: {progress.progress.printedPages} /{' '}
+                  {progress.progress.totalPages} {t('pages')}
                 </span>
-                <span className="font-semibold text-blue-600 dark:text-blue-400">
+                <span className="font-semibold text-primary dark:text-primary">
                   {progress.progress.percentage.toFixed(1)}%
                 </span>
               </div>
-              <div className="h-4 w-full overflow-hidden rounded-full bg-slate-200 dark:bg-white/10">
+              <div className="dark:bg-muted/10 h-4 w-full overflow-hidden rounded-full bg-muted">
                 <div
-                  className="h-full bg-gradient-to-r from-blue-500 to-blue-600 transition-all duration-500 ease-out"
+                  className="h-full bg-gradient-to-r from-primary to-primary transition-all duration-500 ease-out"
                   style={{ width: `${progress.progress.percentage}%` }}
                 />
               </div>
@@ -240,15 +245,20 @@ export function PrintJobProgress({ jobId, onComplete }: PrintJobProgressProps) {
           {progress.printStatus === 'queued' &&
             progress.queueInfo.positionInQueue > 0 && (
               <div className="rounded-lg border border-yellow-200 bg-yellow-50 p-4 dark:border-yellow-500/30 dark:bg-yellow-500/10">
+                {' '}
+                {/* Warning color - keep specific */}
                 <p className="text-sm text-yellow-800 dark:text-yellow-200">
-                  Vị trí trong hàng đợi:{' '}
-                  {progress.queueInfo.positionInQueue + 1}
+                  {' '}
+                  {/* Warning color - keep specific */}
+                  {t('queuePosition')}: {progress.queueInfo.positionInQueue + 1}
                   {progress.queueInfo.jobsAhead > 0 &&
-                    ` (${progress.queueInfo.jobsAhead} job phía trước)`}
+                    ` (${progress.queueInfo.jobsAhead} ${t('jobsAhead')})`}
                 </p>
                 {progress.timing.estimatedCompletionTime && (
                   <p className="mt-1 text-xs text-yellow-700 dark:text-yellow-300">
-                    Thời gian ước tính hoàn thành:{' '}
+                    {' '}
+                    {/* Warning color - keep specific */}
+                    {t('estimatedCompletion')}:{' '}
                     {new Date(
                       progress.timing.estimatedCompletionTime
                     ).toLocaleString('vi-VN')}
@@ -261,14 +271,14 @@ export function PrintJobProgress({ jobId, onComplete }: PrintJobProgressProps) {
           {progress.timing.startTime && (
             <div className="space-y-2 text-sm text-slate-600 dark:text-white/70">
               <div className="flex justify-between">
-                <span>Thời gian bắt đầu:</span>
+                <span>{t('startTime')}:</span>
                 <span className="font-medium">
                   {new Date(progress.timing.startTime).toLocaleString('vi-VN')}
                 </span>
               </div>
               {progress.timing.estimatedCompletionTime && (
                 <div className="flex justify-between">
-                  <span>Thời gian ước tính hoàn thành:</span>
+                  <span>{t('estimatedCompletion')}:</span>
                   <span className="font-medium">
                     {new Date(
                       progress.timing.estimatedCompletionTime
@@ -294,10 +304,10 @@ export function PrintJobProgress({ jobId, onComplete }: PrintJobProgressProps) {
               Máy in: {progress.printer.printerName}
             </p>
             <p className="mt-1 text-sm text-slate-600 dark:text-white/70">
-              Vị trí: {progress.printer.location}
+              {t('printer.location')}: {progress.printer.location}
             </p>
             <p className="mt-1 text-sm text-slate-600 dark:text-white/70">
-              Trạng thái: {progress.printer.status}
+              {t('printer.status')}: {progress.printer.status}
             </p>
           </div>
 
@@ -331,10 +341,10 @@ export function PrintJobProgress({ jobId, onComplete }: PrintJobProgressProps) {
                         d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                       />
                     </svg>
-                    Đang hủy...
+                    {t('cancelling')}
                   </>
                 ) : (
-                  'Hủy Print Job'
+                  t('cancelButton')
                 )}
               </Button>
             )}
@@ -345,7 +355,7 @@ export function PrintJobProgress({ jobId, onComplete }: PrintJobProgressProps) {
                 onClick={() => router.push(`/${locale}/student/history`)}
                 className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600"
               >
-                Xem Lịch Sử In
+                {t('viewHistory')}
               </Button>
             )}
           </div>

@@ -11,6 +11,7 @@ import {
 } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import CountUp from '@/components/ui/CountUp';
+import BalanceCountUp from '@/app/[locale]/student/profile/components/BalanceCountUp';
 import GradientText from '@/components/ui/GradientText';
 import { cn } from '@/lib/utils/cn';
 import { useStudentDashboard } from '@/lib/api/services/student';
@@ -18,6 +19,7 @@ import { useBonusPackages } from '@/lib/api/services/payment';
 import type { StudentDashboardResponse } from '@/types/api';
 import { studentQuickActionsMock } from '../constants';
 import { STATUS_STYLES } from '../constants';
+import StudentDashboardSkeleton from './StudentDashboardSkeleton';
 
 export default function StudentDashboard({
   locale,
@@ -149,10 +151,11 @@ export default function StudentDashboard({
     },
   ];
 
-  // Loading state
+  // Loading state - show header immediately, skeleton for data
   if (isLoading) {
     return (
       <div className="space-y-8 pb-24">
+        {/* Header ngoài Card - đồng bộ style với các trang khác */}
         <header className="mb-8">
           <h1 className="text-4xl font-bold text-slate-900 dark:text-white">
             Trang chủ
@@ -162,9 +165,7 @@ export default function StudentDashboard({
               'Kiểm tra số dư, in nhanh và theo dõi gần đây.'}
           </p>
         </header>
-        <div className="flex items-center justify-center py-12">
-          <div className="text-slate-600 dark:text-white/70">Đang tải...</div>
-        </div>
+        <StudentDashboardSkeleton t={t} />
       </div>
     );
   }
@@ -233,14 +234,14 @@ export default function StudentDashboard({
 
       <div className="space-y-6">
         {/* Grid chính: Khối số dư và Lưu ý nhanh cùng hàng */}
-        <div className="grid items-start gap-6 xl:grid-cols-[1.6fr,1fr]">
+        <div className="grid items-stretch gap-6 xl:grid-cols-[1.6fr,1fr]">
           {/* Cột trái: Khối số dư - chỉ có 3 khối chính */}
-          <div className="space-y-4">
+          <div className="flex h-full">
             {/* Card số dư */}
-            <Card className="relative overflow-hidden border-slate-200/70 bg-gradient-to-br from-sky-50 via-white to-indigo-50 shadow-lg backdrop-blur dark:border-white/10 dark:from-white/10 dark:via-white/5 dark:to-white/0">
+            <Card className="relative flex h-full w-full overflow-hidden border-slate-200/70 bg-gradient-to-br from-sky-50 via-white to-indigo-50 shadow-lg backdrop-blur dark:border-white/10 dark:from-white/10 dark:via-white/5 dark:to-white/0">
               <div className="absolute -right-20 -top-24 h-64 w-64 rounded-full bg-sky-300/30 blur-3xl dark:bg-sky-500/20" />
               <div className="absolute -bottom-24 -left-20 h-64 w-64 rounded-full bg-indigo-300/25 blur-3xl dark:bg-indigo-500/20" />
-              <CardContent className="relative p-6">
+              <CardContent className="relative flex w-full min-w-0 flex-col p-6">
                 {/* Header trong Card - Xin chào */}
                 <div className="mb-4 pb-2 pt-2">
                   <h2 className="text-4xl font-bold text-slate-900 dark:text-white">
@@ -262,7 +263,7 @@ export default function StudentDashboard({
                 </div>
 
                 {/* Grid 1 cột: Số dư tiền + Công việc tháng này, Trang đã in */}
-                <div className="flex flex-col space-y-4">
+                <div className="flex w-full min-w-0 flex-1 flex-col space-y-4">
                   {/* Số dư tiền */}
                   <div className="flex-1 rounded-xl border border-slate-200/70 bg-white/80 p-5 shadow-sm dark:border-white/10 dark:bg-white/5">
                     <p className="text-sm font-medium text-slate-500 dark:text-white/70">
@@ -270,7 +271,7 @@ export default function StudentDashboard({
                     </p>
                     <div className="mt-2 flex items-end gap-2">
                       <span className="text-3xl font-semibold text-slate-900 dark:text-white">
-                        <CountUp to={balance} />
+                        <BalanceCountUp to={balance} duration={2} />
                       </span>
                       <span className="text-sm text-slate-500 dark:text-white/70">
                         ₫

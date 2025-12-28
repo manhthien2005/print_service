@@ -1,12 +1,15 @@
 'use client';
 
-import { useRef, useState } from 'react';
-import { PrintWizard, PrintWizardRef } from './PrintWizard';
-import { UploadedFilesTable } from './UploadedFilesTable';
-import { UploadedFileItem } from '../types';
-import { useNavigationGuard } from '../hooks/useNavigationGuard';
-import { NavigationWarningModal } from './NavigationWarningModal';
+import { useRef, useState, useEffect } from 'react';
+import {
+  PrintWizard,
+  PrintWizardRef,
+} from '@/app/[locale]/student/print/components/PrintWizard';
+import { UploadedFilesTable } from '@/app/[locale]/student/print/components/UploadedFilesTable';
+import { UploadedFileItem } from '@/app/[locale]/student/print/types';
+import { NavigationWarningModal } from '@/app/[locale]/student/print/components/NavigationWarningModal';
 import { usePrintProgressStore } from '@/lib/stores/usePrintProgressStore';
+import { useNavigationGuardContext } from '@/lib/providers/NavigationGuardProvider';
 
 export function PrintPageContent() {
   const printWizardRef = useRef<PrintWizardRef>(null);
@@ -20,13 +23,25 @@ export function PrintPageContent() {
     (currentStep > 1 && progress?.uploadedFile)
   );
 
-  // Navigation guard - enabled when on print page
-  const { showWarning, handleConfirmNavigation, handleCancelNavigation } =
-    useNavigationGuard({
-      enabled: true,
-      currentStep,
-      hasUploadedFile,
+  // Dispatch step change event for NavigationGuardProviderWrapper
+  useEffect(() => {
+    const event = new CustomEvent('print-wizard-step-change', {
+      detail: currentStep,
     });
+    window.dispatchEvent(event);
+  }, [currentStep]);
+
+  // Dispatch hasUploadedFile change event
+  useEffect(() => {
+    const event = new CustomEvent('print-wizard-has-file-change', {
+      detail: hasUploadedFile,
+    });
+    window.dispatchEvent(event);
+  }, [hasUploadedFile]);
+
+  // Navigation guard from context
+  const { showWarning, handleConfirmNavigation, handleCancelNavigation } =
+    useNavigationGuardContext();
 
   const handleStartPrint = (file: UploadedFileItem) => {
     if (printWizardRef.current) {

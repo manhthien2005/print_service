@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Modal } from '@/components/ui/Modal';
-import { MockPrinter } from '../../print/types';
+import { MockPrinter } from '@/app/[locale]/student/print/types';
 import Image from 'next/image';
 
 interface PrinterLocationModalProps {
@@ -38,7 +38,7 @@ export function PrinterLocationModal({
           <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
             Bản đồ trường học
           </h3>
-          <div className="relative h-64 w-full overflow-hidden rounded-lg border-2 border-slate-200 bg-slate-100 dark:border-white/10 dark:bg-slate-800">
+          <div className="relative h-64 w-full overflow-hidden rounded-lg border-2 border-slate-200 bg-slate-100 dark:border-white/10 dark:bg-white/10">
             <Image
               src={mapImagePath}
               alt="School Map"

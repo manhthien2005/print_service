@@ -1,9 +1,11 @@
-import type { PrintHistoryItem } from '../types';
-import { FileIcon } from '../../print/components/FileIcon';
-import { formatDate } from '../utils';
+'use client';
+
+import type { PrintHistoryItem } from '@/app/[locale]/student/history/types';
+import { FileIcon } from '@/app/[locale]/student/print/components/FileIcon';
+import { formatDate } from '@/app/[locale]/student/history/utils';
 import { formatCurrency } from '@/lib/utils/format';
 import { StatusBadge } from './StatusBadge';
-import { tagExcludes } from '../constants';
+import { tagExcludes } from '@/app/[locale]/student/history/constants';
 
 interface HistoryRowProps {
   item: PrintHistoryItem;
@@ -18,7 +20,7 @@ export function HistoryRow({ item, onClick }: HistoryRowProps) {
     <button
       type="button"
       onClick={onClick}
-      className="group grid w-full grid-cols-12 items-center gap-4 rounded-xl border border-slate-200/70 bg-white/70 px-4 py-3 text-left transition hover:-translate-y-[1px] hover:shadow-[0_16px_40px_rgba(15,23,42,0.08)] dark:border-white/10 dark:bg-white/5"
+      className="group grid w-full grid-cols-12 items-center gap-4 rounded-xl border border-slate-200/70 bg-white/80 px-4 py-3 text-left transition hover:-translate-y-[1px] hover:shadow-[0_16px_40px_rgba(15,23,42,0.08)] dark:border-white/10 dark:bg-white/5"
     >
       <div className="col-span-3">
         <div className="flex items-center gap-3">

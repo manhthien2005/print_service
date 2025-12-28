@@ -1,4 +1,10 @@
-import type { PrintHistoryItem, SortColumn, SortDirection } from '../types';
+'use client';
+
+import type {
+  PrintHistoryItem,
+  SortColumn,
+  SortDirection,
+} from '@/app/[locale]/student/history/types';
 import { HistoryRow } from './HistoryRow';
 
 interface HistoryTableProps {

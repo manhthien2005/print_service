@@ -4,9 +4,15 @@ import { useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils/cn';
 import { Button } from '@/components/ui/Button';
-import { MockUploadedFile, mockPermittedFileTypes } from '../types';
+import {
+  MockUploadedFile,
+  mockPermittedFileTypes,
+} from '@/app/[locale]/student/print/types';
 import { FileIcon } from './FileIcon';
-import { useUploadFile, usePermittedFileTypes } from '../api';
+import {
+  useUploadFile,
+  usePermittedFileTypes,
+} from '@/app/[locale]/student/print/api';
 import { mapUploadedFileResponse } from '@/lib/utils/mappers/studentPrintMapper';
 import { toast } from '@/components/ui/Toast';
 
@@ -48,16 +54,21 @@ export function Step1UploadDocument({
 
     // Check file type (client-side validation)
     const fileExtension = '.' + file.name.split('.').pop()?.toLowerCase();
-    const isValidType = permittedFileTypes.some((type: any) => {
-      const ext =
-        type.fileExtension ||
-        (type.extension ? type.extension.replace('.', '') : '');
-      return (
-        (ext && `.${ext}`.toLowerCase() === fileExtension.toLowerCase()) ||
-        type.mimeType === file.type ||
-        type.mime_type === file.type
-      );
-    });
+    const isValidType = permittedFileTypes.some(
+      (type: {
+        fileExtension?: string;
+        extension?: string;
+        mimeType?: string;
+      }) => {
+        const ext =
+          type.fileExtension ||
+          (type.extension ? type.extension.replace('.', '') : '');
+        return (
+          (ext && `.${ext}`.toLowerCase() === fileExtension.toLowerCase()) ||
+          type.mimeType === file.type
+        );
+      }
+    );
 
     if (!isValidType) {
       const allowedExtensions = permittedFileTypes
@@ -68,7 +79,7 @@ export function Step1UploadDocument({
         .filter(Boolean)
         .join(', ');
       setError(
-        `Loại file không được hỗ trợ. Các loại file được phép: ${allowedExtensions}`
+        t('errors.fileTypeNotSupported', { extensions: allowedExtensions })
       );
       setIsUploading(false);
       setLocalFile(null);
@@ -79,7 +90,7 @@ export function Step1UploadDocument({
     const maxSizeMB = 50;
     const fileSizeMB = file.size / (1024 * 1024);
     if (fileSizeMB > maxSizeMB) {
-      setError(`File quá lớn. Kích thước tối đa: ${maxSizeMB}MB`);
+      setError(t('errors.fileTooLarge', { maxSize: maxSizeMB }));
       setIsUploading(false);
       setLocalFile(null);
       return;
@@ -101,22 +112,31 @@ export function Step1UploadDocument({
         uploaded_file_id: uploadedFileData.uploadedFileId, // Store uploadedFileId
       });
 
-      toast.success('Upload file thành công');
+      toast.success(t('toasts.uploadSuccess'));
       setIsUploading(false);
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const errorWithResponse = err as {
+        message?: string;
+        response?: {
+          data?: { message?: string; error?: string };
+          status?: number;
+          statusText?: string;
+        };
+        config?: unknown;
+      };
       console.error('Upload error:', err);
       console.error('Upload error details:', {
-        message: err?.message,
-        response: err?.response?.data,
-        status: err?.response?.status,
-        statusText: err?.response?.statusText,
-        config: err?.config,
+        message: errorWithResponse?.message,
+        response: errorWithResponse?.response?.data,
+        status: errorWithResponse?.response?.status,
+        statusText: errorWithResponse?.response?.statusText,
+        config: errorWithResponse?.config,
       });
       const errorMessage =
-        err?.response?.data?.message ||
-        err?.response?.data?.error ||
-        err?.message ||
-        'Có lỗi xảy ra khi upload file. Vui lòng thử lại.';
+        errorWithResponse?.response?.data?.message ||
+        errorWithResponse?.response?.data?.error ||
+        errorWithResponse?.message ||
+        t('errors.uploadFailed');
       setError(errorMessage);
       setIsUploading(false);
       setLocalFile(null);
@@ -231,10 +251,10 @@ export function Step1UploadDocument({
   return (
     <div className="space-y-6">
       <div>
-        <h3 className="text-xl font-semibold text-slate-900 dark:text-white">
+        <h3 className="text-xl font-semibold text-foreground dark:text-foreground">
           {t('title')}
         </h3>
-        <p className="mt-1 text-sm text-slate-600 dark:text-white/70">
+        <p className="mt-1 text-sm text-muted-foreground dark:text-muted-foreground">
           {t('description')}
         </p>
       </div>
@@ -259,19 +279,20 @@ export function Step1UploadDocument({
           className={cn(
             'group relative cursor-pointer overflow-hidden rounded-2xl border-2 border-dashed p-12 text-center transition-all duration-300',
             isDragging
-              ? 'scale-[1.02] border-blue-500 bg-gradient-to-br from-blue-50 to-blue-100 shadow-lg shadow-blue-500/20 dark:from-blue-500/20 dark:to-blue-500/10'
-              : 'border-slate-300 bg-gradient-to-br from-slate-50 to-white hover:border-blue-400 hover:from-blue-50/50 hover:to-blue-100/30 hover:shadow-md dark:border-white/20 dark:from-white/5 dark:to-white/10 dark:hover:border-blue-400 dark:hover:from-blue-500/10 dark:hover:to-blue-500/5',
-            error && 'border-red-500 bg-red-50 dark:bg-red-500/10'
+              ? 'scale-[1.02] border-blue-400 bg-gradient-to-br from-blue-50 to-blue-100 shadow-lg shadow-blue-500/20 dark:from-blue-500/20 dark:to-blue-500/10'
+              : 'border-blue-300 bg-gradient-to-br from-blue-50/80 to-blue-100/60 hover:border-blue-400 hover:from-blue-100 hover:to-blue-200 hover:shadow-md dark:border-blue-400/50 dark:from-blue-500/10 dark:to-blue-500/5 dark:hover:border-blue-400 dark:hover:from-blue-500/20 dark:hover:to-blue-500/10',
+            error &&
+              'bg-destructive/10 dark:bg-destructive/10 border-destructive'
           )}
         >
           {/* Animated background gradient */}
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-500/0 via-blue-500/5 to-blue-500/0 opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+          <div className="from-primary/0 via-primary/5 to-primary/0 absolute inset-0 bg-gradient-to-r opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
 
           <div className="relative z-10 flex flex-col items-center">
-            <div className="mb-4 rounded-full bg-gradient-to-br from-blue-100 to-blue-200 p-5 shadow-lg transition-transform duration-300 group-hover:scale-110 group-hover:shadow-xl dark:from-blue-500/30 dark:to-blue-600/30">
+            <div className="mb-4 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 p-5 shadow-lg transition-transform duration-300 group-hover:scale-110 group-hover:shadow-xl dark:from-blue-500 dark:to-blue-600">
               <svg
                 className={cn(
-                  'h-10 w-10 text-blue-600 transition-transform duration-300 dark:text-blue-400',
+                  'h-10 w-10 text-white transition-transform duration-300 dark:text-white',
                   isDragging && 'animate-bounce'
                 )}
                 fill="none"
@@ -286,10 +307,10 @@ export function Step1UploadDocument({
                 />
               </svg>
             </div>
-            <p className="mb-2 text-lg font-semibold text-slate-900 transition-colors group-hover:text-blue-600 dark:text-white dark:group-hover:text-blue-400">
+            <p className="mb-2 text-lg font-semibold text-foreground transition-colors group-hover:text-primary dark:text-foreground dark:group-hover:text-primary">
               {t('dragDrop')}
             </p>
-            <p className="text-sm text-slate-500 dark:text-white/60">
+            <p className="text-sm text-muted-foreground dark:text-muted-foreground">
               {t('fileSizeLimit')}
             </p>
           </div>
@@ -311,10 +332,10 @@ export function Step1UploadDocument({
               />
             </div>
             <div className="flex-1">
-              <h4 className="font-semibold text-slate-900 dark:text-white">
+              <h4 className="font-semibold text-foreground dark:text-foreground">
                 {uploadedFile.file_name || localFile?.name || ''}
               </h4>
-              <div className="mt-2 flex flex-wrap items-center gap-2 text-sm text-slate-500 dark:text-white/60">
+              <div className="mt-2 flex flex-wrap items-center gap-2 text-sm text-muted-foreground dark:text-muted-foreground">
                 <span>
                   {formatFileSize(
                     uploadedFile.file_size_kb ||
@@ -344,15 +365,14 @@ export function Step1UploadDocument({
                           d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                         />
                       </svg>
-                      Đang upload và tính số trang...
+                      {t('uploadingAndCounting')}
                     </span>
                   </>
                 ) : uploadedFile.page_count !== undefined ? (
                   <>
                     <span>•</span>
-                    <span className="font-medium text-blue-600 dark:text-blue-400">
-                      {uploadedFile.page_count}{' '}
-                      {uploadedFile.page_count === 1 ? 'trang' : 'trang'}
+                    <span className="font-medium text-primary dark:text-primary">
+                      {uploadedFile.page_count} {t('pages')}
                     </span>
                   </>
                 ) : null}
@@ -363,7 +383,7 @@ export function Step1UploadDocument({
               size="icon"
               onClick={handleRemove}
               disabled={isUploading}
-              className="flex-shrink-0 self-center rounded-full text-slate-500 transition-all hover:bg-red-50 hover:text-red-600 hover:shadow-md disabled:opacity-50 dark:text-white/60 dark:hover:bg-red-500/20 dark:hover:text-red-400"
+              className="hover:bg-destructive/10 dark:hover:bg-destructive/20 flex-shrink-0 self-center rounded-full text-muted-foreground transition-all hover:text-destructive hover:shadow-md disabled:opacity-50 dark:text-muted-foreground dark:hover:text-destructive"
             >
               <svg
                 className="h-5 w-5"
@@ -384,8 +404,10 @@ export function Step1UploadDocument({
       )}
 
       {error && (
-        <div className="rounded-lg border border-red-200 bg-red-50 p-4 dark:border-red-500/30 dark:bg-red-500/10">
-          <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
+        <div className="border-destructive/30 bg-destructive/10 dark:border-destructive/30 dark:bg-destructive/10 rounded-lg border p-4">
+          <p className="text-sm text-destructive dark:text-destructive">
+            {error}
+          </p>
         </div>
       )}
 

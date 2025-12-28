@@ -165,7 +165,17 @@
         "fileSizeLimit": "Max 50MB • PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, JPG, PNG",
         "saveFile": "Save File",
         "next": "Next",
-        "fileSaved": "File saved successfully!"
+        "fileSaved": "File saved successfully!",
+        "uploadingAndCounting": "Uploading and counting pages...",
+        "pages": "pages",
+        "errors": {
+          "uploadFailed": "An error occurred while uploading file. Please try again.",
+          "fileTypeNotSupported": "File type not supported. Allowed file types: {extensions}",
+          "fileTooLarge": "File too large. Maximum size: {maxSize}MB"
+        },
+        "toasts": {
+          "uploadSuccess": "File uploaded successfully"
+        }
       },
       "step2": {
         "title": "Choose Printer",
@@ -188,7 +198,20 @@
         },
         "noResults": "No printers found",
         "back": "Back",
-        "next": "Next"
+        "next": "Next",
+        "supportsColor": "Supports Color",
+        "supportsDuplex": "Supports Duplex Printing",
+        "all": "All",
+        "yes": "Yes",
+        "no": "No",
+        "maxPaperSize": "Max size: {size}",
+        "serial": "Serial",
+        "viewLocation": "View Location",
+        "pageInfo": "Page {page} / {total}",
+        "unknown": "Unknown",
+        "errors": {
+          "loadPrintersFailed": "An error occurred while loading printer list. Please try again."
+        }
       },
       "step3": {
         "title": "Print Configuration",
@@ -213,7 +236,17 @@
         "estimatedCost": "Estimated Cost",
         "notSupported": "Not Supported",
         "back": "Back",
-        "next": "Next"
+        "next": "Next",
+        "pageRange": "Page Range",
+        "allPages": "All Pages",
+        "custom": "Custom",
+        "pageRangeExample": "Example: 1-5,10,15-20",
+        "subtotal": "Subtotal",
+        "discount": "Discount",
+        "pages": "pages",
+        "currency": "VND",
+        "comparePaperSizes": "Compare paper sizes",
+        "colorModeInfo": "Color mode information"
       },
       "step4": {
         "title": "Confirm Print",
@@ -232,7 +265,105 @@
         "preview": "Preview",
         "previewTitle": "Document preview",
         "previewUnavailable": "Preview is not available for this file type.",
-        "openInNewTab": "Open in new tab"
+        "openInNewTab": "Open in new tab",
+        "printer": {
+          "name": "Name",
+          "code": "Code",
+          "location": "Location",
+          "status": "Status"
+        },
+        "paymentMethod": "Payment Method",
+        "subtotal": "Subtotal",
+        "discount": "Discount",
+        "pages": "pages",
+        "currency": "VND",
+        "insufficientBalance": "Insufficient balance. Need to add {amount} VND",
+        "qrPaymentMinAmount": "QR payment is not supported for orders under 10,000 VND",
+        "errors": {
+          "missingFileOrPrinter": "Missing file or printer information. Please go back to previous steps.",
+          "missingConfig": "Missing print configuration. Please go back to previous steps.",
+          "insufficientBalanceForPayment": "Insufficient balance for payment. Please choose another payment method.",
+          "insufficientBalanceForPrint": "Insufficient balance to print. Please top up your account.",
+          "printerNotAvailable": "Printer is no longer available. Please go back to step 2 to select another printer.",
+          "createJobFailed": "An error occurred while creating print job. Please try again.",
+          "qrPaymentNotSupported": "QR payment is not supported for orders under 10,000 VND"
+        },
+        "toasts": {
+          "qrPaymentRequired": "Please scan the QR code to complete payment",
+          "jobCreated": "Print job created successfully!",
+          "paymentSuccess": "Payment successful! Print job has been added to the queue.",
+          "paymentFailed": "Payment failed or has expired."
+        }
+      },
+      "printPaymentModal": {
+        "title": "QR Payment",
+        "paymentExpired": "Payment has expired. Please try again.",
+        "paymentFailed": "Payment failed.",
+        "amount": "Amount",
+        "expiresAt": "Expires at",
+        "instructions": "Scan the QR code with SePay app to pay",
+        "scanQR": "Scan QR code to pay",
+        "waiting": "Waiting for payment",
+        "completed": "Completed",
+        "cancelled": "Cancelled",
+        "expired": "Expired",
+        "failed": "Failed",
+        "transferContent": "Transfer Content",
+        "noCode": "No code",
+        "status": "Status",
+        "connection": "Connection",
+        "realtime": "Realtime",
+        "connecting": "Connecting...",
+        "polling": "Using polling",
+        "expiresIn": "Expires in",
+        "connectionLost": "Realtime connection lost, switching to periodic checks.",
+        "close": "Close",
+        "noQRCode": "No QR code"
+      },
+      "navigationWarningModal": {
+        "title": "Leave page?",
+        "message": "Are you sure you want to leave this page?",
+        "warning": "Your print progress will be lost if you leave the page. Do you want to continue?",
+        "stay": "Cancel",
+        "leave": "Leave"
+      },
+      "printJobProgress": {
+        "title": "Print Job Progress",
+        "jobId": "Job ID",
+        "confirmCancel": "Are you sure you want to cancel this print job?",
+        "progress": "Progress",
+        "pages": "pages",
+        "loading": "Loading print job information...",
+        "status": {
+          "queued": "Queued",
+          "printing": "Printing",
+          "completed": "Completed",
+          "cancelled": "Cancelled",
+          "failed": "Failed",
+          "unknown": "Unknown"
+        },
+        "queuePosition": "Position in queue",
+        "jobsAhead": "jobs ahead",
+        "estimatedCompletion": "Estimated completion time",
+        "startTime": "Start time",
+        "cancelling": "Cancelling...",
+        "cancelButton": "Cancel Print Job",
+        "viewHistory": "View Print History",
+        "printer": {
+          "location": "Location",
+          "status": "Status"
+        },
+        "toasts": {
+          "printSuccess": "Print successful!",
+          "printFailed": "Print failed. Please try again.",
+          "cancelled": "Print job cancelled.",
+          "cancelSuccess": "Print job cancelled successfully. The amount will be refunded to your account."
+        },
+        "errors": {
+          "printFailed": "Print failed. Please try again.",
+          "cancelFailed": "An error occurred while canceling print job.",
+          "loadFailed": "An error occurred while loading print job information. Please try again."
+        }
       },
       "uploadedFiles": {
         "title": "Uploaded Files",
@@ -609,6 +740,7 @@
         "status": "Status",
         "installedDate": "Installation Date",
         "lastMaintenance": "Last Maintenance",
+        "printer": "Printer",
         "actionType": "Action Type",
         "performedBy": "Performed By",
         "details": "Details",
@@ -639,7 +771,12 @@
         "disabled": "Disabled",
         "updated": "Updated",
         "removed": "Removed",
-        "maintenance": "Maintenance"
+        "maintenance": "Maintenance",
+        "printJob": "Print Job",
+        "error": "Error",
+        "statusChange": "Status Change",
+        "configuration": "Configuration",
+        "adminAction": "Admin Action"
       },
       "maintenance": {
         "alertTitle": "Maintenance Alert",
@@ -658,17 +795,78 @@
     "manageStudents": {
       "title": "Manage Users",
       "description": "View and manage user accounts",
+      "stats": {
+        "totalStudents": "Total Students",
+        "activeStudents": "Active",
+        "suspendedStudents": "Suspended",
+        "graduatedStudents": "Graduated",
+        "fromFaculties": "From {count} faculties",
+        "studentsStudying": "Students studying",
+        "needsAttention": "Needs attention",
+        "completedProgram": "Completed program"
+      },
       "table": {
+        "title": "Student List",
+        "subtitle": "Search, filter and sort student list",
+        "searchPlaceholder": "Search by name, student code, email...",
+        "advancedFilters": "Advanced Filters",
+        "addStudent": "Add Student",
+        "studentCode": "Student Code",
+        "fullName": "Full Name",
+        "email": "Email",
+        "faculty": "Faculty / Department",
+        "majorClass": "Major / Class",
+        "year": "Year",
+        "status": "Status",
+        "enrollmentDate": "Enrollment Date",
+        "actions": "Actions",
+        "noData": "No data matches the current filters.",
         "bulkActions": {
+          "selected": "Selected {count} students",
           "activate": "Activate",
           "suspend": "Suspend",
+          "delete": "Delete",
+          "deselect": "Deselect",
           "noSelection": "Please select at least one user",
           "success": "Successfully updated {count} users to '{status}'",
           "partialSuccess": "Updated {success}/{total} users to '{status}'",
           "error": "An error occurred while updating status"
         }
       },
+      "filters": {
+        "allStatuses": "All Statuses",
+        "allFaculties": "All Faculties",
+        "allYears": "All Years",
+        "year1": "Year 1",
+        "year2": "Year 2",
+        "year3": "Year 3",
+        "year4": "Year 4",
+        "enrollmentDateFrom": "Enrollment Date From",
+        "enrollmentDateTo": "Enrollment Date To"
+      },
+      "status": {
+        "active": "Active",
+        "graduated": "Graduated",
+        "suspended": "Suspended",
+        "withdrawn": "Withdrawn"
+      },
       "modal": {
+        "detail": {
+          "title": "Student Details",
+          "studentCode": "Student Code",
+          "personalInfo": "Personal Information",
+          "academicInfo": "Academic Information",
+          "email": "Email",
+          "enrollmentDate": "Enrollment Date",
+          "expectedGraduate": "Expected Graduation",
+          "faculty": "Faculty",
+          "department": "Department",
+          "major": "Major",
+          "class": "Class",
+          "academicYear": "Academic Year",
+          "edit": "Edit",
+          "viewHistory": "View History"
+        },
         "bulkStatus": {
           "title": "Update {count} users to '{status}'",
           "description": "Are you sure you want to update {count} users to '{status}'?",
@@ -682,6 +880,9 @@
           "confirm": "Confirm",
           "processing": "Processing..."
         }
+      },
+      "bulkAction": {
+        "alert": "Performed \"{action}\" for {count} selected students"
       }
     },
     "pageAllocation": {

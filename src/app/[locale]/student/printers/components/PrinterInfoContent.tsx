@@ -18,12 +18,14 @@ import { Modal } from '@/components/ui/Modal';
 import { cn } from '@/lib/utils/cn';
 import CountUp from '@/components/ui/CountUp';
 import { PrinterLocationModal } from './PrinterLocationModal';
+import { usePrinters } from '@/lib/api/services/printers';
 import {
-  printerInfoList,
-  printerInfoSummary,
-  printerNotices,
-} from '@/data/printersInfoMock';
-import type { PrinterInfoMock, PrinterStatus } from '../types';
+  mapPrintersToInfo,
+  calculatePrinterSummary,
+  type PrinterInfo,
+  type PrinterStatus,
+} from '@/lib/utils/mappers/printerMapper';
+import { SkeletonCard } from '@/components/common/Skeleton';
 
 type StatusTab = 'all' | PrinterStatus;
 
@@ -42,14 +44,6 @@ const statusColors: Record<PrinterStatus, string> = {
   offline: 'bg-rose-500/15 text-rose-700 ring-rose-500/30 dark:text-rose-200',
   maintenance:
     'bg-blue-500/15 text-blue-700 ring-blue-500/30 dark:text-blue-200',
-};
-
-const noticeTone: Record<string, string> = {
-  info: 'border-sky-200/70 bg-sky-50/70 dark:border-sky-900/40 dark:bg-sky-900/20',
-  warning:
-    'border-amber-200/70 bg-amber-50/70 dark:border-amber-900/40 dark:bg-amber-900/20',
-  critical:
-    'border-rose-200/70 bg-rose-50/70 dark:border-rose-900/40 dark:bg-rose-900/25',
 };
 
 function StatusBadge({ status }: { status: PrinterStatus }) {
@@ -97,8 +91,8 @@ function PrinterCard({
   printer,
   onView,
 }: {
-  printer: PrinterInfoMock;
-  onView: (printer: PrinterInfoMock) => void;
+  printer: PrinterInfo;
+  onView: (printer: PrinterInfo) => void;
 }) {
   const estimatedMinutes = Math.max(1, Math.round(printer.queueLength * 2));
 
@@ -179,14 +173,34 @@ export function PrinterInfoContent() {
   const [duplexOnly, setDuplexOnly] = useState(false);
   const [showTips, setShowTips] = useState(false);
   const [showLocation, setShowLocation] = useState(false);
-  const [selectedPrinter, setSelectedPrinter] =
-    useState<PrinterInfoMock | null>(null);
+  const [selectedPrinter, setSelectedPrinter] = useState<PrinterInfo | null>(
+    null
+  );
 
+  // Fetch printers from API - get all printers, filtering will be done client-side
+  const printersQuery = usePrinters({
+    page: 0,
+    limit: 1000, // Get all printers for student view
+  });
+
+  // Map API response to PrinterInfo format
+  const printerInfoList = useMemo(() => {
+    if (!printersQuery.data?.data?.data) return [];
+    return mapPrintersToInfo(printersQuery.data.data.data);
+  }, [printersQuery.data]);
+
+  // Calculate summary from printer list
+  const printerInfoSummary = useMemo(() => {
+    return calculatePrinterSummary(printerInfoList);
+  }, [printerInfoList]);
+
+  // Extract building options from printer list
   const buildingOptions = useMemo(() => {
     const values = Array.from(new Set(printerInfoList.map(p => p.building)));
     return values.sort();
-  }, []);
+  }, [printerInfoList]);
 
+  // Filter printers based on filters
   const filteredPrinters = useMemo(() => {
     const normalized = keyword.trim().toLowerCase();
 
@@ -232,7 +246,55 @@ export function PrinterInfoContent() {
         if (diff !== 0) return diff;
         return a.queueLength - b.queueLength;
       });
-  }, [status, building, keyword, onlyAvailable, colorOnly, duplexOnly]);
+  }, [
+    printerInfoList,
+    status,
+    building,
+    keyword,
+    onlyAvailable,
+    colorOnly,
+    duplexOnly,
+  ]);
+
+  // Loading state
+  const isLoading =
+    printersQuery.isLoading ||
+    (printersQuery.isFetching && !printersQuery.data);
+
+  // Error state
+  if (printersQuery.error) {
+    return (
+      <Card className="border-slate-200/70 bg-white/80 p-8 text-center shadow-[0_12px_40px_rgba(15,23,42,0.06)] dark:border-white/10 dark:bg-white/5">
+        <div className="text-destructive">
+          <p className="text-lg font-semibold">Có lỗi xảy ra</p>
+          <p className="mt-2 text-sm">
+            {printersQuery.error instanceof Error
+              ? printersQuery.error.message
+              : 'Không thể tải thông tin máy in. Vui lòng thử lại sau.'}
+          </p>
+        </div>
+      </Card>
+    );
+  }
+
+  // Loading skeleton
+  if (isLoading) {
+    return (
+      <div className="space-y-8">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <SkeletonCard key={i} className="h-32" />
+          ))}
+        </div>
+        <SkeletonCard className="h-64" />
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <SkeletonCard key={i} className="h-64" />
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8">
@@ -419,37 +481,6 @@ export function PrinterInfoContent() {
         size="lg"
       >
         <div className="space-y-4 p-4">
-          <div className="space-y-3">
-            <h4 className="text-sm font-semibold text-slate-800 dark:text-white">
-              Lưu ý nhanh
-            </h4>
-            <div className="space-y-2">
-              {printerNotices.map(notice => (
-                <div
-                  key={notice.id}
-                  className={cn(
-                    'rounded-xl border px-3 py-3 text-sm',
-                    noticeTone[notice.severity]
-                  )}
-                >
-                  <div className="flex items-start justify-between gap-2">
-                    <div>
-                      <p className="font-semibold">{notice.title}</p>
-                      <p className="text-sm text-slate-600 dark:text-white/70">
-                        {notice.detail}
-                      </p>
-                    </div>
-                    {notice.actionLabel && (
-                      <span className="rounded-full bg-white/70 px-2 py-1 text-xs font-semibold text-slate-700 ring-1 ring-inset ring-slate-200 dark:bg-white/10 dark:text-white/80 dark:ring-white/10">
-                        {notice.actionLabel}
-                      </span>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
           <div className="space-y-2">
             <h4 className="text-sm font-semibold text-slate-800 dark:text-white">
               Mẹo chọn máy in
@@ -465,8 +496,8 @@ export function PrinterInfoContent() {
               <div className="flex items-start gap-2">
                 <span className="mt-1 h-2 w-2 rounded-full bg-indigo-500" />
                 <p>
-                  In màu hoặc A3: chọn máy <strong>Canon G5500</strong> (R402)
-                  hoặc <strong>Ricoh IM C3000</strong> (R210).
+                  In màu hoặc A3: sử dụng bộ lọc để tìm máy hỗ trợ in màu và khổ
+                  giấy A3.
                 </p>
               </div>
               <div className="flex items-start gap-2">
@@ -479,8 +510,8 @@ export function PrinterInfoContent() {
               <div className="flex items-start gap-2">
                 <span className="mt-1 h-2 w-2 rounded-full bg-slate-500" />
                 <p>
-                  Nếu cần scan hoặc copy kèm: ưu tiên Ricoh IM C3000 hoặc HP
-                  PageWide (R602).
+                  Kiểm tra vị trí máy in trước khi in để đảm bảo thuận tiện khi
+                  lấy tài liệu.
                 </p>
               </div>
             </div>

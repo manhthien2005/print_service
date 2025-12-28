@@ -1,12 +1,12 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import GlareHover from '@/components/GlareHover';
 import { Input } from '@/components/ui/Input';
 import { Captcha } from '@/components/ui/Captcha';
-import { apiClient } from '@/lib/api/client';
+import { useApiMutation } from '@/lib/hooks/useApiMutation';
 import { API_ENDPOINTS } from '@/lib/constants';
 import { toast } from '@/components/ui/Toast';
 
@@ -31,17 +31,36 @@ interface ForgotPasswordFormProps {
   };
 }
 
+interface ForgotPasswordRequest {
+  email: string;
+}
+
 export default function ForgotPasswordForm({
   locale,
   copy: t,
 }: ForgotPasswordFormProps) {
   const searchParams = useSearchParams();
   const [email, setEmail] = useState(searchParams.get('email') || '');
-  const [isLoading, setIsLoading] = useState(false);
   const [lastSentEmail, setLastSentEmail] = useState<string | null>(null);
   const [captchaValid, setCaptchaValid] = useState(false);
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
   const [resendTimer, setResendTimer] = useState(0);
+
+  const forgotPasswordMutation = useApiMutation<unknown, ForgotPasswordRequest>(
+    API_ENDPOINTS.AUTH.FORGOT_PASSWORD,
+    'post',
+    {
+      onSuccess: () => {
+        toast.success(t.success);
+        setLastSentEmail(email);
+        startResendCountdown();
+      },
+      onError: error => {
+        const message = error instanceof Error ? error.message : t.error;
+        toast.error(message);
+      },
+    }
+  );
 
   const validateEmail = (value: string) => {
     const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -61,6 +80,13 @@ export default function ForgotPasswordForm({
     }, 1000);
   };
 
+  useEffect(() => {
+    // Cleanup interval on unmount
+    return () => {
+      setResendTimer(0);
+    };
+  }, []);
+
   const handleSubmit = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     if (!email) {
@@ -75,18 +101,8 @@ export default function ForgotPasswordForm({
       toast.error(t.captchaRequired);
       return;
     }
-    try {
-      setIsLoading(true);
-      await apiClient.post(API_ENDPOINTS.AUTH.FORGOT_PASSWORD, { email });
-      toast.success(t.success);
-      setLastSentEmail(email);
-      startResendCountdown();
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : t.error;
-      toast.error(message);
-    } finally {
-      setIsLoading(false);
-    }
+
+    forgotPasswordMutation.mutate({ email });
   };
 
   const loginHref = useMemo(() => `/${locale}/login`, [locale]);
@@ -163,10 +179,10 @@ export default function ForgotPasswordForm({
           >
             <button
               type="submit"
-              disabled={isLoading}
+              disabled={forgotPasswordMutation.isPending}
               className="relative z-10 h-[44px] w-full rounded-lg border border-white/35 bg-transparent px-4 text-sm font-semibold text-white shadow-[0_12px_35px_rgba(0,0,0,0.35)] transition hover:bg-white/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900 disabled:cursor-not-allowed disabled:opacity-50"
             >
-              {isLoading ? t.sending : t.submit}
+              {forgotPasswordMutation.isPending ? t.sending : t.submit}
             </button>
           </GlareHover>
         </div>
@@ -174,7 +190,11 @@ export default function ForgotPasswordForm({
         <button
           type="button"
           onClick={() => handleSubmit()}
-          disabled={isLoading || !lastSentEmail || resendTimer > 0}
+          disabled={
+            forgotPasswordMutation.isPending ||
+            !lastSentEmail ||
+            resendTimer > 0
+          }
           className="w-full rounded-lg border border-white/20 px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/5 disabled:cursor-not-allowed disabled:opacity-50"
           title={t.resendHint}
         >

@@ -6,7 +6,11 @@ import { Button } from '@/components/ui/Button';
 import { Card, CardContent, CardHeader } from '@/components/ui/Card';
 import { formatNumber } from '@/lib/utils/format';
 import type { PageAllocation } from '@/lib/api/services/pageAllocation';
-import { PlusIcon, PencilIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
+import {
+  PlusIcon,
+  PencilIcon,
+  CheckCircleIcon,
+} from '@heroicons/react/24/outline';
 
 interface PageAllocationTableProps {
   allocations: PageAllocation[];
@@ -47,7 +51,7 @@ export default function PageAllocationTable({
     return (
       <Card className="border-white/10 bg-white/5 backdrop-blur-md">
         <CardContent className="py-12 text-center">
-          <p className="text-slate-400 dark:text-white/60">
+          <p className="text-muted-foreground dark:text-muted-foreground">
             {translations.table.noData}
           </p>
         </CardContent>
@@ -58,7 +62,7 @@ export default function PageAllocationTable({
   return (
     <Card className="border-white/10 bg-white/5 backdrop-blur-md">
       <CardHeader>
-        <h2 className="text-xl font-semibold text-slate-900 dark:text-white">
+        <h2 className="text-xl font-semibold text-foreground dark:text-foreground">
           {translations.table.sizeName}
         </h2>
       </CardHeader>
@@ -67,10 +71,10 @@ export default function PageAllocationTable({
           <table className="w-full">
             <thead>
               <tr className="border-b border-white/10">
-                <th className="px-4 py-3 text-left text-sm font-medium text-slate-700 dark:text-slate-300">
+                <th className="px-4 py-3 text-left text-sm font-medium text-foreground dark:text-foreground">
                   {translations.table.sizeName}
                 </th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-slate-700 dark:text-slate-300">
+                <th className="px-4 py-3 text-left text-sm font-medium text-foreground dark:text-foreground">
                   {translations.table.description}
                 </th>
                 <th className="px-4 py-3 text-right text-sm font-medium text-slate-700 dark:text-slate-300">
@@ -88,7 +92,7 @@ export default function PageAllocationTable({
                 <th className="px-4 py-3 text-center text-sm font-medium text-slate-700 dark:text-slate-300">
                   {translations.table.status}
                 </th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-slate-700 dark:text-slate-300">
+                <th className="px-4 py-3 text-left text-sm font-medium text-foreground dark:text-foreground">
                   {translations.table.lastUpdated}
                 </th>
                 <th className="px-4 py-3 text-center text-sm font-medium text-slate-700 dark:text-slate-300">
@@ -107,31 +111,31 @@ export default function PageAllocationTable({
                   }`}
                 >
                   <td className="px-4 py-3">
-                    <div className="font-medium text-slate-900 dark:text-white">
+                    <div className="font-medium text-foreground dark:text-foreground">
                       {allocation.sizeName}
                     </div>
                   </td>
-                  <td className="px-4 py-3 text-sm text-slate-600 dark:text-white/70">
+                  <td className="px-4 py-3 text-sm text-muted-foreground dark:text-muted-foreground">
                     {allocation.sizeDescription}
                   </td>
-                  <td className="px-4 py-3 text-right text-slate-900 dark:text-white">
+                  <td className="px-4 py-3 text-right text-foreground dark:text-foreground">
                     {formatNumber(allocation.quantity)}
                   </td>
-                  <td className="px-4 py-3 text-right text-slate-600 dark:text-white/70">
+                  <td className="px-4 py-3 text-right text-muted-foreground dark:text-muted-foreground">
                     {formatNumber(allocation.reservedQuantity)}
                   </td>
-                  <td className="px-4 py-3 text-right font-medium text-slate-900 dark:text-white">
+                  <td className="px-4 py-3 text-right font-medium text-foreground dark:text-foreground">
                     {formatNumber(allocation.availableQuantity)}
                   </td>
-                  <td className="px-4 py-3 text-right text-slate-600 dark:text-white/70">
+                  <td className="px-4 py-3 text-right text-muted-foreground dark:text-muted-foreground">
                     {formatNumber(allocation.lowStockThreshold)}
                   </td>
                   <td className="px-4 py-3 text-center">
                     <span
                       className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
                         allocation.isLowStock
-                          ? 'bg-orange-500/20 text-orange-300'
-                          : 'bg-green-500/20 text-green-300'
+                          ? 'bg-orange-500/20 text-orange-300' // Warning color - keep specific
+                          : 'bg-green-500/20 text-green-300' // Success color - keep specific
                       }`}
                     >
                       {allocation.isLowStock
@@ -139,7 +143,7 @@ export default function PageAllocationTable({
                         : translations.table.normal}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-sm text-slate-600 dark:text-white/70">
+                  <td className="px-4 py-3 text-sm text-muted-foreground dark:text-muted-foreground">
                     {allocation.updatedAt
                       ? formatDistanceToNow(new Date(allocation.updatedAt), {
                           addSuffix: true,
@@ -186,4 +190,3 @@ export default function PageAllocationTable({
     </Card>
   );
 }
-

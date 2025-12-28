@@ -1,10 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Modal } from '@/components/ui/Modal';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
-import { apiClient } from '@/lib/api/client';
+import { useApiMutation } from '@/lib/hooks/useApiMutation';
 import { API_ENDPOINTS } from '@/lib/constants';
 import { toast } from '@/components/ui/Toast';
 
@@ -36,7 +36,36 @@ export default function ChangePasswordModal({
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+
+  const changePasswordMutation = useApiMutation<
+    unknown,
+    { currentPassword: string; newPassword: string }
+  >(API_ENDPOINTS.AUTH.CHANGE_PASSWORD, 'post', {
+    onSuccess: () => {
+      toast.success(t.success ?? 'Đổi mật khẩu thành công');
+      // Reset form
+      setCurrentPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
+      onClose();
+    },
+    onError: (err: unknown) => {
+      const message =
+        err instanceof Error
+          ? err.message
+          : (t.error ?? 'Đã xảy ra lỗi khi đổi mật khẩu');
+      toast.error(message);
+    },
+  });
+
+  // Reset form when modal closes
+  useEffect(() => {
+    if (!isOpen) {
+      setCurrentPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
+    }
+  }, [isOpen]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -57,28 +86,10 @@ export default function ChangePasswordModal({
       return;
     }
 
-    try {
-      setIsLoading(true);
-      await apiClient.post(API_ENDPOINTS.AUTH.CHANGE_PASSWORD, {
-        currentPassword,
-        newPassword,
-      });
-
-      toast.success(t.success ?? 'Đổi mật khẩu thành công');
-      // Reset form
-      setCurrentPassword('');
-      setNewPassword('');
-      setConfirmPassword('');
-      onClose();
-    } catch (err: unknown) {
-      const message =
-        err instanceof Error
-          ? err.message
-          : (t.error ?? 'Đã xảy ra lỗi khi đổi mật khẩu');
-      toast.error(message);
-    } finally {
-      setIsLoading(false);
-    }
+    changePasswordMutation.mutate({
+      currentPassword,
+      newPassword,
+    });
   };
 
   return (
@@ -92,7 +103,7 @@ export default function ChangePasswordModal({
         <div className="space-y-4">
           {/* Current Password */}
           <div className="space-y-2">
-            <label className="text-sm font-medium text-slate-700 dark:text-white/90">
+            <label className="text-sm font-medium text-slate-900 dark:text-white">
               {t.currentPassword ?? 'Mật khẩu hiện tại'}
             </label>
             <Input
@@ -101,14 +112,14 @@ export default function ChangePasswordModal({
               onChange={e => setCurrentPassword(e.target.value)}
               placeholder="••••••••"
               required
-              disabled={isLoading}
+              disabled={changePasswordMutation.isPending}
               className="h-11"
             />
           </div>
 
           {/* New Password */}
           <div className="space-y-2">
-            <label className="text-sm font-medium text-slate-700 dark:text-white/90">
+            <label className="text-sm font-medium text-slate-900 dark:text-white">
               {t.newPassword ?? 'Mật khẩu mới'}
             </label>
             <Input
@@ -117,14 +128,14 @@ export default function ChangePasswordModal({
               onChange={e => setNewPassword(e.target.value)}
               placeholder="••••••••"
               required
-              disabled={isLoading}
+              disabled={changePasswordMutation.isPending}
               className="h-11"
             />
           </div>
 
           {/* Confirm Password */}
           <div className="space-y-2">
-            <label className="text-sm font-medium text-slate-700 dark:text-white/90">
+            <label className="text-sm font-medium text-slate-900 dark:text-white">
               {t.confirmPassword ?? 'Xác nhận mật khẩu mới'}
             </label>
             <Input
@@ -133,7 +144,7 @@ export default function ChangePasswordModal({
               onChange={e => setConfirmPassword(e.target.value)}
               placeholder="••••••••"
               required
-              disabled={isLoading}
+              disabled={changePasswordMutation.isPending}
               className="h-11"
             />
           </div>
@@ -145,17 +156,17 @@ export default function ChangePasswordModal({
             type="button"
             variant="outline"
             onClick={onClose}
-            disabled={isLoading}
-            className="border-slate-200 text-slate-700 hover:bg-slate-50 dark:border-white/15 dark:bg-white/5 dark:text-white dark:hover:bg-white/10"
+            disabled={changePasswordMutation.isPending}
+            className="border-slate-300 text-slate-700 hover:bg-slate-100 hover:text-slate-900 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700 dark:hover:text-white"
           >
             Hủy
           </Button>
           <Button
             type="submit"
-            disabled={isLoading}
+            disabled={changePasswordMutation.isPending}
             className="bg-sky-500 text-white hover:bg-sky-600 dark:bg-sky-600 dark:hover:bg-sky-700"
           >
-            {isLoading
+            {changePasswordMutation.isPending
               ? (t.submitting ?? 'Đang xử lý...')
               : (t.submit ?? 'Đổi mật khẩu')}
           </Button>

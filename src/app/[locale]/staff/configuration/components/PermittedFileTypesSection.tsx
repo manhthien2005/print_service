@@ -223,6 +223,12 @@ export function PermittedFileTypesSection() {
                     <div className="mt-1 text-xs text-slate-500 dark:text-white/60">
                       {t('updated')}:{' '}
                       {new Date(item.updatedAt).toLocaleString('vi-VN')}
+                      {(item.updatedByName || item.updatedByEmail) && (
+                        <>
+                          {' '}
+                          {t('by')} {item.updatedByName || item.updatedByEmail}
+                        </>
+                      )}
                     </div>
                   )}
                 </div>
