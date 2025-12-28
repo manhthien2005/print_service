@@ -28,6 +28,7 @@ interface LightRaysProps {
   distortion?: number;
   className?: string;
   asBackground?: boolean;
+  style?: React.CSSProperties;
 }
 
 const DEFAULT_COLOR = '#ffffff';
@@ -105,6 +106,7 @@ const LightRays: React.FC<LightRaysProps> = ({
   distortion = 0.0,
   className = '',
   asBackground = false,
+  style,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const uniformsRef = useRef<Uniforms | null>(null);
@@ -468,6 +470,7 @@ void main() {
           ? 'absolute inset-0 z-0 h-full w-full'
           : 'relative z-[3] h-full w-full'
       } overflow-hidden ${className}`.trim()}
+      style={style}
     />
   );
 };

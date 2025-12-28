@@ -6,7 +6,7 @@ import type {
   StatusFilterValue,
   SortColumn,
   SortDirection,
-} from '../types';
+} from '@/app/[locale]/student/history/types';
 import { Button } from '@/components/ui/Button';
 import { Pagination } from '@/components/ui/Pagination';
 import {
@@ -24,7 +24,7 @@ import { HistoryTable } from './HistoryTable';
 import { HistoryFilters } from './HistoryFilters';
 import { HistoryDetailModal } from './HistoryDetailModal';
 import { HistoryTableSkeleton } from './HistoryTableSkeleton';
-import { PAGE_SIZE } from '../constants';
+import { PAGE_SIZE } from '@/app/[locale]/student/history/constants';
 
 export function PrintHistory() {
   const [status, setStatus] = useState<StatusFilterValue>('all');

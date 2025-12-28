@@ -35,6 +35,7 @@ import {
   useCustomReport,
   usePaperUsage,
 } from '@/lib/api/services/staffReports';
+import ReportsContentSkeleton from './ReportsContentSkeleton';
 
 type ChartTooltipProps = TooltipProps<number, string> & {
   payload?: Array<{
@@ -311,15 +312,7 @@ export function ReportsContent() {
   };
 
   if (isLoadingReport) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <div className="text-center">
-          <div className="mb-4 text-lg text-slate-600 dark:text-white/70">
-            Đang tải dữ liệu báo cáo...
-          </div>
-        </div>
-      </div>
-    );
+    return <ReportsContentSkeleton />;
   }
 
   return (

@@ -4,6 +4,8 @@ import React, { useMemo } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useAuthStore } from '@/lib/stores/useAuthStore';
 import { useDockPositionStore } from '@/lib/stores/useDockPositionStore';
+import { clearAuthCookies } from '@/lib/auth/cookie-utils';
+import { useNavigationGuardContext } from '@/lib/providers/NavigationGuardProvider';
 import Dock from './Dock';
 
 interface AppDockProps {
@@ -15,6 +17,7 @@ export default function AppDock({ locale }: AppDockProps) {
   const pathname = usePathname();
   const { isAuthenticated, logout, user } = useAuthStore();
   const { position } = useDockPositionStore();
+  const { attemptNavigation } = useNavigationGuardContext();
 
   const userType = user?.userType || 'student';
 
@@ -76,7 +79,20 @@ export default function AppDock({ locale }: AppDockProps) {
     if (typeof window !== 'undefined') {
       localStorage.removeItem('refresh-token');
     }
+    // Clear auth cookies
+    clearAuthCookies();
     window.location.href = `/${locale}`;
+  };
+
+  // Helper function to create navigation handler with guard
+  const createNavigationHandler = (path: string) => {
+    return () => {
+      // Don't guard navigation to the same page
+      if (pathname === path) {
+        return;
+      }
+      attemptNavigation(() => router.push(path));
+    };
   };
 
   // Student items
@@ -99,9 +115,11 @@ export default function AppDock({ locale }: AppDockProps) {
         </svg>
       ),
       label: studentT.home,
-      onClick: () => router.push(`/${locale}/student/dashboard`),
+      onClick: createNavigationHandler(`/${locale}/student/dashboard`),
       path: `/${locale}/student/dashboard`,
     },
+    // TODO: Tạm ẩn trang máy in, sẽ sửa sau
+    /*
     {
       icon: (
         <svg
@@ -120,9 +138,10 @@ export default function AppDock({ locale }: AppDockProps) {
         </svg>
       ),
       label: studentT.printersInfo,
-      onClick: () => router.push(`/${locale}/student/printers`),
+      onClick: createNavigationHandler(`/${locale}/student/printers`),
       path: `/${locale}/student/printers`,
     },
+    */
     {
       icon: (
         <svg
@@ -141,7 +160,7 @@ export default function AppDock({ locale }: AppDockProps) {
         </svg>
       ),
       label: studentT.printDocument,
-      onClick: () => router.push(`/${locale}/student/print`),
+      onClick: createNavigationHandler(`/${locale}/student/print`),
       path: `/${locale}/student/print`,
     },
     {
@@ -162,7 +181,7 @@ export default function AppDock({ locale }: AppDockProps) {
         </svg>
       ),
       label: studentT.printHistory,
-      onClick: () => router.push(`/${locale}/student/history`),
+      onClick: createNavigationHandler(`/${locale}/student/history`),
       path: `/${locale}/student/history`,
     },
     {
@@ -183,7 +202,7 @@ export default function AppDock({ locale }: AppDockProps) {
         </svg>
       ),
       label: studentT.buyPages,
-      onClick: () => router.push(`/${locale}/student/top-up`),
+      onClick: createNavigationHandler(`/${locale}/student/top-up`),
       path: `/${locale}/student/top-up`,
     },
     {
@@ -204,7 +223,7 @@ export default function AppDock({ locale }: AppDockProps) {
         </svg>
       ),
       label: studentT.profile,
-      onClick: () => router.push(`/${locale}/student/profile`),
+      onClick: createNavigationHandler(`/${locale}/student/profile`),
       path: `/${locale}/student/profile`,
     },
     {
@@ -230,7 +249,7 @@ export default function AppDock({ locale }: AppDockProps) {
         </svg>
       ),
       label: studentT.settings,
-      onClick: () => router.push(`/${locale}/student/settings`),
+      onClick: createNavigationHandler(`/${locale}/student/settings`),
       path: `/${locale}/student/settings`,
     },
     {
@@ -275,7 +294,7 @@ export default function AppDock({ locale }: AppDockProps) {
         </svg>
       ),
       label: staffT.dashboard,
-      onClick: () => router.push(`/${locale}/staff/dashboard`),
+      onClick: createNavigationHandler(`/${locale}/staff/dashboard`),
       path: `/${locale}/staff/dashboard`,
     },
     {
@@ -296,7 +315,7 @@ export default function AppDock({ locale }: AppDockProps) {
         </svg>
       ),
       label: staffT.managePrinters,
-      onClick: () => router.push(`/${locale}/staff/manage-printers`),
+      onClick: createNavigationHandler(`/${locale}/staff/manage-printers`),
       path: `/${locale}/staff/manage-printers`,
     },
     {
@@ -317,7 +336,7 @@ export default function AppDock({ locale }: AppDockProps) {
         </svg>
       ),
       label: staffT.manageStudents,
-      onClick: () => router.push(`/${locale}/staff/manage-students`),
+      onClick: createNavigationHandler(`/${locale}/staff/manage-students`),
       path: `/${locale}/staff/manage-students`,
     },
     {
@@ -338,7 +357,7 @@ export default function AppDock({ locale }: AppDockProps) {
         </svg>
       ),
       label: staffT.systemLogs,
-      onClick: () => router.push(`/${locale}/staff/system-logs`),
+      onClick: createNavigationHandler(`/${locale}/staff/system-logs`),
       path: `/${locale}/staff/system-logs`,
     },
     {
@@ -359,7 +378,7 @@ export default function AppDock({ locale }: AppDockProps) {
         </svg>
       ),
       label: staffT.reports,
-      onClick: () => router.push(`/${locale}/staff/reports`),
+      onClick: createNavigationHandler(`/${locale}/staff/reports`),
       path: `/${locale}/staff/reports`,
     },
     {
@@ -378,7 +397,7 @@ export default function AppDock({ locale }: AppDockProps) {
         </svg>
       ),
       label: staffT.configuration,
-      onClick: () => router.push(`/${locale}/staff/configuration`),
+      onClick: createNavigationHandler(`/${locale}/staff/configuration`),
       path: `/${locale}/staff/configuration`,
     },
     {
@@ -404,7 +423,7 @@ export default function AppDock({ locale }: AppDockProps) {
         </svg>
       ),
       label: staffT.settings,
-      onClick: () => router.push(`/${locale}/staff/settings`),
+      onClick: createNavigationHandler(`/${locale}/staff/settings`),
       path: `/${locale}/staff/settings`,
     },
     {

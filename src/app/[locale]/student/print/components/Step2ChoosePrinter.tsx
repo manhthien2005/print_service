@@ -6,9 +6,9 @@ import { cn } from '@/lib/utils/cn';
 import { Button } from '@/components/ui/Button';
 import { Select } from '@/components/ui/Select';
 import { Skeleton } from '@/components/common/Skeleton';
-import { MockPrinter } from '../types';
-import { PrinterLocationModal } from '../../printers/components/PrinterLocationModal';
-import { useAvailablePrinters } from '../api';
+import { MockPrinter } from '@/app/[locale]/student/print/types';
+import { PrinterLocationModal } from '@/app/[locale]/student/printers/components/PrinterLocationModal';
+import { useAvailablePrinters } from '@/app/[locale]/student/print/api';
 import { mapAvailablePrintersResponse } from '@/lib/utils/mappers/studentPrintMapper';
 
 interface Step2ChoosePrinterProps {
@@ -125,13 +125,13 @@ export function Step2ChoosePrinter({
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'online':
-        return 'bg-green-500';
+        return 'bg-green-500'; // Status indicator - keep specific color
       case 'offline':
-        return 'bg-red-500';
+        return 'bg-destructive';
       case 'maintenance':
-        return 'bg-yellow-500';
+        return 'bg-yellow-500'; // Warning color - keep specific
       default:
-        return 'bg-slate-400';
+        return 'bg-muted';
     }
   };
 
@@ -144,7 +144,7 @@ export function Step2ChoosePrinter({
       case 'maintenance':
         return t('status.maintenance');
       default:
-        return 'Không xác định';
+        return t('unknown');
     }
   };
 
@@ -168,10 +168,10 @@ export function Step2ChoosePrinter({
             placeholder={t('search')}
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
-            className="w-full rounded-lg border border-slate-300 bg-white px-4 py-3 pl-10 text-slate-900 placeholder-slate-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-white/20 dark:bg-white/5 dark:text-white dark:placeholder-white/40 dark:focus:border-blue-400"
+            className="w-full rounded-lg border border-slate-200 bg-background px-4 py-3 pl-10 text-foreground placeholder-muted-foreground focus:border-blue-400 focus:outline-none focus:ring-1 focus:ring-blue-400/30 dark:border-white/10 dark:bg-background dark:text-foreground dark:placeholder-muted-foreground dark:focus:border-blue-400"
           />
           <svg
-            className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400"
+            className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -188,7 +188,7 @@ export function Step2ChoosePrinter({
         {/* Building and Room Filters */}
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div>
-            <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-white/80">
+            <label className="dark:text-foreground/80 mb-2 block text-sm font-medium text-foreground">
               {t('building')}
             </label>
             <Select
@@ -210,7 +210,7 @@ export function Step2ChoosePrinter({
             </Select>
           </div>
           <div>
-            <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-white/80">
+            <label className="dark:text-foreground/80 mb-2 block text-sm font-medium text-foreground">
               {t('room')}
             </label>
             <Select
@@ -239,8 +239,8 @@ export function Step2ChoosePrinter({
         {/* Feature Filters */}
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div>
-            <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-white/80">
-              Hỗ trợ màu
+            <label className="dark:text-foreground/80 mb-2 block text-sm font-medium text-foreground">
+              {t('supportsColor')}
             </label>
             <Select
               value={
@@ -261,14 +261,14 @@ export function Step2ChoosePrinter({
               isLoading={isLoadingPrinters && printers.length === 0}
               disabled={isLoadingPrinters && printers.length === 0}
             >
-              <option value="all">Tất cả</option>
-              <option value="true">Có</option>
-              <option value="false">Không</option>
+              <option value="all">{t('all')}</option>
+              <option value="true">{t('yes')}</option>
+              <option value="false">{t('no')}</option>
             </Select>
           </div>
           <div>
-            <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-white/80">
-              Hỗ trợ in 2 mặt
+            <label className="dark:text-foreground/80 mb-2 block text-sm font-medium text-foreground">
+              {t('supportsDuplex')}
             </label>
             <Select
               value={
@@ -289,9 +289,9 @@ export function Step2ChoosePrinter({
               isLoading={isLoadingPrinters && printers.length === 0}
               disabled={isLoadingPrinters && printers.length === 0}
             >
-              <option value="all">Tất cả</option>
-              <option value="true">Có</option>
-              <option value="false">Không</option>
+              <option value="all">{t('all')}</option>
+              <option value="true">{t('yes')}</option>
+              <option value="false">{t('no')}</option>
             </Select>
           </div>
         </div>
@@ -303,7 +303,7 @@ export function Step2ChoosePrinter({
           {[1, 2, 3, 4, 5, 6, 7, 8].map(i => (
             <div
               key={i}
-              className="group relative flex flex-col overflow-hidden rounded-xl border-2 border-slate-200 bg-white p-5 dark:border-white/10 dark:bg-white/5"
+              className="dark:bg-background/5 group relative flex flex-col overflow-hidden rounded-xl border-2 border-border bg-background p-5 dark:border-border"
             >
               {/* Header skeleton */}
               <div className="mb-3 flex items-start justify-between gap-3">
@@ -333,11 +333,11 @@ export function Step2ChoosePrinter({
 
       {/* Error State */}
       {printersError && !isLoadingPrinters && (
-        <div className="rounded-lg border border-red-200 bg-red-50 p-4 dark:border-red-500/30 dark:bg-red-500/10">
-          <p className="text-sm text-red-600 dark:text-red-400">
+        <div className="border-destructive/30 bg-destructive/10 dark:border-destructive/30 dark:bg-destructive/10 rounded-lg border p-4">
+          <p className="text-sm text-destructive dark:text-destructive">
             {(printersError as any)?.response?.data?.message ||
               (printersError as any)?.message ||
-              'Có lỗi xảy ra khi tải danh sách máy in. Vui lòng thử lại.'}
+              t('errors.loadPrintersFailed')}
           </p>
         </div>
       )}
@@ -346,10 +346,10 @@ export function Step2ChoosePrinter({
       {!isLoadingPrinters &&
         !printersError &&
         filteredAndSortedPrinters.length > 0 && (
-          <div className="flex flex-col items-start justify-between gap-3 text-sm text-slate-600 dark:text-white/70 md:flex-row md:items-center">
+          <div className="flex flex-col items-start justify-between gap-3 text-sm text-muted-foreground dark:text-muted-foreground md:flex-row md:items-center">
             <div>
               {t('found')}{' '}
-              <span className="font-semibold text-blue-600 dark:text-blue-400">
+              <span className="font-semibold text-primary dark:text-primary">
                 {printersData?.data?.pagination?.totalItems ||
                   filteredAndSortedPrinters.length}
               </span>{' '}
@@ -365,12 +365,18 @@ export function Step2ChoosePrinter({
                     onClick={() => setPage(p => Math.max(0, p - 1))}
                     disabled={page === 0}
                     className="h-8 w-8 rounded-full p-0 transition-transform duration-150 hover:scale-[1.02]"
-                    aria-label="Trang trước"
+                    aria-label={t('pageInfo', {
+                      page: page + 1,
+                      total: printersData.data.pagination.totalPages,
+                    })}
                   >
                     <span className="text-base">&lt;</span>
                   </Button>
-                  <span className="text-sm text-slate-600 dark:text-white/70">
-                    Trang {page + 1} / {printersData.data.pagination.totalPages}
+                  <span className="text-sm text-muted-foreground dark:text-muted-foreground">
+                    {t('pageInfo', {
+                      page: page + 1,
+                      total: printersData.data.pagination.totalPages,
+                    })}
                   </span>
                   <Button
                     variant="outline"
@@ -387,7 +393,7 @@ export function Step2ChoosePrinter({
                       page >= printersData.data.pagination.totalPages - 1
                     }
                     className="h-8 w-8 rounded-full p-0 transition-transform duration-150 hover:scale-[1.02]"
-                    aria-label="Trang tiếp theo"
+                    aria-label={t('next')}
                   >
                     <span className="text-base">&gt;</span>
                   </Button>
@@ -413,11 +419,11 @@ export function Step2ChoosePrinter({
                 onMouseLeave={() => setHoveredPrinterId(null)}
                 disabled={isDisabled}
                 className={cn(
-                  'group relative flex flex-col overflow-hidden rounded-xl border-2 p-5 text-left transition-all duration-300',
+                  'group relative flex flex-col overflow-hidden rounded-xl border p-5 text-left transition-all duration-300',
                   'animate-in fade-in slide-in-from-bottom-2',
                   isSelected
-                    ? 'border-blue-500 bg-gradient-to-br from-blue-50 to-blue-100 shadow-xl shadow-blue-500/20 ring-2 ring-blue-500/30 dark:from-blue-500/20 dark:to-blue-500/10'
-                    : 'border-slate-200 bg-white hover:border-blue-400 hover:bg-gradient-to-br hover:from-blue-50/50 hover:to-white hover:shadow-lg dark:border-white/10 dark:bg-white/5 dark:hover:border-blue-400/50 dark:hover:from-blue-500/10 dark:hover:to-white/5',
+                    ? 'border-blue-300 bg-gradient-to-br from-blue-50 to-blue-100 shadow-xl shadow-blue-500/20 ring-1 ring-blue-300/30 dark:border-blue-400/50 dark:from-blue-500/20 dark:to-blue-500/10'
+                    : 'dark:bg-background/5 dark:hover:to-background/5 border-slate-200 bg-background hover:border-blue-300 hover:bg-gradient-to-br hover:from-blue-50/50 hover:to-background hover:shadow-lg dark:border-white/10 dark:hover:border-blue-400/50 dark:hover:from-blue-500/10',
                   isDisabled &&
                     'cursor-not-allowed opacity-50 hover:border-slate-200 hover:shadow-none dark:hover:border-white/10'
                 )}
@@ -427,17 +433,17 @@ export function Step2ChoosePrinter({
               >
                 {/* Animated background gradient */}
                 {!isDisabled && (
-                  <div className="absolute inset-0 bg-gradient-to-r from-blue-500/0 via-blue-500/5 to-blue-500/0 opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+                  <div className="from-primary/0 via-primary/5 to-primary/0 absolute inset-0 bg-gradient-to-r opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
                 )}
 
                 {/* Header: Printer Name and Status/Selection Icon */}
                 <div className="relative z-10 mb-3 flex items-start justify-between gap-3">
                   <div className="min-w-0 flex-1">
-                    <h4 className="line-clamp-2 text-base font-bold text-slate-900 transition-colors group-hover:text-blue-600 dark:text-white dark:group-hover:text-blue-400">
+                    <h4 className="line-clamp-2 text-base font-bold text-foreground transition-colors group-hover:text-primary dark:text-foreground dark:group-hover:text-primary">
                       {printer.brand_name} {printer.model_name}
                     </h4>
-                    <p className="mt-1 text-sm text-slate-500 dark:text-white/60">
-                      Serial:{' '}
+                    <p className="mt-1 text-sm text-muted-foreground dark:text-muted-foreground">
+                      {t('serial')}:{' '}
                       <span className="font-mono font-medium">
                         {printer.serial_number}
                       </span>
@@ -446,7 +452,7 @@ export function Step2ChoosePrinter({
                   {/* Status Icon or Selection Icon (top right) */}
                   <div className="flex-shrink-0">
                     {isSelected ? (
-                      <div className="rounded-full bg-gradient-to-br from-blue-500 to-blue-600 p-1.5 shadow-lg ring-2 ring-blue-300 dark:ring-blue-500/50">
+                      <div className="to-primary/90 ring-primary/30 dark:ring-primary/50 rounded-full bg-gradient-to-br from-primary p-1.5 shadow-lg ring-2">
                         <svg
                           className="h-4 w-4 text-white"
                           fill="none"
@@ -482,7 +488,7 @@ export function Step2ChoosePrinter({
                         e.stopPropagation();
                         setSelectedPrinterForLocation(printer);
                       }}
-                      className="bg-white text-slate-900 hover:bg-blue-50 dark:bg-slate-800 dark:text-white dark:hover:bg-slate-700"
+                      className="bg-blue-100 text-blue-700 hover:bg-blue-200 dark:bg-blue-500/30 dark:text-blue-200 dark:hover:bg-blue-500/40"
                     >
                       <svg
                         className="mr-2 h-4 w-4"
@@ -503,13 +509,13 @@ export function Step2ChoosePrinter({
                           d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
                         />
                       </svg>
-                      Xem Vị Trí
+                      {t('viewLocation')}
                     </Button>
                   </div>
                 )}
 
                 {/* Location */}
-                <div className="relative z-10 mb-3 flex items-center gap-2 text-sm text-slate-600 dark:text-white/70">
+                <div className="relative z-10 mb-3 flex items-center gap-2 text-sm text-muted-foreground dark:text-muted-foreground">
                   <svg
                     className="h-4 w-4 flex-shrink-0"
                     fill="none"
@@ -541,7 +547,7 @@ export function Step2ChoosePrinter({
                     </span>
                   )}
                   <span className="inline-flex items-center rounded-lg bg-blue-100 px-2.5 py-1 text-xs font-semibold text-blue-700 shadow-sm dark:bg-blue-500/20 dark:text-blue-300">
-                    Khổ tối đa: {printer.max_paper_size}
+                    {t('maxPaperSize', { size: printer.max_paper_size })}
                   </span>
                 </div>
               </button>
@@ -553,9 +559,9 @@ export function Step2ChoosePrinter({
       {filteredAndSortedPrinters.length === 0 &&
         !isLoadingPrinters &&
         !printersError && (
-          <div className="rounded-lg border border-slate-200 bg-slate-50 p-8 text-center dark:border-white/10 dark:bg-white/5">
+          <div className="dark:bg-muted/5 rounded-lg border border-border bg-muted p-8 text-center dark:border-border">
             <svg
-              className="mx-auto h-12 w-12 text-slate-400 dark:text-white/40"
+              className="dark:text-muted-foreground/40 mx-auto h-12 w-12 text-muted-foreground"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -567,7 +573,7 @@ export function Step2ChoosePrinter({
                 d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
               />
             </svg>
-            <p className="mt-4 text-slate-600 dark:text-white/70">
+            <p className="mt-4 text-muted-foreground dark:text-muted-foreground">
               {t('noResults')}
             </p>
           </div>

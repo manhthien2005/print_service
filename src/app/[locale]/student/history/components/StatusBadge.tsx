@@ -1,6 +1,6 @@
 'use client';
 
-import type { PrintJobStatus } from '../types';
+import type { PrintJobStatus } from '@/app/[locale]/student/history/types';
 import { cn } from '@/lib/utils/cn';
 
 interface StatusBadgeProps {

@@ -54,7 +54,7 @@ export function CancelConfirmModal({
     >
       <div className="space-y-6 p-6">
         <div>
-          <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-white">
+          <label className="mb-2 block text-sm font-semibold text-slate-900 dark:text-white">
             {t.cancelModal.reason}
           </label>
           <Input
@@ -66,7 +66,7 @@ export function CancelConfirmModal({
             disabled={isLoading}
             className="w-full"
           />
-          <p className="mt-1 text-xs text-slate-500 dark:text-white/60">
+          <p className="mt-1 text-xs text-slate-600 dark:text-white/70">
             {reason.length}/500
           </p>
         </div>
@@ -83,7 +83,7 @@ export function CancelConfirmModal({
           <Button
             onClick={handleConfirm}
             disabled={isLoading}
-            className="flex-1 bg-gradient-to-r from-blue-500 to-indigo-500 text-white shadow-md transition-transform hover:scale-[1.01] hover:from-blue-600 hover:to-indigo-600 hover:shadow-lg active:scale-[0.99] disabled:opacity-50"
+            className="hover:from-primary/90 hover:to-primary/90 flex-1 bg-gradient-to-r from-primary to-primary text-primary-foreground shadow-md transition-transform hover:scale-[1.01] hover:shadow-lg active:scale-[0.99] disabled:opacity-50"
           >
             {isLoading ? (
               <span className="flex items-center gap-2">
@@ -117,4 +117,3 @@ export function CancelConfirmModal({
     </Modal>
   );
 }
-

@@ -13,7 +13,7 @@ import {
   MockPrintConfig,
   defaultPrintConfig,
   UploadedFileItem,
-} from '../types';
+} from '@/app/[locale]/student/print/types';
 import { Card, CardContent } from '@/components/ui/Card';
 import { usePrintProgressStore } from '@/lib/stores/usePrintProgressStore';
 

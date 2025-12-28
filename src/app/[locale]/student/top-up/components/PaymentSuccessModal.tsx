@@ -43,7 +43,9 @@ export function PaymentSuccessModal({
     >
       <div className="space-y-6 p-6">
         <div className="flex flex-col items-center justify-center space-y-4">
+          {/* Success color - keep specific */}
           <div className="flex h-16 w-16 items-center justify-center rounded-full bg-green-100 dark:bg-green-500/10">
+            {/* Success color - keep specific */}
             <svg
               className="h-8 w-8 text-green-600 dark:text-green-400"
               fill="none"
@@ -62,10 +64,10 @@ export function PaymentSuccessModal({
             <p className="text-lg font-semibold text-slate-900 dark:text-white">
               {t.successModal.message}
             </p>
-            <p className="mt-2 text-2xl font-bold text-blue-600 dark:text-blue-400">
+            <p className="mt-2 text-2xl font-bold text-slate-900 dark:text-white">
               {formatPrice(amount)}
             </p>
-            <p className="mt-1 text-sm text-slate-500 dark:text-white/60">
+            <p className="mt-1 text-sm text-slate-600 dark:text-white/70">
               {t.successModal.amount}
             </p>
           </div>
@@ -83,7 +85,7 @@ export function PaymentSuccessModal({
           )}
           <Button
             onClick={onClose}
-            className="flex-1 bg-gradient-to-r from-blue-500 to-indigo-500 text-white shadow-md transition-transform hover:scale-[1.01] hover:from-blue-600 hover:to-indigo-600 hover:shadow-lg active:scale-[0.99]"
+            className="hover:from-primary/90 hover:to-primary/90 flex-1 bg-gradient-to-r from-primary to-primary text-primary-foreground shadow-md transition-transform hover:scale-[1.01] hover:shadow-lg active:scale-[0.99]"
           >
             {t.successModal.close}
           </Button>
@@ -92,4 +94,3 @@ export function PaymentSuccessModal({
     </Modal>
   );
 }
-

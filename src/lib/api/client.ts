@@ -7,6 +7,7 @@ import axios, {
 import { toast } from '../../components/ui/Toast';
 import { useAuthStore } from '../stores/useAuthStore';
 import { usePrintProgressStore } from '../stores/usePrintProgressStore';
+import { clearAuthCookies, setAuthCookies } from '../auth/cookie-utils';
 
 // Normalize API base URL - remove trailing slash to avoid double slashes
 const getApiBaseUrl = (): string => {
@@ -134,6 +135,8 @@ class ApiClient {
     if (typeof window !== 'undefined') {
       localStorage.removeItem('auth-storage');
       localStorage.removeItem('refresh-token');
+      // Clear auth cookies
+      clearAuthCookies();
     }
   }
 
@@ -186,8 +189,22 @@ class ApiClient {
         if (newAccessToken) {
           // Update auth store with new access token
           if (typeof window !== 'undefined') {
-            const { setToken } = useAuthStore.getState();
+            const { setToken, user } = useAuthStore.getState();
             setToken(newAccessToken);
+
+            // Update token cookie
+            if (user) {
+              setAuthCookies(
+                newAccessToken,
+                {
+                  userId: user.id,
+                  email: user.email,
+                  fullName: user.name,
+                  userType: user.userType || 'student',
+                },
+                true // Assume remember me if refresh token exists
+              );
+            }
           }
 
           // If backend rotates refresh token, persist it

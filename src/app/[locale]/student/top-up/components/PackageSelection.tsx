@@ -60,7 +60,7 @@ export function PackageSelection({
 
   if (isLoading) {
     return (
-      <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-[0_20px_60px_rgba(15,23,42,0.08)] backdrop-blur dark:border-white/10 dark:bg-white/5 dark:shadow-[0_20px_60px_rgba(0,0,0,0.35)]">
+      <div className="bg-background/80 dark:bg-background/5 rounded-2xl border border-border p-6 shadow-[0_20px_60px_rgba(15,23,42,0.08)] backdrop-blur dark:border-border dark:shadow-[0_20px_60px_rgba(0,0,0,0.35)]">
         <div className="mb-6">
           <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
             {t.packages.title}
@@ -73,7 +73,7 @@ export function PackageSelection({
           {[1, 2, 3, 4].map(i => (
             <div
               key={i}
-              className="h-64 animate-pulse rounded-xl bg-slate-200 dark:bg-white/5"
+              className="dark:bg-muted/5 h-64 animate-pulse rounded-xl bg-muted"
             />
           ))}
         </div>
@@ -83,7 +83,7 @@ export function PackageSelection({
 
   if (packages.length === 0) {
     return (
-      <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-6 shadow-[0_20px_60px_rgba(15,23,42,0.08)] backdrop-blur dark:border-white/10 dark:bg-white/5 dark:shadow-[0_20px_60px_rgba(0,0,0,0.35)]">
+      <div className="bg-background/80 dark:bg-background/5 rounded-2xl border border-border p-6 shadow-[0_20px_60px_rgba(15,23,42,0.08)] backdrop-blur dark:border-border dark:shadow-[0_20px_60px_rgba(0,0,0,0.35)]">
         <div className="mb-6">
           <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
             {t.packages.title}
@@ -92,7 +92,7 @@ export function PackageSelection({
             {t.packages.description}
           </p>
         </div>
-        <div className="rounded-xl border border-dashed border-slate-200/70 bg-slate-50/80 px-4 py-10 text-center text-sm text-slate-500 dark:border-white/10 dark:bg-white/5 dark:text-white/60">
+        <div className="dark:bg-muted/5 rounded-xl border border-dashed border-border bg-muted px-4 py-10 text-center text-sm text-slate-600 dark:border-border dark:text-white/70">
           Không có gói nạp tiền nào
         </div>
       </div>
@@ -194,7 +194,7 @@ export function PackageSelection({
                       {pkg.packageName}
                     </CardTitle>
                     {pkg.description && (
-                      <p className="mt-1 text-xs text-slate-500 dark:text-white/60">
+                      <p className="mt-1 text-xs text-slate-600 dark:text-white/70">
                         {pkg.description}
                       </p>
                     )}
@@ -206,20 +206,22 @@ export function PackageSelection({
                       </div>
                       {hasBonus && (
                         <div className="mt-1 text-sm text-green-600 dark:text-green-400">
+                          {' '}
+                          {/* Success color - keep specific */}
                           <span className="font-semibold">
                             +{formatPrice(pkg.bonusAmount)}{' '}
                             {t.packages.bonusAmount}
                           </span>
                         </div>
                       )}
-                      <div className="mt-2 text-xs text-slate-500 dark:text-white/60">
+                      <div className="mt-2 text-xs text-slate-600 dark:text-white/70">
                         {t.packages.totalReceived}:{' '}
                         {formatPrice(pkg.totalReceived)}
                       </div>
                     </div>
                     {hasBonus && (
                       <div className="border-t border-slate-200 pt-3 dark:border-white/10">
-                        <div className="text-sm text-slate-500 dark:text-white/60">
+                        <div className="text-sm text-slate-600 dark:text-white/70">
                           {t.packages.depositAmount}
                         </div>
                         <div className="mt-1 text-xs text-green-600 dark:text-green-400">
@@ -232,7 +234,7 @@ export function PackageSelection({
                         className={cn(
                           'w-full text-white shadow-md transition-transform hover:scale-[1.01] hover:shadow-lg active:scale-[0.99]',
                           isChristmas
-                            ? 'bg-gradient-to-r from-red-500 via-red-600 to-red-500 shadow-red-500/50 hover:from-red-600 hover:via-red-700 hover:to-red-600'
+                            ? 'bg-gradient-to-r from-red-500 via-red-600 to-green-500 shadow-red-500/50 hover:from-red-600 hover:via-red-700 hover:to-green-600'
                             : 'bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600'
                         )}
                         onClick={e => {

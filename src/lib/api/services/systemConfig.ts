@@ -18,6 +18,7 @@ export interface PageSizePriceResponse {
   isActive: boolean;
   updatedAt: string;
   updatedByEmail: string;
+  updatedByName?: string;
 }
 
 export interface UpdatePageSizePriceRequest {
@@ -36,6 +37,7 @@ export interface ColorModePriceResponse {
   isActive: boolean;
   updatedAt: string;
   updatedByEmail: string;
+  updatedByName?: string;
 }
 
 export interface UpdateColorModePriceRequest {
@@ -105,6 +107,7 @@ export interface PermittedFileTypeResponse {
   isPermitted: boolean;
   updatedAt: string;
   updatedByEmail: string;
+  updatedByName?: string;
 }
 
 export interface CreatePermittedFileTypeRequest {
@@ -168,6 +171,7 @@ export interface GeneralConfigResponse {
   description: string;
   updatedAt: string;
   updatedByEmail: string;
+  updatedByName?: string;
 }
 
 export interface UpdateGeneralConfigRequest {

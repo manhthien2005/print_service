@@ -3,7 +3,11 @@
 import { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/Button';
-import { MockUploadedFile, MockPrinter, MockPrintConfig } from '../types';
+import {
+  MockUploadedFile,
+  MockPrinter,
+  MockPrintConfig,
+} from '@/app/[locale]/student/print/types';
 import { FileIcon } from './FileIcon';
 import { PrintPreviewModal } from './PrintPreviewModal';
 import {
@@ -11,14 +15,17 @@ import {
   useStudentBalance,
   useCalculateCost,
   studentPrintKeys,
-} from '../api';
+} from '@/app/[locale]/student/print/api';
 import {
   mapCreatePrintJobResponse,
   mapStudentBalanceResponse,
   mapColorModeToApiValue,
 } from '@/lib/utils/mappers/studentPrintMapper';
 import { toast } from '@/components/ui/Toast';
-import { paymentOptions, type PaymentMethod } from '../types';
+import {
+  paymentOptions,
+  type PaymentMethod,
+} from '@/app/[locale]/student/print/types';
 import { cn } from '@/lib/utils/cn';
 import { PrintPaymentModal } from './PrintPaymentModal';
 import { useQueryClient } from '@tanstack/react-query';
@@ -236,7 +243,7 @@ export function Step4ConfirmPrint({
 
   const handlePaymentMethodChange = (method: PaymentMethod) => {
     if (method === 'qr' && isQrDisabled) {
-      toast.error('Thanh toán QR không hỗ trợ đơn dưới 10.000 VNĐ');
+      toast.error(t('errors.qrPaymentNotSupported'));
       return;
     }
     setSelectedPaymentMethod(method);
@@ -246,16 +253,12 @@ export function Step4ConfirmPrint({
 
   const handleConfirm = async () => {
     if (!uploadedFile.uploaded_file_id || !selectedPrinter?.printer_id) {
-      setError(
-        'Thiếu thông tin file hoặc máy in. Vui lòng quay lại các bước trước.'
-      );
+      setError(t('errors.missingFileOrPrinter'));
       return;
     }
 
     if (!config.paper_size || !config.color_mode) {
-      setError(
-        'Thiếu thông tin cấu hình in. Vui lòng quay lại các bước trước.'
-      );
+      setError(t('errors.missingConfig'));
       return;
     }
 
@@ -265,9 +268,7 @@ export function Step4ConfirmPrint({
       estimatedCost !== null &&
       balanceAmount < estimatedCost
     ) {
-      setError(
-        'Số dư không đủ để thanh toán. Vui lòng chọn phương thức thanh toán khác.'
-      );
+      setError(t('errors.insufficientBalanceForPayment'));
       return;
     }
 
@@ -305,9 +306,9 @@ export function Step4ConfirmPrint({
           expiredAt: jobData.expiredAt,
         });
         setShowPaymentModal(true);
-        toast.info('Vui lòng quét mã để hoàn tất thanh toán');
+        toast.info(t('toasts.qrPaymentRequired'));
       } else {
-        toast.success('Tạo print job thành công!');
+        toast.success(t('toasts.jobCreated'));
         // Pass jobId to parent (no longer navigate to progress tracking)
         onConfirm(jobData.jobId);
         queryClient.invalidateQueries({
@@ -320,22 +321,20 @@ export function Step4ConfirmPrint({
       const errorMessage =
         err?.response?.data?.message ||
         err?.message ||
-        'Có lỗi xảy ra khi tạo print job. Vui lòng thử lại.';
+        t('errors.createJobFailed');
 
       // Handle specific error cases
       if (
         errorMessage.includes('Insufficient balance') ||
         errorMessage.includes('không đủ')
       ) {
-        setError('Số dư không đủ để thực hiện in. Vui lòng nạp thêm tiền.');
+        setError(t('errors.insufficientBalanceForPrint'));
       } else if (
         errorMessage.includes('not available') ||
         errorMessage.includes('không khả dụng') ||
         errorMessage.includes('no longer available')
       ) {
-        setError(
-          'Máy in đã không còn khả dụng. Vui lòng quay lại bước 2 để chọn máy in khác.'
-        );
+        setError(t('errors.printerNotAvailable'));
         // Invalidate printer queries to refresh list
         queryClient.invalidateQueries({
           queryKey: studentPrintKeys.printers.all,
@@ -350,7 +349,7 @@ export function Step4ConfirmPrint({
 
   const handlePaymentSuccess = useCallback(() => {
     if (!pendingPayment) return;
-    toast.success('Thanh toán thành công! Đơn in đã được đưa vào hàng chờ.');
+    toast.success(t('toasts.paymentSuccess'));
     setShowPaymentModal(false);
     onConfirm(pendingPayment.jobId);
     queryClient.invalidateQueries({
@@ -367,7 +366,7 @@ export function Step4ConfirmPrint({
     if (reason) {
       toast.error(reason);
     } else {
-      toast.error('Thanh toán không thành công hoặc đã hết hạn.');
+      toast.error(t('toasts.paymentFailed'));
     }
     setShowPaymentModal(false);
     setPendingPayment(null);
@@ -377,10 +376,10 @@ export function Step4ConfirmPrint({
   return (
     <div className="space-y-6">
       <div>
-        <h3 className="text-xl font-semibold text-slate-900 dark:text-white">
+        <h3 className="text-xl font-semibold text-foreground dark:text-foreground">
           {t('title')}
         </h3>
-        <p className="mt-1 text-sm text-slate-600 dark:text-white/70">
+        <p className="mt-1 text-sm text-muted-foreground dark:text-muted-foreground">
           {t('description')}
         </p>
       </div>
@@ -388,21 +387,21 @@ export function Step4ConfirmPrint({
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Left Column - File & Printer */}
         <div className="space-y-4 lg:col-span-2">
-          <div className="rounded-xl border border-slate-200 bg-white p-5 dark:border-white/10 dark:bg-white/5">
+          <div className="dark:bg-background/5 rounded-xl border border-border bg-background p-5 dark:border-border">
             <div className="flex items-start gap-4">
-              <div className="flex h-16 w-16 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-500/20">
+              <div className="bg-primary/10 dark:bg-primary/20 flex h-16 w-16 items-center justify-center rounded-lg">
                 <FileIcon fileName={uploadedFile.file_name} size={64} />
               </div>
               <div className="flex-1">
                 <div className="flex items-center justify-between gap-3">
-                  <p className="font-medium text-slate-900 dark:text-white">
+                  <p className="font-medium text-foreground dark:text-foreground">
                     {uploadedFile.file_name}
                   </p>
                   <Button
                     size="sm"
                     onClick={() => setShowPreview(true)}
                     disabled={!uploadedFile.file && !uploadedFile.preview_url}
-                    className="flex items-center gap-2 bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600"
+                    className="hover:bg-primary/90 dark:hover:bg-primary/90 flex items-center gap-2 bg-primary text-primary-foreground dark:bg-primary"
                   >
                     <svg
                       className="h-4 w-4"
@@ -426,16 +425,15 @@ export function Step4ConfirmPrint({
                     {t('preview')}
                   </Button>
                 </div>
-                <div className="mt-1 flex flex-wrap items-center gap-2 text-sm text-slate-500 dark:text-white/60">
+                <div className="mt-1 flex flex-wrap items-center gap-2 text-sm text-muted-foreground dark:text-muted-foreground">
                   <span>
                     {(uploadedFile.file_size_kb / 1024).toFixed(2)} MB
                   </span>
                   {uploadedFile.page_count !== undefined && (
                     <>
                       <span>•</span>
-                      <span className="font-medium text-blue-600 dark:text-blue-400">
-                        {uploadedFile.page_count}{' '}
-                        {uploadedFile.page_count === 1 ? 'trang' : 'trang'}
+                      <span className="font-medium text-primary dark:text-primary">
+                        {uploadedFile.page_count} {t3('pages')}
                       </span>
                     </>
                   )}
@@ -444,44 +442,47 @@ export function Step4ConfirmPrint({
             </div>
           </div>
 
-          <div className="rounded-xl border border-slate-200 bg-white p-5 dark:border-white/10 dark:bg-white/5">
-            <h4 className="mb-4 font-semibold text-slate-900 dark:text-white">
+          <div className="dark:bg-background/5 rounded-xl border border-border bg-background p-5 dark:border-border">
+            <h4 className="mb-4 font-semibold text-foreground dark:text-foreground">
               {t('selectedPrinter')}
             </h4>
             {selectedPrinter && (
               <div className="space-y-3">
                 <div className="flex items-start justify-between">
-                  <span className="text-sm font-medium text-slate-600 dark:text-white/70">
-                    Tên:
+                  <span className="text-sm font-medium text-muted-foreground dark:text-muted-foreground">
+                    {t('printer.name')}:
                   </span>
-                  <span className="text-right text-sm font-semibold text-slate-900 dark:text-white">
+                  <span className="text-right text-sm font-semibold text-foreground dark:text-foreground">
                     {selectedPrinter.brand_name} {selectedPrinter.model_name}
                   </span>
                 </div>
                 <div className="flex items-start justify-between">
-                  <span className="text-sm font-medium text-slate-600 dark:text-white/70">
-                    Mã:
+                  <span className="text-sm font-medium text-muted-foreground dark:text-muted-foreground">
+                    {t('printer.code')}:
                   </span>
-                  <span className="text-right text-sm font-semibold text-slate-900 dark:text-white">
+                  <span className="text-right text-sm font-semibold text-foreground dark:text-foreground">
                     {selectedPrinter.serial_number}
                   </span>
                 </div>
                 <div className="flex items-start justify-between">
-                  <span className="text-sm font-medium text-slate-600 dark:text-white/70">
-                    Vị trí:
+                  <span className="text-sm font-medium text-muted-foreground dark:text-muted-foreground">
+                    {t('printer.location')}:
                   </span>
-                  <span className="text-right text-sm font-semibold text-slate-900 dark:text-white">
+                  <span className="text-right text-sm font-semibold text-foreground dark:text-foreground">
                     {selectedPrinter.building_name} -{' '}
                     {selectedPrinter.room_code}
                   </span>
                 </div>
                 <div className="flex items-start justify-between">
-                  <span className="text-sm font-medium text-slate-600 dark:text-white/70">
-                    Trạng thái:
+                  <span className="text-sm font-medium text-muted-foreground dark:text-muted-foreground">
+                    {t('printer.status')}:
                   </span>
                   <div className="flex items-center gap-2">
-                    <div className="h-2 w-2 rounded-full bg-green-500" />
+                    <div className="h-2 w-2 rounded-full bg-green-500" />{' '}
+                    {/* Status indicator - keep specific color */}
                     <span className="text-sm font-semibold text-green-600 dark:text-green-400">
+                      {' '}
+                      {/* Success color - keep specific */}
                       {t2('status.online')}
                     </span>
                   </div>
@@ -493,44 +494,44 @@ export function Step4ConfirmPrint({
 
         {/* Right Column - Configuration */}
         <div className="space-y-4">
-          <div className="rounded-xl border border-slate-200 bg-white p-5 dark:border-white/10 dark:bg-white/5">
-            <h4 className="mb-4 font-semibold text-slate-900 dark:text-white">
+          <div className="dark:bg-background/5 rounded-xl border border-border bg-background p-5 dark:border-border">
+            <h4 className="mb-4 font-semibold text-foreground dark:text-foreground">
               {t('printConfig')}
             </h4>
             <div className="space-y-3 text-sm">
               <div className="flex justify-between">
-                <span className="text-slate-600 dark:text-white/70">
+                <span className="text-muted-foreground dark:text-muted-foreground">
                   {t3('paperSize')}:
                 </span>
-                <span className="font-medium text-slate-900 dark:text-white">
+                <span className="font-medium text-foreground dark:text-foreground">
                   {config.paper_size}
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-slate-600 dark:text-white/70">
+                <span className="text-muted-foreground dark:text-muted-foreground">
                   {t3('orientation')}:
                 </span>
-                <span className="font-medium text-slate-900 dark:text-white">
+                <span className="font-medium text-foreground dark:text-foreground">
                   {config.orientation === 'portrait'
                     ? t3('portrait')
                     : t3('landscape')}
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-slate-600 dark:text-white/70">
+                <span className="text-muted-foreground dark:text-muted-foreground">
                   {t3('printSide')}:
                 </span>
-                <span className="font-medium text-slate-900 dark:text-white">
+                <span className="font-medium text-foreground dark:text-foreground">
                   {config.print_side === 'one-sided'
                     ? t3('oneSided')
                     : t3('doubleSided')}
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-slate-600 dark:text-white/70">
+                <span className="text-muted-foreground dark:text-muted-foreground">
                   {t3('colorMode')}:
                 </span>
-                <span className="font-medium text-slate-900 dark:text-white">
+                <span className="font-medium text-foreground dark:text-foreground">
                   {config.color_mode === 'color'
                     ? t3('color')
                     : config.color_mode === 'grayscale'
@@ -539,10 +540,10 @@ export function Step4ConfirmPrint({
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-slate-600 dark:text-white/70">
+                <span className="text-muted-foreground dark:text-muted-foreground">
                   {t3('numberOfCopies')}:
                 </span>
-                <span className="font-medium text-slate-900 dark:text-white">
+                <span className="font-medium text-foreground dark:text-foreground">
                   {config.number_of_copy}
                 </span>
               </div>
@@ -554,7 +555,7 @@ export function Step4ConfirmPrint({
       {/* Payment Method Selection */}
       <div className="rounded-xl border border-slate-200 bg-white p-5 dark:border-white/10 dark:bg-white/5">
         <h4 className="mb-4 font-semibold text-slate-900 dark:text-white">
-          Phương thức thanh toán
+          {t('paymentMethod')}
         </h4>
         <div className="grid gap-3 md:grid-cols-2">
           {paymentOptions.map(option => {
@@ -587,9 +588,7 @@ export function Step4ConfirmPrint({
                       : 'text-slate-600 dark:text-white/60'
                   )}
                 >
-                  {isDisabled
-                    ? 'Thanh toán không hỗ trợ đơn dưới 10.000 VNĐ'
-                    : option.description}
+                  {isDisabled ? t('qrPaymentMinAmount') : option.description}
                 </div>
                 {selectedPaymentMethod === option.id && !isDisabled && (
                   <div className="absolute right-2 top-2 rounded-full bg-blue-500 p-1">
@@ -641,7 +640,9 @@ export function Step4ConfirmPrint({
               {balanceLoading ? (
                 <span className="inline-block h-5 w-28 animate-pulse rounded bg-slate-200/80 align-middle dark:bg-white/10" />
               ) : (
-                balance.balanceAmount.toLocaleString('vi-VN') + ' VNĐ'
+                balance.balanceAmount.toLocaleString('vi-VN') +
+                ' ' +
+                t3('currency')
               )}
             </span>
           </div>
@@ -650,12 +651,12 @@ export function Step4ConfirmPrint({
               {t3('estimatedPages')}:
             </span>
             <span className="text-lg font-bold text-blue-700 dark:text-blue-300">
-              {estimatedPages} trang {config.paper_size}
+              {estimatedPages} {t3('pages')} {config.paper_size}
             </span>
           </div>
           <div className="flex items-center justify-between rounded-lg bg-white/70 px-3 py-2 dark:bg-white/5">
             <span className="font-medium text-slate-700 dark:text-white/70">
-              Tạm tính:
+              {t3('subtotal')}:
             </span>
             <span className="text-base font-bold text-slate-900 dark:text-white">
               {!hasCost || isCalculatingCost ? (
@@ -663,21 +664,24 @@ export function Step4ConfirmPrint({
               ) : (
                 (
                   costDetail.subtotalBeforeDiscount || estimatedCost!
-                ).toLocaleString('vi-VN') + ' VNĐ'
+                ).toLocaleString('vi-VN') +
+                ' ' +
+                t3('currency')
               )}
             </span>
           </div>
           {hasDiscount && (
             <div className="flex items-center justify-between rounded-lg bg-green-50/70 px-3 py-2 dark:bg-green-500/10">
               <span className="font-medium text-green-700 dark:text-green-300">
-                Giảm giá
+                {t3('discount')}
                 {costDetail.discountPercentage
                   ? ` (${(costDetail.discountPercentage * 100).toFixed(0)}%)`
                   : ''}
                 :
               </span>
               <span className="text-base font-bold text-green-700 dark:text-green-300">
-                -{(costDetail.discountAmount || 0).toLocaleString('vi-VN')} VNĐ
+                -{(costDetail.discountAmount || 0).toLocaleString('vi-VN')}{' '}
+                {t3('currency')}
               </span>
             </div>
           )}
@@ -689,7 +693,7 @@ export function Step4ConfirmPrint({
               {!hasCost || isCalculatingCost ? (
                 <span className="inline-block h-6 w-32 animate-pulse rounded bg-slate-200/80 align-middle dark:bg-white/10" />
               ) : (
-                estimatedCost!.toLocaleString('vi-VN') + ' VNĐ'
+                estimatedCost!.toLocaleString('vi-VN') + ' ' + t3('currency')
               )}
             </span>
           </div>
@@ -701,7 +705,9 @@ export function Step4ConfirmPrint({
               {balanceLoading || !hasCost || isCalculatingCost ? (
                 <span className="inline-block h-5 w-28 animate-pulse rounded bg-slate-200/80 align-middle dark:bg-white/10" />
               ) : (
-                remainingBalanceMoney!.toLocaleString('vi-VN') + ' VNĐ'
+                remainingBalanceMoney!.toLocaleString('vi-VN') +
+                ' ' +
+                t3('currency')
               )}
             </span>
           </div>
@@ -712,14 +718,19 @@ export function Step4ConfirmPrint({
             balanceAmount < estimatedCost && (
               <div className="mt-3 rounded-lg border border-red-200 bg-red-50 p-3 dark:border-red-500/30 dark:bg-red-500/10">
                 <p className="text-sm text-red-600 dark:text-red-400">
-                  ⚠️ Số dư không đủ. Cần thêm{' '}
-                  {(estimatedCost - balanceAmount).toLocaleString('vi-VN')} VNĐ
+                  ⚠️{' '}
+                  {t('insufficientBalance', {
+                    amount:
+                      (estimatedCost - balanceAmount).toLocaleString('vi-VN') +
+                      ' ' +
+                      t3('currency'),
+                  })}
                 </p>
               </div>
             )}
           {selectedPaymentMethod === 'qr' && isQrDisabled && (
             <div className="mt-2 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-700 dark:border-amber-500/40 dark:bg-amber-500/10 dark:text-amber-200">
-              Thanh toán QR không hỗ trợ đơn dưới 10.000 VNĐ
+              {t('qrPaymentMinAmount')}
             </div>
           )}
         </div>

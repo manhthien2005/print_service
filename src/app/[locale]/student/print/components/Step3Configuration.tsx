@@ -10,14 +10,14 @@ import {
   MockPageSize,
   MockPrinter,
   MockUploadedFile,
-} from '../types';
+} from '@/app/[locale]/student/print/types';
 import { PaperSizeComparisonModal } from './PaperSizeComparisonModal';
 import { ColorModeInfoModal } from './ColorModeInfoModal';
 import {
   useStudentPageSizes,
   useCalculateCost,
   useStudentBalance,
-} from '../api';
+} from '@/app/[locale]/student/print/api';
 import {
   mapPageSizesResponse,
   mapCalculateCostResponse,
@@ -111,23 +111,23 @@ export function Step3Configuration({
       JSON.stringify({
         uploadedFileId: uploadedFile.uploaded_file_id,
         printerId: selectedPrinter?.printer_id,
-        pageSizeName: localConfig.paper_size,
-        colorModeName: mapColorModeToApiValue(localConfig.color_mode),
-        pageOrientation: localConfig.orientation,
+        pageSizeName: debouncedConfig.paper_size,
+        colorModeName: mapColorModeToApiValue(debouncedConfig.color_mode),
+        pageOrientation: debouncedConfig.orientation,
         printSide:
-          localConfig.print_side === 'double-sided'
+          debouncedConfig.print_side === 'double-sided'
             ? 'double-sided'
             : 'one-sided',
-        numberOfCopy: localConfig.number_of_copy,
+        numberOfCopy: debouncedConfig.number_of_copy,
       }),
     [
       uploadedFile.uploaded_file_id,
       selectedPrinter?.printer_id,
-      localConfig.paper_size,
-      localConfig.color_mode,
-      localConfig.orientation,
-      localConfig.print_side,
-      localConfig.number_of_copy,
+      debouncedConfig.paper_size,
+      debouncedConfig.color_mode,
+      debouncedConfig.orientation,
+      debouncedConfig.print_side,
+      debouncedConfig.number_of_copy,
     ]
   );
 
@@ -136,9 +136,9 @@ export function Step3Configuration({
     if (
       !uploadedFile.uploaded_file_id ||
       !selectedPrinter?.printer_id ||
-      !localConfig.paper_size ||
-      !localConfig.color_mode ||
-      !localConfig.number_of_copy
+      !debouncedConfig.paper_size ||
+      !debouncedConfig.color_mode ||
+      !debouncedConfig.number_of_copy
     ) {
       setCalculatedCost(null);
       return;
@@ -155,14 +155,14 @@ export function Step3Configuration({
       {
         uploadedFileId: uploadedFile.uploaded_file_id!,
         printerId: selectedPrinter.printer_id,
-        pageSizeName: localConfig.paper_size,
-        colorModeName: mapColorModeToApiValue(localConfig.color_mode),
-        pageOrientation: localConfig.orientation,
+        pageSizeName: debouncedConfig.paper_size,
+        colorModeName: mapColorModeToApiValue(debouncedConfig.color_mode),
+        pageOrientation: debouncedConfig.orientation,
         printSide:
-          localConfig.print_side === 'double-sided'
+          debouncedConfig.print_side === 'double-sided'
             ? 'double-sided'
             : 'one-sided',
-        numberOfCopy: localConfig.number_of_copy,
+        numberOfCopy: debouncedConfig.number_of_copy,
       },
       {
         onSuccess: response => {
@@ -295,10 +295,10 @@ export function Step3Configuration({
   return (
     <div className="space-y-6">
       <div>
-        <h3 className="text-xl font-semibold text-slate-900 dark:text-white">
+        <h3 className="text-xl font-semibold text-foreground dark:text-foreground">
           {t('title')}
         </h3>
-        <p className="mt-1 text-sm text-slate-600 dark:text-white/70">
+        <p className="mt-1 text-sm text-muted-foreground dark:text-muted-foreground">
           {t('description')}
         </p>
       </div>
@@ -309,15 +309,15 @@ export function Step3Configuration({
           <div className="space-y-6 rounded-xl border border-slate-200 bg-white/80 p-5 shadow-sm dark:border-white/10 dark:bg-white/5">
             <div className="grid gap-5 lg:grid-cols-2">
               <div className="space-y-3">
-                <label className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-white/80">
+                <label className="dark:text-foreground/80 flex items-center gap-2 text-sm font-medium text-foreground">
                   {t('paperSize')}
                   <button
                     onClick={e => {
                       e.preventDefault();
                       setShowPaperSizeModal(true);
                     }}
-                    className="flex h-5 w-5 items-center justify-center rounded-full bg-blue-100 text-blue-600 transition-colors hover:bg-blue-200 dark:bg-blue-500/20 dark:text-blue-400 dark:hover:bg-blue-500/30"
-                    title="So sánh khổ giấy"
+                    className="bg-primary/10 hover:bg-primary/20 dark:bg-primary/20 dark:hover:bg-primary/30 flex h-5 w-5 items-center justify-center rounded-full text-primary transition-colors dark:text-primary"
+                    title={t('comparePaperSizes')}
                   >
                     <span className="text-xs font-bold">?</span>
                   </button>
@@ -335,7 +335,7 @@ export function Step3Configuration({
               </div>
 
               <div className="space-y-3">
-                <label className="block text-sm font-semibold text-slate-700 dark:text-white/80">
+                <label className="dark:text-foreground/80 block text-sm font-semibold text-foreground">
                   {t('orientation')}
                 </label>
                 <div className="grid grid-cols-2 gap-3">
@@ -343,7 +343,7 @@ export function Step3Configuration({
                     onClick={() => handleChange('orientation', 'portrait')}
                     className={`group relative overflow-hidden rounded-xl border-2 p-4 text-center transition-all duration-300 ${
                       localConfig.orientation === 'portrait'
-                        ? 'scale-105 border-blue-500 bg-blue-50/70 shadow-lg shadow-blue-500/15 ring-2 ring-blue-500/25 dark:bg-blue-500/15'
+                        ? 'scale-105 border-blue-500 bg-blue-50/70 shadow-lg shadow-blue-500/15 ring-2 ring-blue-500/25 dark:border-blue-500 dark:bg-blue-500/15'
                         : 'border-slate-200 bg-white hover:border-blue-300 hover:bg-blue-50/40 dark:border-white/10 dark:bg-white/5 dark:hover:border-blue-300/60 dark:hover:bg-white/10'
                     }`}
                   >
@@ -440,7 +440,7 @@ export function Step3Configuration({
                     disabled={!selectedPrinter?.supports_duplex}
                     className={`group relative overflow-hidden rounded-xl border-2 p-4 text-center transition-all duration-300 disabled:cursor-not-allowed disabled:opacity-50 ${
                       localConfig.print_side === 'one-sided'
-                        ? 'scale-105 border-blue-500 bg-blue-50/70 shadow-lg shadow-blue-500/15 ring-2 ring-blue-500/25 dark:bg-blue-500/15'
+                        ? 'scale-105 border-blue-500 bg-blue-50/70 shadow-lg shadow-blue-500/15 ring-2 ring-blue-500/25 dark:border-blue-500 dark:bg-blue-500/15'
                         : 'border-slate-200 bg-white hover:border-blue-300 hover:bg-blue-50/40 dark:border-white/10 dark:bg-white/5 dark:hover:border-blue-300/60 dark:hover:bg-white/10'
                     }`}
                   >
@@ -482,7 +482,7 @@ export function Step3Configuration({
                       {t('doubleSided')}
                     </div>
                     {!selectedPrinter?.supports_duplex && (
-                      <div className="mt-1 text-xs font-medium text-red-500">
+                      <div className="mt-1 text-xs font-medium text-destructive">
                         {t('notSupported')}
                       </div>
                     )}
@@ -515,8 +515,8 @@ export function Step3Configuration({
                       e.preventDefault();
                       setShowColorModeModal(true);
                     }}
-                    className="flex h-5 w-5 items-center justify-center rounded-full bg-blue-100 text-blue-600 transition-colors hover:bg-blue-200 dark:bg-blue-500/20 dark:text-blue-400 dark:hover:bg-blue-500/30"
-                    title="Thông tin chế độ màu"
+                    className="bg-primary/10 hover:bg-primary/20 dark:bg-primary/20 dark:hover:bg-primary/30 flex h-5 w-5 items-center justify-center rounded-full text-primary transition-colors dark:text-primary"
+                    title={t('colorModeInfo')}
                   >
                     <span className="text-xs font-bold">?</span>
                   </button>
@@ -562,7 +562,7 @@ export function Step3Configuration({
                       </div>
                       <div className="text-xs font-semibold">{mode.label}</div>
                       {mode.disabled && (
-                        <div className="mt-1 text-xs font-medium text-red-500">
+                        <div className="mt-1 text-xs font-medium text-destructive">
                           {t('notSupported')}
                         </div>
                       )}
@@ -592,7 +592,7 @@ export function Step3Configuration({
             <div className="grid gap-5 lg:grid-cols-2">
               <div className="space-y-3">
                 <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-white/80">
-                  Phạm vi trang
+                  {t('pageRange')}
                 </label>
                 <div className="space-y-3">
                   <div className="flex gap-3">
@@ -600,27 +600,27 @@ export function Step3Configuration({
                       onClick={() => handleChange('page_range', 'all')}
                       className={`flex-1 rounded-lg border-2 px-4 py-2 text-sm font-medium transition-all ${
                         localConfig.page_range === 'all'
-                          ? 'border-blue-500 bg-blue-50 text-blue-600 dark:bg-blue-500/20 dark:text-blue-400'
-                          : 'border-slate-200 bg-white text-slate-700 hover:border-blue-400 dark:border-white/10 dark:bg-white/5 dark:text-white/70'
+                          ? 'border-blue-500 bg-blue-50/70 text-blue-700 dark:border-blue-500 dark:bg-blue-500/15 dark:text-blue-300'
+                          : 'dark:text-foreground/70 border-slate-200 bg-white text-foreground hover:border-blue-300 hover:bg-blue-50/40 dark:border-white/10 dark:bg-white/5 dark:hover:border-blue-300/60 dark:hover:bg-white/10'
                       }`}
                     >
-                      Tất cả trang
+                      {t('allPages')}
                     </button>
                     <button
                       onClick={() => handleChange('page_range', 'custom')}
                       className={`flex-1 rounded-lg border-2 px-4 py-2 text-sm font-medium transition-all ${
                         localConfig.page_range === 'custom'
-                          ? 'border-blue-500 bg-blue-50 text-blue-600 dark:bg-blue-500/20 dark:text-blue-400'
-                          : 'border-slate-200 bg-white text-slate-700 hover:border-blue-400 dark:border-white/10 dark:bg-white/5 dark:text-white/70'
+                          ? 'border-blue-500 bg-blue-50/70 text-blue-700 dark:border-blue-500 dark:bg-blue-500/15 dark:text-blue-300'
+                          : 'dark:text-foreground/70 border-slate-200 bg-white text-foreground hover:border-blue-300 hover:bg-blue-50/40 dark:border-white/10 dark:bg-white/5 dark:hover:border-blue-300/60 dark:hover:bg-white/10'
                       }`}
                     >
-                      Tùy chọn
+                      {t('custom')}
                     </button>
                   </div>
                   {localConfig.page_range === 'custom' && (
                     <Input
                       type="text"
-                      placeholder="Ví dụ: 1-5,10,15-20"
+                      placeholder={t('pageRangeExample')}
                       value={localConfig.custom_page_range || ''}
                       onChange={e =>
                         handleChange('custom_page_range', e.target.value)
@@ -708,7 +708,9 @@ export function Step3Configuration({
                   {balanceLoading ? (
                     <span className="inline-block h-5 w-28 animate-pulse rounded bg-slate-200/80 align-middle dark:bg-white/10" />
                   ) : (
-                    balance.balanceAmount.toLocaleString('vi-VN') + ' VNĐ'
+                    balance.balanceAmount.toLocaleString('vi-VN') +
+                    ' ' +
+                    t('currency')
                   )}
                 </span>
               </div>
@@ -717,12 +719,12 @@ export function Step3Configuration({
                   {t('estimatedPages')}:
                 </span>
                 <span className="text-lg font-bold text-blue-700 dark:text-blue-300">
-                  {estimatedPages} trang {localConfig.paper_size || ''}
+                  {estimatedPages} {t('pages')} {localConfig.paper_size || ''}
                 </span>
               </div>
               <div className="flex items-center justify-between rounded-lg bg-white/70 px-3 py-2 dark:bg-white/5">
                 <span className="font-medium text-slate-700 dark:text-white/70">
-                  Tạm tính:
+                  {t('subtotal')}:
                 </span>
                 <span className="text-base font-bold text-slate-900 dark:text-white">
                   {!hasCost || isCalculatingCost ? (
@@ -730,14 +732,16 @@ export function Step3Configuration({
                   ) : (
                     (
                       costDetail.subtotalBeforeDiscount || estimatedCost!
-                    ).toLocaleString('vi-VN') + ' VNĐ'
+                    ).toLocaleString('vi-VN') +
+                    ' ' +
+                    t('currency')
                   )}
                 </span>
               </div>
               {hasDiscount && (
                 <div className="flex items-center justify-between rounded-lg bg-green-50/70 px-3 py-2 dark:bg-green-500/10">
                   <span className="font-medium text-green-700 dark:text-green-300">
-                    Giảm giá
+                    {t('discount')}
                     {costDetail.discountPercentage
                       ? ` (${(costDetail.discountPercentage * 100).toFixed(0)}%)`
                       : ''}
@@ -745,7 +749,7 @@ export function Step3Configuration({
                   </span>
                   <span className="text-base font-bold text-green-700 dark:text-green-300">
                     -{(costDetail.discountAmount || 0).toLocaleString('vi-VN')}{' '}
-                    VNĐ
+                    {t('currency')}
                   </span>
                 </div>
               )}
@@ -757,7 +761,7 @@ export function Step3Configuration({
                   {!hasCost || isCalculatingCost ? (
                     <span className="inline-block h-6 w-32 animate-pulse rounded bg-slate-200/80 align-middle dark:bg-white/10" />
                   ) : (
-                    estimatedCost!.toLocaleString('vi-VN') + ' VNĐ'
+                    estimatedCost!.toLocaleString('vi-VN') + ' ' + t('currency')
                   )}
                 </span>
               </div>
@@ -769,7 +773,9 @@ export function Step3Configuration({
                   {balanceLoading || !hasCost || isCalculatingCost ? (
                     <span className="inline-block h-5 w-28 animate-pulse rounded bg-slate-200/80 align-middle dark:bg-white/10" />
                   ) : (
-                    remainingBalanceMoney!.toLocaleString('vi-VN') + ' VNĐ'
+                    remainingBalanceMoney!.toLocaleString('vi-VN') +
+                    ' ' +
+                    t('currency')
                   )}
                 </span>
               </div>

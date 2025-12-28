@@ -8,13 +8,13 @@ import {
 } from '@/lib/api/services/staffReports';
 // import { Card } from '@/components/ui/Card'; // Not used currently
 import { Button } from '@/components/ui/Button';
-import StaffDashboardSkeleton from './StaffDashboardSkeleton';
-import { DashboardStats } from './DashboardStats';
-import { DashboardCharts } from './DashboardCharts';
-import { PrinterStatusCard } from './PrinterStatusCard';
-import { AlertsCard } from './AlertsCard';
-import type { StaffDashboardProps } from '../types';
-import type { AlertItem } from './AlertsCard';
+import StaffDashboardSkeleton from '@/app/[locale]/staff/dashboard/components/StaffDashboardSkeleton';
+import { DashboardStats } from '@/app/[locale]/staff/dashboard/components/DashboardStats';
+import { DashboardCharts } from '@/app/[locale]/staff/dashboard/components/DashboardCharts';
+import { PrinterStatusCard } from '@/app/[locale]/staff/dashboard/components/PrinterStatusCard';
+import { AlertsCard } from '@/app/[locale]/staff/dashboard/components/AlertsCard';
+import type { StaffDashboardProps } from '@/app/[locale]/staff/dashboard/types';
+import type { AlertItem } from '@/app/[locale]/staff/dashboard/components/AlertsCard';
 
 export default function StaffDashboard({ locale, t }: StaffDashboardProps) {
   const staff = t.staff ?? {};
@@ -37,7 +37,7 @@ export default function StaffDashboard({ locale, t }: StaffDashboardProps) {
 
   // Handle loading state
   if (isLoading) {
-    return <StaffDashboardSkeleton />;
+    return <StaffDashboardSkeleton t={t} />;
   }
 
   // Handle error state
@@ -50,11 +50,11 @@ export default function StaffDashboard({ locale, t }: StaffDashboardProps) {
           </p>
           <h1 className="text-4xl font-bold text-white">{t.title}</h1>
         </div>
-        <div className="rounded-xl border border-red-400/20 bg-red-500/10 p-8 text-center">
-          <h3 className="mb-2 text-lg font-semibold text-red-300">
+        <div className="border-destructive/20 bg-destructive/10 rounded-xl border p-8 text-center">
+          <h3 className="mb-2 text-lg font-semibold text-destructive">
             Không thể tải thống kê
           </h3>
-          <p className="mb-4 text-red-200">
+          <p className="text-destructive/80 mb-4">
             {error instanceof Error
               ? error.message
               : 'Đã xảy ra lỗi khi tải dữ liệu dashboard'}
@@ -64,7 +64,7 @@ export default function StaffDashboard({ locale, t }: StaffDashboardProps) {
               refetchPrinters();
               // Note: useDashboardOverview doesn't expose refetch directly, but it will auto-refetch
             }}
-            className="bg-red-500 text-white hover:bg-red-600"
+            className="hover:bg-destructive/90 bg-destructive text-destructive-foreground"
           >
             Thử lại
           </Button>
@@ -182,11 +182,8 @@ export default function StaffDashboard({ locale, t }: StaffDashboardProps) {
     <div className="space-y-8 pb-24">
       {/* Header */}
       <div className="flex flex-col gap-2">
-        <p className="text-sm uppercase tracking-[0.2em] text-white/60">
-          {staff.sectionLabel ?? 'Staff dashboard'}
-        </p>
         <h1 className="text-4xl font-bold text-white">{t.title}</h1>
-        <p className="text-white/70">{t.welcome}</p>
+        {t.welcome && <p className="text-white/70">{t.welcome}</p>}
       </div>
 
       {/* Stats Widgets */}

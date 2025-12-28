@@ -1,5 +1,10 @@
-import { historyStatusFilters } from '../constants';
-import type { PrintHistoryItem, StatusFilterValue } from '../types';
+'use client';
+
+import { historyStatusFilters } from '@/app/[locale]/student/history/constants';
+import type {
+  PrintHistoryItem,
+  StatusFilterValue,
+} from '@/app/[locale]/student/history/types';
 import { Select } from '@/components/ui/Select';
 import { DatePicker } from '@/components/ui/DatePicker';
 

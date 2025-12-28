@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import GlareHover from '@/components/GlareHover';
 import { Input } from '@/components/ui/Input';
-import { apiClient } from '@/lib/api/client';
+import { useApiMutation } from '@/lib/hooks/useApiMutation';
 import { API_ENDPOINTS } from '@/lib/constants';
 import { toast } from '@/components/ui/Toast';
 
@@ -27,6 +27,11 @@ interface ResetPasswordFormProps {
   };
 }
 
+interface ResetPasswordRequest {
+  token: string;
+  newPassword: string;
+}
+
 export default function ResetPasswordForm({
   locale,
   copy: t,
@@ -37,7 +42,21 @@ export default function ResetPasswordForm({
 
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+
+  const resetPasswordMutation = useApiMutation<unknown, ResetPasswordRequest>(
+    API_ENDPOINTS.AUTH.RESET_PASSWORD,
+    'post',
+    {
+      onSuccess: () => {
+        toast.success(t.success);
+        router.push(`/${locale}/login`);
+      },
+      onError: error => {
+        const message = error instanceof Error ? error.message : t.error;
+        toast.error(message);
+      },
+    }
+  );
 
   useEffect(() => {
     if (!token) {
@@ -60,20 +79,10 @@ export default function ResetPasswordForm({
       return;
     }
 
-    try {
-      setIsLoading(true);
-      await apiClient.post(API_ENDPOINTS.AUTH.RESET_PASSWORD, {
-        token,
-        newPassword: password,
-      });
-      toast.success(t.success);
-      router.push(`/${locale}/login`);
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : t.error;
-      toast.error(message);
-    } finally {
-      setIsLoading(false);
-    }
+    resetPasswordMutation.mutate({
+      token,
+      newPassword: password,
+    });
   };
 
   const loginHref = useMemo(() => `/${locale}/login`, [locale]);
@@ -127,10 +136,10 @@ export default function ResetPasswordForm({
           >
             <button
               type="submit"
-              disabled={isLoading}
+              disabled={resetPasswordMutation.isPending}
               className="relative z-10 h-[44px] w-full rounded-lg border border-white/35 bg-transparent px-4 text-sm font-semibold text-white shadow-[0_12px_35px_rgba(0,0,0,0.35)] transition hover:bg-white/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900 disabled:cursor-not-allowed disabled:opacity-50"
             >
-              {isLoading ? t.submitting : t.submit}
+              {resetPasswordMutation.isPending ? t.submitting : t.submit}
             </button>
           </GlareHover>
         </div>

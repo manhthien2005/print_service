@@ -44,4 +44,3 @@ export function mapModelsResponse(
 ): PrinterModel[] {
   return responses.map(mapModelResponse);
 }
-

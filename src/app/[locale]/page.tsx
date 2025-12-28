@@ -1,5 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { setRequestLocale } from 'next-intl/server';
 import { locales } from '@/lib/i18n/config';
 import LightRays from '@/components/LightRays';
@@ -43,11 +44,14 @@ export default async function HomePage({
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_-5%,rgba(255,255,255,0.11),transparent_45%),radial-gradient(circle_at_15%_20%,rgba(148,163,184,0.16),transparent_32%),radial-gradient(circle_at_85%_12%,rgba(148,163,184,0.14),transparent_32%)]" />
       <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.3)_0%,rgba(0,0,0,0.58)_60%,rgba(0,0,0,0.78)_100%)]" />
       <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-        <img
+        <Image
           src="/images/printer.png"
           alt=""
           aria-hidden
+          width={760}
+          height={760}
           className="w-[760px] max-w-[82vw] translate-y-6 opacity-[0.28] mix-blend-screen drop-shadow-[0_18px_50px_rgba(0,0,0,0.45)]"
+          priority
         />
       </div>
 

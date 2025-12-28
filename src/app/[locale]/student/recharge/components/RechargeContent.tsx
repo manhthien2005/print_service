@@ -7,17 +7,17 @@ import {
   useCancelDeposit,
   useCurrentDeposit,
 } from '@/lib/api/services/payment';
-import { PackageSelection } from './PackageSelection';
-import { CustomAmountInput } from './CustomAmountInput';
-import { QRPaymentModal } from './QRPaymentModal';
-import { CancelConfirmModal } from './CancelConfirmModal';
-import { PaymentSuccessModal } from './PaymentSuccessModal';
+import { PackageSelection } from '@/app/[locale]/student/recharge/components/PackageSelection';
+import { CustomAmountInput } from '@/app/[locale]/student/recharge/components/CustomAmountInput';
+import { QRPaymentModal } from '@/app/[locale]/student/recharge/components/QRPaymentModal';
+import { CancelConfirmModal } from '@/app/[locale]/student/recharge/components/CancelConfirmModal';
+import { PaymentSuccessModal } from '@/app/[locale]/student/recharge/components/PaymentSuccessModal';
 import { toast } from '@/components/ui/Toast';
 import type { DepositBonusPackageResponse, DepositResponse } from '@/types/api';
 
 interface RechargeContentProps {
   locale: string;
-  t: any; // Translation object
+  t: Record<string, any>;
 }
 
 export function RechargeContent({ t }: RechargeContentProps) {
@@ -73,10 +73,15 @@ export function RechargeContent({ t }: RechargeContentProps) {
           toast.success(t.qrModal.newOrder);
         }
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       const message =
-        error?.response?.data?.message ||
-        error?.message ||
+        (
+          error as {
+            response?: { data?: { message?: string } };
+            message?: string;
+          }
+        )?.response?.data?.message ||
+        (error as { message?: string })?.message ||
         t.errors.createFailed;
       toast.error(message);
     }
@@ -97,10 +102,15 @@ export function RechargeContent({ t }: RechargeContentProps) {
           toast.success(t.qrModal.newOrder);
         }
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       const message =
-        error?.response?.data?.message ||
-        error?.message ||
+        (
+          error as {
+            response?: { data?: { message?: string } };
+            message?: string;
+          }
+        )?.response?.data?.message ||
+        (error as { message?: string })?.message ||
         t.errors.createFailed;
       toast.error(message);
     }
@@ -121,11 +131,16 @@ export function RechargeContent({ t }: RechargeContentProps) {
       setCurrentDeposit(null);
       // Refetch current deposit
       refetchCurrent();
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const errorWithResponse = error as {
+        response?: { data?: { message?: string } };
+        message?: string;
+      };
       const message =
-        error?.response?.data?.message ||
-        error?.message ||
-        t.errors.cancelFailed;
+        errorWithResponse?.response?.data?.message ||
+        errorWithResponse?.message ||
+        t.errors?.cancelFailed ||
+        'Failed to cancel deposit';
       toast.error(message);
     }
   };
@@ -156,14 +171,14 @@ export function RechargeContent({ t }: RechargeContentProps) {
         packages={packages}
         onSelectPackage={handlePackageSelect}
         isLoading={packagesLoading || createDepositMutation.isPending}
-        t={t}
+        t={t as any}
       />
 
       {/* Custom Amount Section */}
       <CustomAmountInput
         onRecharge={handleCustomRecharge}
         isLoading={createDepositMutation.isPending}
-        t={t}
+        t={t as any}
       />
 
       {/* Modals */}
@@ -176,7 +191,7 @@ export function RechargeContent({ t }: RechargeContentProps) {
             setShowCancelModal(true);
           }}
           onSuccess={handlePaymentSuccess}
-          t={t}
+          t={t as any}
         />
       )}
 
@@ -186,7 +201,7 @@ export function RechargeContent({ t }: RechargeContentProps) {
         onClose={() => setShowCancelModal(false)}
         onConfirm={handleCancelDeposit}
         isLoading={cancelDepositMutation.isPending}
-        t={t}
+        t={t as any}
       />
 
       <PaymentSuccessModal
@@ -200,7 +215,7 @@ export function RechargeContent({ t }: RechargeContentProps) {
           setShowSuccessModal(false);
           setSuccessAmount(0);
         }}
-        t={t}
+        t={t as any}
       />
     </div>
   );

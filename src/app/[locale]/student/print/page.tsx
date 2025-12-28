@@ -5,6 +5,7 @@ import { PageBackground } from '@/components/layout/PageBackground';
 import { StudentHeader } from '@/components/layout/StudentHeader';
 import AppDock from '@/components/AppDock';
 import { PrintPageContent } from './components/PrintPageContent';
+import { NavigationGuardProviderWrapper } from './components/NavigationGuardProviderWrapper';
 
 export function generateStaticParams() {
   return locales.map(locale => ({ locale }));
@@ -29,20 +30,22 @@ export default async function StudentPrintPage({
       <PageBackground />
       <StudentHeader />
 
-      <div className="relative z-10 mx-auto flex min-h-screen w-full max-w-[95vw] flex-col px-4 py-10 pb-24 sm:px-6 lg:px-8 xl:max-w-[1600px]">
-        <header className="mb-8">
-          <h1 className="text-4xl font-bold text-slate-900 dark:text-white">
-            {t.title}
-          </h1>
-          <p className="mt-2 text-slate-600 dark:text-white/70">
-            {t.description}
-          </p>
-        </header>
+      <NavigationGuardProviderWrapper>
+        <div className="relative z-10 mx-auto flex min-h-screen w-full max-w-[95vw] flex-col px-4 py-10 pb-24 sm:px-6 lg:px-8 xl:max-w-[1600px]">
+          <header className="mb-8">
+            <h1 className="text-4xl font-bold text-slate-900 dark:text-white">
+              {t.title}
+            </h1>
+            <p className="mt-2 text-slate-600 dark:text-white/70">
+              {t.description}
+            </p>
+          </header>
 
-        <PrintPageContent />
-      </div>
+          <PrintPageContent />
+        </div>
 
-      <AppDock locale={locale} />
+        <AppDock locale={locale} />
+      </NavigationGuardProviderWrapper>
     </main>
   );
 }

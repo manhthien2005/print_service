@@ -26,12 +26,12 @@ export function Tooltip({
   };
 
   const arrowClasses = {
-    top: 'top-full left-1/2 -translate-x-1/2 border-t-slate-900 dark:border-t-slate-100',
+    top: 'top-full left-1/2 -translate-x-1/2 border-t-blue-50/95 dark:border-t-blue-500/20',
     bottom:
-      'bottom-full left-1/2 -translate-x-1/2 border-b-slate-900 dark:border-b-slate-100',
-    left: 'left-full top-1/2 -translate-y-1/2 border-l-slate-900 dark:border-l-slate-100',
+      'bottom-full left-1/2 -translate-x-1/2 border-b-blue-50/95 dark:border-b-blue-500/20',
+    left: 'left-full top-1/2 -translate-y-1/2 border-l-blue-50/95 dark:border-l-blue-500/20',
     right:
-      'right-full top-1/2 -translate-y-1/2 border-r-slate-900 dark:border-r-slate-100',
+      'right-full top-1/2 -translate-y-1/2 border-r-blue-50/95 dark:border-r-blue-500/20',
   };
 
   return (
@@ -44,7 +44,7 @@ export function Tooltip({
       {isVisible && (
         <div
           className={cn(
-            'absolute z-50 whitespace-nowrap rounded-md bg-slate-900 px-2 py-1 text-xs font-medium text-white shadow-lg transition-opacity dark:bg-slate-100 dark:text-slate-900',
+            'absolute z-50 whitespace-nowrap rounded-md bg-blue-50/95 px-2 py-1 text-xs font-medium text-blue-700 shadow-lg backdrop-blur-sm transition-opacity dark:bg-blue-500/20 dark:text-blue-200',
             sideClasses[side],
             className
           )}
@@ -62,4 +62,3 @@ export function Tooltip({
     </div>
   );
 }
-

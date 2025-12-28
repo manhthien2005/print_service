@@ -93,7 +93,7 @@
       "ctaPrimary": "In tài liệu",
       "ctaSecondary": "Mua thêm trang",
       "balance": {
-        "title": "Số dư A4",
+        "title": "Số dư",
         "resetLabel": "Làm mới vào {date}",
         "badge": "Ưu tiên",
         "conversion": "Quy đổi khổ giấy",
@@ -165,7 +165,17 @@
         "fileSizeLimit": "Tối đa 50MB • PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, JPG, PNG",
         "saveFile": "Lưu file",
         "next": "Tiếp theo",
-        "fileSaved": "Đã lưu file thành công!"
+        "fileSaved": "Đã lưu file thành công!",
+        "uploadingAndCounting": "Đang upload và tính số trang...",
+        "pages": "trang",
+        "errors": {
+          "uploadFailed": "Có lỗi xảy ra khi upload file. Vui lòng thử lại.",
+          "fileTypeNotSupported": "Loại file không được hỗ trợ. Các loại file được phép: {extensions}",
+          "fileTooLarge": "File quá lớn. Kích thước tối đa: {maxSize}MB"
+        },
+        "toasts": {
+          "uploadSuccess": "Upload file thành công"
+        }
       },
       "step2": {
         "title": "Chọn máy in",
@@ -188,7 +198,20 @@
         },
         "noResults": "Không tìm thấy máy in nào phù hợp",
         "back": "Quay lại",
-        "next": "Tiếp theo"
+        "next": "Tiếp theo",
+        "supportsColor": "Hỗ trợ màu",
+        "supportsDuplex": "Hỗ trợ in 2 mặt",
+        "all": "Tất cả",
+        "yes": "Có",
+        "no": "Không",
+        "maxPaperSize": "Khổ tối đa: {size}",
+        "serial": "Serial",
+        "viewLocation": "Xem Vị Trí",
+        "pageInfo": "Trang {page} / {total}",
+        "unknown": "Không xác định",
+        "errors": {
+          "loadPrintersFailed": "Có lỗi xảy ra khi tải danh sách máy in. Vui lòng thử lại."
+        }
       },
       "step3": {
         "title": "Cấu hình in",
@@ -213,7 +236,17 @@
         "estimatedCost": "Chi phí ước tính",
         "notSupported": "Không hỗ trợ",
         "back": "Quay lại",
-        "next": "Tiếp theo"
+        "next": "Tiếp theo",
+        "pageRange": "Phạm vi trang",
+        "allPages": "Tất cả trang",
+        "custom": "Tùy chọn",
+        "pageRangeExample": "Ví dụ: 1-5,10,15-20",
+        "subtotal": "Tạm tính",
+        "discount": "Giảm giá",
+        "pages": "trang",
+        "currency": "VNĐ",
+        "comparePaperSizes": "So sánh khổ giấy",
+        "colorModeInfo": "Thông tin chế độ màu"
       },
       "step4": {
         "title": "Xác nhận in",
@@ -232,7 +265,105 @@
         "preview": "Xem trước",
         "previewTitle": "Xem trước tài liệu",
         "previewUnavailable": "Chưa thể hiển thị bản xem trước cho loại file này.",
-        "openInNewTab": "Mở trong tab mới"
+        "openInNewTab": "Mở trong tab mới",
+        "printer": {
+          "name": "Tên",
+          "code": "Mã",
+          "location": "Vị trí",
+          "status": "Trạng thái"
+        },
+        "paymentMethod": "Phương thức thanh toán",
+        "subtotal": "Tạm tính",
+        "discount": "Giảm giá",
+        "pages": "trang",
+        "currency": "VNĐ",
+        "insufficientBalance": "Số dư không đủ. Cần thêm {amount} VNĐ",
+        "qrPaymentMinAmount": "Thanh toán QR không hỗ trợ đơn dưới 10.000 VNĐ",
+        "errors": {
+          "missingFileOrPrinter": "Thiếu thông tin file hoặc máy in. Vui lòng quay lại các bước trước.",
+          "missingConfig": "Thiếu thông tin cấu hình in. Vui lòng quay lại các bước trước.",
+          "insufficientBalanceForPayment": "Số dư không đủ để thanh toán. Vui lòng chọn phương thức thanh toán khác.",
+          "insufficientBalanceForPrint": "Số dư không đủ để thực hiện in. Vui lòng nạp thêm tiền.",
+          "printerNotAvailable": "Máy in đã không còn khả dụng. Vui lòng quay lại bước 2 để chọn máy in khác.",
+          "createJobFailed": "Có lỗi xảy ra khi tạo print job. Vui lòng thử lại.",
+          "qrPaymentNotSupported": "Thanh toán QR không hỗ trợ đơn dưới 10.000 VNĐ"
+        },
+        "toasts": {
+          "qrPaymentRequired": "Vui lòng quét mã để hoàn tất thanh toán",
+          "jobCreated": "Tạo print job thành công!",
+          "paymentSuccess": "Thanh toán thành công! Đơn in đã được đưa vào hàng chờ.",
+          "paymentFailed": "Thanh toán không thành công hoặc đã hết hạn."
+        }
+      },
+      "printPaymentModal": {
+        "title": "Thanh toán QR",
+        "paymentExpired": "Thanh toán đã hết hạn. Vui lòng thử lại.",
+        "paymentFailed": "Thanh toán không thành công.",
+        "amount": "Số tiền",
+        "expiresAt": "Hết hạn lúc",
+        "instructions": "Quét mã QR bằng ứng dụng SePay để thanh toán",
+        "scanQR": "Quét mã QR để thanh toán",
+        "waiting": "Đang chờ thanh toán",
+        "completed": "Đã thanh toán",
+        "cancelled": "Đã hủy",
+        "expired": "Hết hạn",
+        "failed": "Thất bại",
+        "transferContent": "Nội dung chuyển khoản",
+        "noCode": "Không có mã",
+        "status": "Trạng thái",
+        "connection": "Kết nối",
+        "realtime": "Realtime",
+        "connecting": "Đang kết nối...",
+        "polling": "Đang dùng polling",
+        "expiresIn": "Hết hạn sau",
+        "connectionLost": "Mất kết nối realtime, đang chuyển sang kiểm tra định kỳ.",
+        "close": "Đóng",
+        "noQRCode": "Không có QR code"
+      },
+      "navigationWarningModal": {
+        "title": "Rời khỏi trang?",
+        "message": "Bạn có chắc chắn muốn rời khỏi trang này?",
+        "warning": "Tiến trình in của bạn sẽ bị mất nếu bạn rời khỏi trang. Bạn có muốn tiếp tục không?",
+        "stay": "Hủy",
+        "leave": "Rời khỏi"
+      },
+      "printJobProgress": {
+        "title": "Theo dõi tiến trình in",
+        "jobId": "Job ID",
+        "confirmCancel": "Bạn có chắc chắn muốn hủy print job này?",
+        "progress": "Tiến trình",
+        "pages": "trang",
+        "loading": "Đang tải thông tin print job...",
+        "status": {
+          "queued": "Đang chờ trong hàng đợi",
+          "printing": "Đang in",
+          "completed": "Hoàn thành",
+          "cancelled": "Đã hủy",
+          "failed": "Thất bại",
+          "unknown": "Không xác định"
+        },
+        "queuePosition": "Vị trí trong hàng đợi",
+        "jobsAhead": "job phía trước",
+        "estimatedCompletion": "Thời gian ước tính hoàn thành",
+        "startTime": "Thời gian bắt đầu",
+        "cancelling": "Đang hủy...",
+        "cancelButton": "Hủy Print Job",
+        "viewHistory": "Xem Lịch Sử In",
+        "printer": {
+          "location": "Vị trí",
+          "status": "Trạng thái"
+        },
+        "toasts": {
+          "printSuccess": "In thành công!",
+          "printFailed": "In thất bại. Vui lòng thử lại.",
+          "cancelled": "Đã hủy print job.",
+          "cancelSuccess": "Đã hủy print job thành công. Số tiền sẽ được hoàn lại vào tài khoản."
+        },
+        "errors": {
+          "printFailed": "In thất bại. Vui lòng thử lại.",
+          "cancelFailed": "Có lỗi xảy ra khi hủy print job.",
+          "loadFailed": "Có lỗi xảy ra khi tải thông tin print job. Vui lòng thử lại."
+        }
       },
       "uploadedFiles": {
         "title": "Tài liệu đã tải lên",
@@ -609,6 +740,7 @@
         "status": "Trạng thái",
         "installedDate": "Ngày lắp đặt",
         "lastMaintenance": "Bảo trì gần nhất",
+        "printer": "Máy in",
         "actionType": "Loại hành động",
         "performedBy": "Thực hiện bởi",
         "details": "Chi tiết",
@@ -639,7 +771,12 @@
         "disabled": "Vô hiệu hóa",
         "updated": "Cập nhật",
         "removed": "Xóa",
-        "maintenance": "Bảo trì"
+        "maintenance": "Bảo trì",
+        "printJob": "Công việc in",
+        "error": "Lỗi",
+        "statusChange": "Thay đổi trạng thái",
+        "configuration": "Cấu hình",
+        "adminAction": "Hành động quản trị"
       },
       "maintenance": {
         "alertTitle": "Cảnh báo bảo trì",
@@ -658,17 +795,78 @@
     "manageStudents": {
       "title": "Quản lý người dùng",
       "description": "Xem và quản lý tài khoản người dùng",
+      "stats": {
+        "totalStudents": "Tổng sinh viên",
+        "activeStudents": "Đang hoạt động",
+        "suspendedStudents": "Tạm dừng",
+        "graduatedStudents": "Đã tốt nghiệp",
+        "fromFaculties": "Từ {count} khoa",
+        "studentsStudying": "Sinh viên đang học",
+        "needsAttention": "Cần theo dõi",
+        "completedProgram": "Hoàn thành chương trình"
+      },
       "table": {
+        "title": "Danh sách sinh viên",
+        "subtitle": "Tìm kiếm, lọc và sắp xếp danh sách sinh viên",
+        "searchPlaceholder": "Tìm theo tên, mã SV, email...",
+        "advancedFilters": "Bộ lọc nâng cao",
+        "addStudent": "Thêm sinh viên",
+        "studentCode": "Mã SV",
+        "fullName": "Họ tên",
+        "email": "Email",
+        "faculty": "Khoa / Bộ môn",
+        "majorClass": "Ngành / Lớp",
+        "year": "Năm",
+        "status": "Trạng thái",
+        "enrollmentDate": "Ngày nhập học",
+        "actions": "Thao tác",
+        "noData": "Không có dữ liệu phù hợp với bộ lọc hiện tại.",
         "bulkActions": {
+          "selected": "Đã chọn {count} sinh viên",
           "activate": "Kích hoạt",
           "suspend": "Tạm dừng",
+          "delete": "Xóa",
+          "deselect": "Bỏ chọn",
           "noSelection": "Vui lòng chọn ít nhất một người dùng",
           "success": "Đã cập nhật {count} người dùng sang trạng thái '{status}' thành công",
           "partialSuccess": "Đã cập nhật {success}/{total} người dùng sang trạng thái '{status}'",
           "error": "Có lỗi xảy ra khi cập nhật trạng thái"
         }
       },
+      "filters": {
+        "allStatuses": "Tất cả trạng thái",
+        "allFaculties": "Tất cả khoa",
+        "allYears": "Tất cả năm",
+        "year1": "Năm 1",
+        "year2": "Năm 2",
+        "year3": "Năm 3",
+        "year4": "Năm 4",
+        "enrollmentDateFrom": "Ngày nhập học từ",
+        "enrollmentDateTo": "Ngày nhập học đến"
+      },
+      "status": {
+        "active": "Đang học",
+        "graduated": "Tốt nghiệp",
+        "suspended": "Tạm dừng",
+        "withdrawn": "Rút"
+      },
       "modal": {
+        "detail": {
+          "title": "Chi tiết sinh viên",
+          "studentCode": "Mã SV",
+          "personalInfo": "Thông tin cá nhân",
+          "academicInfo": "Thông tin học tập",
+          "email": "Email",
+          "enrollmentDate": "Ngày nhập học",
+          "expectedGraduate": "Dự kiến tốt nghiệp",
+          "faculty": "Khoa",
+          "department": "Bộ môn",
+          "major": "Ngành",
+          "class": "Lớp",
+          "academicYear": "Năm học",
+          "edit": "Chỉnh sửa",
+          "viewHistory": "Xem lịch sử"
+        },
         "bulkStatus": {
           "title": "Cập nhật trạng thái {count} người dùng sang '{status}'",
           "description": "Bạn có chắc chắn muốn cập nhật trạng thái của {count} người dùng sang '{status}'?",
@@ -682,6 +880,9 @@
           "confirm": "Xác nhận",
           "processing": "Đang xử lý..."
         }
+      },
+      "bulkAction": {
+        "alert": "Đã thực hiện \"{action}\" cho {count} sinh viên đã chọn"
       }
     },
     "pageAllocation": {

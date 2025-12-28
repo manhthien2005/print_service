@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
 
@@ -14,11 +15,12 @@ export function NavigationWarningModal({
   onConfirm,
   onCancel,
 }: NavigationWarningModalProps) {
+  const t = useTranslations('student.print.navigationWarningModal');
   return (
     <Modal
       isOpen={isOpen}
       onClose={onCancel}
-      title="Rời khỏi trang?"
+      title={t('title')}
       size="md"
       closeOnClickOutside={false}
     >
@@ -43,21 +45,20 @@ export function NavigationWarningModal({
           </div>
           <div className="flex-1">
             <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
-              Bạn có chắc chắn muốn rời khỏi trang này?
+              {t('message')}
             </h3>
             <p className="mt-2 text-sm text-slate-600 dark:text-white/70">
-              Tiến trình in của bạn sẽ bị mất nếu bạn rời khỏi trang. Bạn có
-              muốn tiếp tục không?
+              {t('warning')}
             </p>
           </div>
         </div>
 
         <div className="flex justify-end gap-3 pt-4">
           <Button variant="secondary" onClick={onCancel}>
-            Hủy
+            {t('stay')}
           </Button>
           <Button variant="destructive" onClick={onConfirm}>
-            Rời khỏi
+            {t('leave')}
           </Button>
         </div>
       </div>

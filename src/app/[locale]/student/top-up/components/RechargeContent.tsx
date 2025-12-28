@@ -7,14 +7,14 @@ import {
   useCancelDeposit,
   useCurrentDeposit,
 } from '@/lib/api/services/payment';
-import { PackageSelection } from './PackageSelection';
-import { CustomAmountInput } from './CustomAmountInput';
-import { QRPaymentModal } from './QRPaymentModal';
-import { CancelConfirmModal } from './CancelConfirmModal';
-import { PaymentSuccessModal } from './PaymentSuccessModal';
-import { DepositHistoryTable } from './DepositHistoryTable';
-import { TransactionHistoryTable } from './TransactionHistoryTable';
-import { RechargeSkeleton } from './RechargeSkeleton';
+import { PackageSelection } from '@/app/[locale]/student/top-up/components/PackageSelection';
+import { CustomAmountInput } from '@/app/[locale]/student/top-up/components/CustomAmountInput';
+import { QRPaymentModal } from '@/app/[locale]/student/top-up/components/QRPaymentModal';
+import { CancelConfirmModal } from '@/app/[locale]/student/top-up/components/CancelConfirmModal';
+import { PaymentSuccessModal } from '@/app/[locale]/student/top-up/components/PaymentSuccessModal';
+import { DepositHistoryTable } from '@/app/[locale]/student/top-up/components/DepositHistoryTable';
+import { TransactionHistoryTable } from '@/app/[locale]/student/top-up/components/TransactionHistoryTable';
+import { RechargeSkeleton } from '@/app/[locale]/student/top-up/components/RechargeSkeleton';
 import { toast } from '@/components/ui/Toast';
 import { subscribeStomp } from '@/lib/api/ws';
 import type {
@@ -28,7 +28,7 @@ import { studentPrintKeys } from '@/app/[locale]/student/print/api';
 
 interface RechargeContentProps {
   locale: string;
-  t: any; // Translation object
+  t: Record<string, any>;
 }
 
 export function RechargeContent({ t }: RechargeContentProps) {
@@ -152,10 +152,15 @@ export function RechargeContent({ t }: RechargeContentProps) {
         setCurrentDeposit(response.data.data);
         setShowQRModal(true);
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       const message =
-        error?.response?.data?.message ||
-        error?.message ||
+        (
+          error as {
+            response?: { data?: { message?: string } };
+            message?: string;
+          }
+        )?.response?.data?.message ||
+        (error as { message?: string })?.message ||
         t.errors.createFailed;
       toast.error(message);
       setSelectedPackage(null); // Clear on error
@@ -175,10 +180,15 @@ export function RechargeContent({ t }: RechargeContentProps) {
         setCurrentDeposit(response.data.data);
         setShowQRModal(true);
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       const message =
-        error?.response?.data?.message ||
-        error?.message ||
+        (
+          error as {
+            response?: { data?: { message?: string } };
+            message?: string;
+          }
+        )?.response?.data?.message ||
+        (error as { message?: string })?.message ||
         t.errors.createFailed;
       toast.error(message);
     }
@@ -201,11 +211,16 @@ export function RechargeContent({ t }: RechargeContentProps) {
       refetchCurrent();
       queryClient.invalidateQueries({ queryKey: paymentKeys.current() });
       queryClient.invalidateQueries({ queryKey: paymentKeys.deposits() });
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const errorWithResponse = error as {
+        response?: { data?: { message?: string } };
+        message?: string;
+      };
       const message =
-        error?.response?.data?.message ||
-        error?.message ||
-        t.errors.cancelFailed;
+        errorWithResponse?.response?.data?.message ||
+        errorWithResponse?.message ||
+        t.errors?.cancelFailed ||
+        'Failed to cancel deposit';
       toast.error(message);
     }
   };
@@ -247,7 +262,7 @@ export function RechargeContent({ t }: RechargeContentProps) {
 
   // Show skeleton while loading packages
   if (packagesLoading) {
-    return <RechargeSkeleton />;
+    return <RechargeSkeleton t={t} />;
   }
 
   return (
@@ -258,14 +273,14 @@ export function RechargeContent({ t }: RechargeContentProps) {
         onSelectPackage={handlePackageSelect}
         isLoading={packagesLoading}
         loadingPackageId={loadingPackageId}
-        t={t}
+        t={t as any}
       />
 
       {/* Custom Amount Section */}
       <CustomAmountInput
         onRecharge={handleCustomRecharge}
         isLoading={createDepositMutation.isPending}
-        t={t}
+        t={t as any}
       />
 
       {/* Modals */}
@@ -279,7 +294,7 @@ export function RechargeContent({ t }: RechargeContentProps) {
             setShowCancelModal(true);
           }}
           onSuccess={handlePaymentSuccess}
-          t={t}
+          t={t as any}
         />
       )}
 
@@ -289,7 +304,7 @@ export function RechargeContent({ t }: RechargeContentProps) {
         onClose={() => setShowCancelModal(false)}
         onConfirm={handleCancelDeposit}
         isLoading={cancelDepositMutation.isPending}
-        t={t}
+        t={t as any}
       />
 
       <PaymentSuccessModal
@@ -303,7 +318,7 @@ export function RechargeContent({ t }: RechargeContentProps) {
           setShowSuccessModal(false);
           setSuccessAmount(0);
         }}
-        t={t}
+        t={t as any}
       />
 
       {/* Deposit History Table */}

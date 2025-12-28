@@ -1,3 +1,5 @@
+'use client';
+
 import { cn } from '@/lib/utils/cn';
 import { Skeleton } from '@/components/common/Skeleton';
 

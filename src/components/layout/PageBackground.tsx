@@ -8,6 +8,8 @@ type PageBackgroundProps = {
   lightAccent?: string;
   /** Customize dark mode ray color */
   darkRaysColor?: string;
+  /** Customize opacity of light rays (0-1) */
+  raysOpacity?: number;
 };
 
 /**
@@ -18,6 +20,7 @@ type PageBackgroundProps = {
 export function PageBackground({
   lightAccent = 'rgba(59,130,246,0.08)',
   darkRaysColor = '#ffffff',
+  raysOpacity = 1.0,
 }: PageBackgroundProps) {
   return (
     <>
@@ -32,7 +35,8 @@ export function PageBackground({
         noiseAmount={0}
         distortion={0}
         asBackground
-        className="hidden opacity-100 dark:block"
+        className="hidden dark:block"
+        style={{ opacity: raysOpacity }}
       />
       <div
         className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_15%,var(--light-accent,rgba(59,130,246,0.08)),transparent_35%),radial-gradient(circle_at_80%_5%,var(--light-accent-2,rgba(14,165,233,0.09)),transparent_32%)] dark:hidden"

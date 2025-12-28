@@ -5,7 +5,7 @@ import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
 import { QRCodeSVG } from 'qrcode.react';
 import { useCurrentDeposit } from '@/lib/api/services/payment';
-import { PAYMENT_CONSTANTS } from '../constants';
+import { PAYMENT_CONSTANTS } from '@/app/[locale]/student/recharge/constants';
 import type { DepositResponse } from '@/types/api';
 
 interface QRPaymentModalProps {

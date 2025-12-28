@@ -1,10 +1,15 @@
+'use client';
+
 import { useState } from 'react';
-import type { PrintHistoryItem } from '../types';
-import { FileIcon } from '../../print/components/FileIcon';
+import type { PrintHistoryItem } from '@/app/[locale]/student/history/types';
+import { FileIcon } from '@/app/[locale]/student/print/components/FileIcon';
 import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
-import { PrinterLocationModal } from '../../printers/components/PrinterLocationModal';
-import { formatDate, getPrinterStatusMeta } from '../utils';
+import { PrinterLocationModal } from '@/app/[locale]/student/printers/components/PrinterLocationModal';
+import {
+  formatDate,
+  getPrinterStatusMeta,
+} from '@/app/[locale]/student/history/utils';
 import { StatusBadge } from './StatusBadge';
 import { DetailModalSkeleton } from './DetailModalSkeleton';
 import { cn } from '@/lib/utils/cn';
@@ -127,7 +132,7 @@ export function HistoryDetailModal({
                       <div className="text-base font-semibold text-slate-900 dark:text-white">
                         {item.printerName}
                       </div>
-                      <div className="mt-1 text-sm text-slate-600 dark:text-white/70">
+                      <div className="mt-1 text-sm text-slate-500 dark:text-white/60">
                         Vị trí: {item.buildingName || '—'}
                         {item.roomCode ? ` - ${item.roomCode}` : ''}
                       </div>

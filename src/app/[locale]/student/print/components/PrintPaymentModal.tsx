@@ -1,11 +1,12 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
 import { subscribeStomp } from '@/lib/api/ws';
 import { PaymentStatusResponse } from '@/types/api';
-import { usePrintJobStatus } from '../api';
+import { usePrintJobStatus } from '@/app/[locale]/student/print/api';
 
 type PaymentState =
   | 'pending'
@@ -43,6 +44,7 @@ export function PrintPaymentModal({
   onSuccess,
   onFailure,
 }: PrintPaymentModalProps) {
+  const t = useTranslations('student.print.printPaymentModal');
   const [status, setStatus] = useState<PaymentState>('pending');
   const [connectionState, setConnectionState] = useState<
     'connecting' | 'connected' | 'error'
@@ -88,7 +90,7 @@ export function PrintPaymentModal({
     ) {
       setStatus('expired');
       setResolved(true);
-      onFailure('Thanh toán đã hết hạn. Vui lòng thử lại.');
+      onFailure(t('paymentExpired'));
     }
   }, [remainingSeconds, status, resolved, onFailure]);
 
@@ -120,9 +122,7 @@ export function PrintPaymentModal({
         ) {
           setResolved(true);
           onFailure(
-            nextStatus === 'expired'
-              ? 'Thanh toán đã hết hạn. Vui lòng thử lại.'
-              : 'Thanh toán không thành công.'
+            nextStatus === 'expired' ? t('paymentExpired') : t('paymentFailed')
           );
         }
       },
@@ -164,21 +164,21 @@ export function PrintPaymentModal({
   if (!payment) return null;
 
   const statusLabelMap: Record<PaymentState, string> = {
-    pending: 'Đang chờ thanh toán',
-    completed: 'Đã thanh toán',
-    cancelled: 'Đã hủy',
-    expired: 'Hết hạn',
-    failed: 'Thất bại',
+    pending: t('waiting'),
+    completed: t('completed'),
+    cancelled: t('cancelled'),
+    expired: t('expired'),
+    failed: t('failed'),
   };
 
   const showPollingBadge = connectionState === 'error';
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Thanh toán QR" size="lg">
+    <Modal isOpen={isOpen} onClose={onClose} title={t('title')} size="lg">
       <div className="space-y-4 p-6">
         <div className="flex flex-col gap-4 md:flex-row">
           <div className="flex flex-1 flex-col items-center gap-3">
-            <div className="rounded-xl border border-slate-200/70 bg-white p-4 dark:border-white/10 dark:bg-white/5">
+            <div className="dark:bg-background/5 rounded-xl border border-border bg-background p-4 dark:border-border">
               {payment.qrUrl ? (
                 <img
                   src={payment.qrUrl}
@@ -186,60 +186,58 @@ export function PrintPaymentModal({
                   className="h-64 w-64 object-contain"
                 />
               ) : (
-                <div className="flex h-64 w-64 items-center justify-center text-sm text-slate-500 dark:text-white/60">
-                  Không có QR code
+                <div className="flex h-64 w-64 items-center justify-center text-sm text-muted-foreground dark:text-muted-foreground">
+                  {t('noQRCode')}
                 </div>
               )}
             </div>
-            <p className="text-sm text-slate-600 dark:text-white/70">
-              Quét mã QR để thanh toán
+            <p className="text-sm text-muted-foreground dark:text-muted-foreground">
+              {t('scanQR')}
             </p>
           </div>
 
           <div className="flex flex-1 flex-col gap-3">
-            <div className="rounded-lg border border-slate-200/70 bg-slate-50/70 p-4 dark:border-white/10 dark:bg-white/5">
-              <p className="text-xs uppercase text-slate-500 dark:text-white/50">
-                Số tiền
+            <div className="dark:bg-muted/5 rounded-lg border border-border bg-muted p-4 dark:border-border">
+              <p className="text-xs uppercase text-muted-foreground dark:text-muted-foreground">
+                {t('amount')}
               </p>
-              <p className="mt-1 text-2xl font-bold text-slate-900 dark:text-white">
+              <p className="mt-1 text-2xl font-bold text-foreground dark:text-foreground">
                 {payment.amount.toLocaleString('vi-VN')} VNĐ
               </p>
             </div>
-            <div className="rounded-lg border border-slate-200/70 bg-slate-50/70 p-4 dark:border-white/10 dark:bg-white/5">
-              <p className="text-xs uppercase text-slate-500 dark:text-white/50">
-                Nội dung chuyển khoản
+            <div className="dark:bg-muted/5 rounded-lg border border-border bg-muted p-4 dark:border-border">
+              <p className="text-xs uppercase text-muted-foreground dark:text-muted-foreground">
+                {t('transferContent')}
               </p>
-              <p className="mt-1 font-mono text-sm text-slate-900 dark:text-white">
-                {payment.transferContent ||
-                  payment.paymentCode ||
-                  'Không có mã'}
+              <p className="mt-1 font-mono text-sm text-foreground dark:text-foreground">
+                {payment.transferContent || payment.paymentCode || t('noCode')}
               </p>
             </div>
             <div className="grid grid-cols-2 gap-3">
-              <div className="rounded-lg border border-slate-200/70 bg-white/50 p-3 shadow-sm dark:border-white/10 dark:bg-white/5">
-                <p className="text-xs uppercase text-slate-500 dark:text-white/50">
-                  Trạng thái
+              <div className="bg-background/50 dark:bg-background/5 rounded-lg border border-border p-3 shadow-sm dark:border-border">
+                <p className="text-xs uppercase text-muted-foreground dark:text-muted-foreground">
+                  {t('status')}
                 </p>
-                <p className="mt-1 text-sm font-semibold text-slate-900 dark:text-white">
+                <p className="mt-1 text-sm font-semibold text-foreground dark:text-foreground">
                   {statusLabelMap[status]}
                 </p>
               </div>
-              <div className="rounded-lg border border-slate-200/70 bg-white/50 p-3 shadow-sm dark:border-white/10 dark:bg-white/5">
-                <p className="text-xs uppercase text-slate-500 dark:text-white/50">
-                  Kết nối
+              <div className="bg-background/50 dark:bg-background/5 rounded-lg border border-border p-3 shadow-sm dark:border-border">
+                <p className="text-xs uppercase text-muted-foreground dark:text-muted-foreground">
+                  {t('connection')}
                 </p>
-                <p className="mt-1 text-sm font-semibold text-slate-900 dark:text-white">
+                <p className="mt-1 text-sm font-semibold text-foreground dark:text-foreground">
                   {connectionState === 'connected'
-                    ? 'Realtime'
+                    ? t('realtime')
                     : connectionState === 'connecting'
-                      ? 'Đang kết nối...'
-                      : 'Đang dùng polling'}
+                      ? t('connecting')
+                      : t('polling')}
                 </p>
               </div>
             </div>
             {remainingSeconds !== null && (
               <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-200">
-                Hết hạn sau:{' '}
+                {t('expiresIn')}:{' '}
                 <span className="font-semibold">
                   {Math.floor(remainingSeconds / 60)
                     .toString()
@@ -249,8 +247,8 @@ export function PrintPaymentModal({
               </div>
             )}
             {showPollingBadge && (
-              <div className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-600 dark:border-white/10 dark:bg-white/5 dark:text-white/70">
-                Mất kết nối realtime, đang chuyển sang kiểm tra định kỳ.
+              <div className="dark:bg-muted/5 rounded-lg border border-border bg-muted px-3 py-2 text-xs text-muted-foreground dark:border-border dark:text-muted-foreground">
+                {t('connectionLost')}
               </div>
             )}
           </div>
@@ -258,7 +256,7 @@ export function PrintPaymentModal({
 
         <div className="flex justify-end">
           <Button variant="outline" onClick={onClose}>
-            Đóng
+            {t('close')}
           </Button>
         </div>
       </div>
