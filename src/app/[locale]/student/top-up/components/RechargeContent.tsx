@@ -13,6 +13,7 @@ import { QRPaymentModal } from './QRPaymentModal';
 import { CancelConfirmModal } from './CancelConfirmModal';
 import { PaymentSuccessModal } from './PaymentSuccessModal';
 import { DepositHistoryTable } from './DepositHistoryTable';
+import { TransactionHistoryTable } from './TransactionHistoryTable';
 import { RechargeSkeleton } from './RechargeSkeleton';
 import { toast } from '@/components/ui/Toast';
 import { subscribeStomp } from '@/lib/api/ws';
@@ -307,6 +308,9 @@ export function RechargeContent({ t }: RechargeContentProps) {
 
       {/* Deposit History Table */}
       <DepositHistoryTable t={t} onDepositClick={handleDepositClick} />
+
+      {/* Transaction History Table */}
+      <TransactionHistoryTable t={t} />
     </div>
   );
 }

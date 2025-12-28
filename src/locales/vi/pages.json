@@ -285,7 +285,154 @@
     },
     "topUp": {
       "title": "Nạp tiền",
-      "description": "Nạp tiền vào tài khoản của bạn"
+      "description": "Nạp tiền vào tài khoản của bạn",
+      "packages": {
+        "title": "Chọn gói nạp tiền",
+        "description": "Chọn một gói nạp tiền phù hợp với nhu cầu của bạn",
+        "popular": "Phổ biến",
+        "selectPackage": "Chọn gói",
+        "depositAmount": "Số tiền nạp",
+        "bonusAmount": "Bonus",
+        "totalReceived": "Tổng nhận được",
+        "savings": "Tiết kiệm",
+        "packageName": "Tên gói"
+      },
+      "custom": {
+        "title": "Nạp số tiền tùy chọn",
+        "description": "Nhập số tiền bạn muốn nạp",
+        "amountLabel": "Số tiền (VND)",
+        "amountPlaceholder": "Nhập số tiền",
+        "depositAmount": "Số tiền nạp",
+        "pay": "Nạp tiền"
+      },
+      "qrModal": {
+        "title": "Thanh toán QR Code",
+        "packageInfo": "Thông tin gói đã chọn",
+        "amount": "Số tiền",
+        "expiresIn": "Hết hạn sau",
+        "cancelOrder": "Hủy đơn",
+        "expired": "Đã hết hạn",
+        "reused": "Đã sử dụng",
+        "newOrder": "Đơn mới",
+        "scanQR": "Quét mã QR để thanh toán",
+        "transferContent": "Nội dung chuyển khoản",
+        "copyContent": "Sao chép nội dung",
+        "copied": "Đã sao chép",
+        "instructions": "Hướng dẫn thanh toán",
+        "step1": "Mở ứng dụng ngân hàng trên điện thoại",
+        "step2": "Quét mã QR hoặc chuyển khoản với nội dung: {content}",
+        "step3": "Nhập số tiền chính xác: {amount}",
+        "step4": "Xác nhận thanh toán và chờ hệ thống cập nhật"
+      },
+      "errors": {
+        "createFailed": "Không thể tạo đơn nạp tiền",
+        "cancelFailed": "Không thể hủy đơn nạp tiền",
+        "minAmount": "Số tiền tối thiểu là 10,000 VND",
+        "mustBeMultipleOf1000": "Số tiền phải là bội số của 1,000 VND"
+      },
+      "cancelModal": {
+        "title": "Xác nhận hủy đơn nạp tiền",
+        "reason": "Lý do hủy (tùy chọn)",
+        "reasonPlaceholder": "Nhập lý do hủy đơn...",
+        "confirm": "Xác nhận hủy",
+        "cancel": "Hủy",
+        "cancelling": "Đang hủy..."
+      },
+      "successModal": {
+        "title": "Nạp tiền thành công",
+        "message": "Bạn đã nạp tiền thành công!",
+        "amount": "Số tiền đã nạp",
+        "close": "Đóng",
+        "rechargeMore": "Nạp thêm"
+      },
+      "history": {
+        "title": "Lịch sử nạp tiền",
+        "description": "Xem lịch sử các giao dịch nạp tiền của bạn",
+        "searchPlaceholder": "Tìm kiếm theo mã đơn...",
+        "filters": {
+          "all": "Tất cả",
+          "completed": "Hoàn thành",
+          "pending": "Đang chờ",
+          "cancelled": "Đã hủy",
+          "expired": "Hết hạn",
+          "failed": "Thất bại",
+          "refunded": "Đã hoàn tiền"
+        },
+        "status": {
+          "completed": "Hoàn thành",
+          "pending": "Đang chờ",
+          "cancelled": "Đã hủy",
+          "expired": "Hết hạn",
+          "failed": "Thất bại",
+          "refunded": "Đã hoàn tiền"
+        },
+        "statistics": {
+          "totalTransactions": "Tổng giao dịch",
+          "completedTransactions": "Giao dịch hoàn thành",
+          "totalDeposited": "Tổng đã nạp",
+          "totalBonus": "Tổng bonus",
+          "totalSpent": "Tổng đã sử dụng"
+        },
+        "table": {
+          "depositCode": "Mã đơn",
+          "transactionDate": "Ngày giao dịch",
+          "packageName": "Gói",
+          "depositAmount": "Số tiền nạp",
+          "bonusAmount": "Bonus",
+          "totalCredited": "Tổng nhận được",
+          "status": "Trạng thái",
+          "clickToPay": "Click để thanh toán",
+          "customAmount": "Số tiền tùy chọn"
+        },
+        "pagination": {
+          "showing": "Hiển thị",
+          "of": "trên",
+          "items": "mục"
+        },
+        "empty": "Không có lịch sử nạp tiền",
+        "errors": {
+          "loadFailed": "Không thể tải lịch sử nạp tiền"
+        }
+      },
+      "transactionHistory": {
+        "title": "Lịch sử giao dịch",
+        "description": "Xem tất cả các giao dịch số dư của bạn",
+        "filters": {
+          "all": "Tất cả",
+          "in": "Nạp vào",
+          "out": "Chi ra",
+          "deposit": "Nạp tiền",
+          "payment": "Thanh toán",
+          "refund": "Hoàn tiền",
+          "semester_bonus": "Bonus học kỳ"
+        },
+        "table": {
+          "transactionDate": "Ngày giờ",
+          "type": "Loại",
+          "description": "Mô tả",
+          "amount": "Số tiền",
+          "direction": "Hướng"
+        },
+        "direction": {
+          "in": "Nạp vào",
+          "out": "Chi ra"
+        },
+        "sourceType": {
+          "deposit": "Nạp tiền",
+          "payment": "Thanh toán",
+          "refund": "Hoàn tiền",
+          "semester_bonus": "Bonus học kỳ"
+        },
+        "empty": "Không có lịch sử giao dịch",
+        "errors": {
+          "loadFailed": "Không thể tải lịch sử giao dịch"
+        },
+        "pagination": {
+          "showing": "Hiển thị",
+          "of": "trên",
+          "items": "mục"
+        }
+      }
     },
     "profile": {
       "title": "Hồ sơ",
@@ -534,6 +681,129 @@
           "cancel": "Hủy",
           "confirm": "Xác nhận",
           "processing": "Đang xử lý..."
+        }
+      }
+    },
+    "pageAllocation": {
+      "title": "Quản lý nguyên liệu in",
+      "description": "Quản lý tồn kho giấy theo từng loại trang (A3, A4, A5...)",
+      "stats": {
+        "totalTypes": "Tổng loại trang",
+        "totalAvailable": "Tổng trang khả dụng",
+        "lowStockCount": "Loại tồn kho thấp",
+        "totalReserved": "Tổng đã đặt trước"
+      },
+      "table": {
+        "sizeName": "Loại trang",
+        "description": "Mô tả",
+        "totalQuantity": "Tổng số lượng",
+        "reserved": "Đã đặt trước",
+        "available": "Khả dụng",
+        "threshold": "Ngưỡng cảnh báo",
+        "status": "Trạng thái",
+        "lastUpdated": "Cập nhật lần cuối",
+        "actions": "Thao tác",
+        "lowStock": "Tồn kho thấp",
+        "normal": "Bình thường",
+        "noData": "Không có dữ liệu"
+      },
+      "actions": {
+        "addPages": "Thêm trang",
+        "update": "Cập nhật",
+        "checkAvailability": "Kiểm tra khả dụng",
+        "initialize": "Khởi tạo phân bổ",
+        "viewLowStock": "Xem tồn kho thấp",
+        "refresh": "Làm mới",
+        "retry": "Thử lại"
+      },
+      "modals": {
+        "addPages": {
+          "title": "Thêm trang vào tồn kho",
+          "quantity": "Số lượng",
+          "quantityPlaceholder": "Nhập số lượng trang",
+          "note": "Ghi chú",
+          "notePlaceholder": "Ví dụ: Nhập lô hàng #12345",
+          "submit": "Thêm",
+          "submitting": "Đang thêm...",
+          "success": "Đã thêm {quantity} trang {sizeName} vào tồn kho"
+        },
+        "update": {
+          "title": "Cập nhật tồn kho",
+          "quantity": "Số lượng",
+          "threshold": "Ngưỡng cảnh báo",
+          "thresholdPlaceholder": "Mặc định: 1000",
+          "note": "Ghi chú",
+          "notePlaceholder": "Ví dụ: Điều chỉnh theo kết quả kiểm kê",
+          "submit": "Cập nhật",
+          "submitting": "Đang cập nhật...",
+          "success": "Đã cập nhật tồn kho {sizeName}"
+        },
+        "checkAvailability": {
+          "title": "Kiểm tra tính khả dụng",
+          "pagesNeeded": "Số trang cần",
+          "pagesNeededPlaceholder": "Nhập số trang cần kiểm tra",
+          "check": "Kiểm tra",
+          "checking": "Đang kiểm tra...",
+          "result": {
+            "available": "Đủ giấy để in",
+            "notAvailable": "Không đủ tồn kho",
+            "currentQuantity": "Số lượng hiện tại",
+            "shortage": "Thiếu",
+            "message": "Thông báo"
+          }
+        }
+      },
+      "alerts": {
+        "lowStock": {
+          "title": "Cảnh báo tồn kho thấp",
+          "message": "Có {count} loại trang đang ở mức tồn kho thấp",
+          "viewAll": "Xem tất cả"
+        },
+        "initialize": {
+          "title": "Chưa có dữ liệu phân bổ",
+          "message": "Vui lòng khởi tạo phân bổ cho tất cả loại trang",
+          "action": "Khởi tạo ngay"
+        }
+      },
+      "filters": {
+        "search": "Tìm kiếm theo loại trang...",
+        "lowStockOnly": "Chỉ hiển thị tồn kho thấp",
+        "clear": "Xóa bộ lọc"
+      },
+      "empty": {
+        "title": "Chưa có dữ liệu",
+        "message": "Chưa có phân bổ trang nào. Vui lòng khởi tạo phân bổ.",
+        "action": "Khởi tạo phân bổ"
+      },
+      "errors": {
+        "fetchFailed": "Không thể tải dữ liệu tồn kho",
+        "addFailed": "Không thể thêm trang",
+        "updateFailed": "Không thể cập nhật tồn kho",
+        "checkFailed": "Không thể kiểm tra tính khả dụng",
+        "initializeFailed": "Không thể khởi tạo phân bổ",
+        "notFound": "Không tìm thấy phân bổ trang",
+        "insufficientStock": "Không đủ tồn kho giấy",
+        "validationFailed": "Dữ liệu không hợp lệ",
+        "generic": "Đã xảy ra lỗi. Vui lòng thử lại.",
+        "retry": "Thử lại"
+      },
+      "validation": {
+        "quantity": {
+          "required": "Số lượng là bắt buộc",
+          "invalid": "Số lượng phải là số",
+          "min": "Số lượng phải lớn hơn 0",
+          "nonNegative": "Số lượng không được âm",
+          "integer": "Số lượng phải là số nguyên"
+        },
+        "threshold": {
+          "invalid": "Ngưỡng phải là số",
+          "nonNegative": "Ngưỡng không được âm"
+        },
+        "pagesNeeded": {
+          "required": "Số trang cần là bắt buộc",
+          "invalid": "Số trang cần phải là số",
+          "min": "Số trang phải lớn hơn 0",
+          "integer": "Số trang phải là số nguyên"
         }
       }
     },
