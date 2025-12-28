@@ -3,6 +3,7 @@ export * from './dashboard';
 export * from './logs';
 export * from './models';
 export * from './notifications';
+export * from './pageAllocation';
 export * from './payment';
 export * from './printers';
 export * from './references';

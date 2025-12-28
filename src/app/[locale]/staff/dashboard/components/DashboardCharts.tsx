@@ -150,3 +150,4 @@ export function DashboardCharts({
     </div>
   );
 }
+

@@ -17,3 +17,4 @@ export const ProgressBar = ({ value, label }: ProgressBarProps) => (
     </div>
   </div>
 );
+

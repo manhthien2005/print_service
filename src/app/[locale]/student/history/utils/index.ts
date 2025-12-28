@@ -46,3 +46,4 @@ export function getPrinterStatusMeta(
     dot: 'bg-slate-400',
   };
 }
+

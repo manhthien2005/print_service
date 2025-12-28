@@ -399,15 +399,21 @@ export function mapStudentBalanceResponse(
 /**
  * Maps frontend color mode value to backend API color mode name
  * Frontend uses: 'black-white', 'grayscale', 'color'
- * Backend API expects: 'bw' or 'color'
+ * Backend database expects: 'black-white', 'grayscale', 'color'
  *
  * @param colorMode - Frontend color mode value ('black-white' | 'grayscale' | 'color')
- * @returns Backend API color mode name ('bw' | 'color')
+ * @returns Backend API color mode name ('black-white' | 'grayscale' | 'color')
  */
-export function mapColorModeToApiValue(colorMode: string): 'bw' | 'color' {
+export function mapColorModeToApiValue(
+  colorMode: string
+): 'black-white' | 'grayscale' | 'color' {
+  // Map to actual database values
   if (colorMode === 'color') {
     return 'color';
   }
-  // black-white and grayscale both map to 'bw' for backend API
-  return 'bw';
+  if (colorMode === 'grayscale') {
+    return 'grayscale';
+  }
+  // Default to 'black-white' for 'black-white' or any other value
+  return 'black-white';
 }

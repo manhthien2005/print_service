@@ -86,3 +86,4 @@ export default function ProfileSkeleton() {
     </div>
   );
 }
+

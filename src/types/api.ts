@@ -323,7 +323,7 @@ export interface CalculateCostRequest {
   uploadedFileId: string; // UUID as string
   printerId: string; // UUID as string
   pageSizeName: string; // Page size name: 'A3', 'A4', 'A5', 'Letter', 'Legal'
-  colorModeName: 'bw' | 'color'; // Color mode name: 'bw' or 'color'
+  colorModeName: 'black-white' | 'grayscale' | 'color'; // Color mode name: 'black-white', 'grayscale', or 'color'
   pageOrientation: 'portrait' | 'landscape'; // Page orientation
   printSide: 'one-sided' | 'double-sided';
   numberOfCopy: number; // 1-99
@@ -358,7 +358,7 @@ export interface CreatePrintJobRequest {
   printerId: string; // UUID as string
   paymentMethod: 'balance' | 'qr';
   pageSizeName: string; // Page size name: 'A3', 'A4', 'A5', 'Letter', 'Legal'
-  colorModeName: 'bw' | 'color'; // Color mode name: 'bw' or 'color'
+  colorModeName: 'black-white' | 'grayscale' | 'color'; // Color mode name: 'black-white', 'grayscale', or 'color'
   pageOrientation: 'portrait' | 'landscape'; // Page orientation
   printSide: 'one-sided' | 'double-sided';
   numberOfCopy: number; // 1-99

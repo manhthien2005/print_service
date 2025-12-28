@@ -61,3 +61,4 @@ export interface ReportsData {
     successRate: number;
   };
 }
+

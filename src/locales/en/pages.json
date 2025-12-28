@@ -285,7 +285,154 @@
     },
     "topUp": {
       "title": "Top Up",
-      "description": "Top up your account balance"
+      "description": "Top up your account balance",
+      "packages": {
+        "title": "Select Top-Up Package",
+        "description": "Choose a top-up package that suits your needs",
+        "popular": "Popular",
+        "selectPackage": "Select Package",
+        "depositAmount": "Deposit Amount",
+        "bonusAmount": "Bonus",
+        "totalReceived": "Total Received",
+        "savings": "Savings",
+        "packageName": "Package Name"
+      },
+      "custom": {
+        "title": "Custom Amount Top-Up",
+        "description": "Enter the amount you want to top up",
+        "amountLabel": "Amount (VND)",
+        "amountPlaceholder": "Enter amount",
+        "depositAmount": "Deposit Amount",
+        "pay": "Top Up"
+      },
+      "qrModal": {
+        "title": "QR Code Payment",
+        "packageInfo": "Selected Package Info",
+        "amount": "Amount",
+        "expiresIn": "Expires In",
+        "cancelOrder": "Cancel Order",
+        "expired": "Expired",
+        "reused": "Reused",
+        "newOrder": "New Order",
+        "scanQR": "Scan QR code to pay",
+        "transferContent": "Transfer Content",
+        "copyContent": "Copy Content",
+        "copied": "Copied",
+        "instructions": "Payment Instructions",
+        "step1": "Open your banking app on your phone",
+        "step2": "Scan the QR code or transfer with content: {content}",
+        "step3": "Enter the exact amount: {amount}",
+        "step4": "Confirm payment and wait for system update"
+      },
+      "errors": {
+        "createFailed": "Failed to create deposit",
+        "cancelFailed": "Failed to cancel deposit",
+        "minAmount": "Minimum amount is 10,000 VND",
+        "mustBeMultipleOf1000": "Amount must be a multiple of 1,000 VND"
+      },
+      "cancelModal": {
+        "title": "Confirm Cancel Deposit",
+        "reason": "Cancellation Reason (Optional)",
+        "reasonPlaceholder": "Enter cancellation reason...",
+        "confirm": "Confirm Cancel",
+        "cancel": "Cancel",
+        "cancelling": "Cancelling..."
+      },
+      "successModal": {
+        "title": "Top-Up Successful",
+        "message": "You have successfully topped up!",
+        "amount": "Amount Topped Up",
+        "close": "Close",
+        "rechargeMore": "Top Up More"
+      },
+      "history": {
+        "title": "Deposit History",
+        "description": "View your deposit transaction history",
+        "searchPlaceholder": "Search by deposit code...",
+        "filters": {
+          "all": "All",
+          "completed": "Completed",
+          "pending": "Pending",
+          "cancelled": "Cancelled",
+          "expired": "Expired",
+          "failed": "Failed",
+          "refunded": "Refunded"
+        },
+        "status": {
+          "completed": "Completed",
+          "pending": "Pending",
+          "cancelled": "Cancelled",
+          "expired": "Expired",
+          "failed": "Failed",
+          "refunded": "Refunded"
+        },
+        "statistics": {
+          "totalTransactions": "Total Transactions",
+          "completedTransactions": "Completed Transactions",
+          "totalDeposited": "Total Deposited",
+          "totalBonus": "Total Bonus",
+          "totalSpent": "Total Spent"
+        },
+        "table": {
+          "depositCode": "Deposit Code",
+          "transactionDate": "Transaction Date",
+          "packageName": "Package",
+          "depositAmount": "Deposit Amount",
+          "bonusAmount": "Bonus",
+          "totalCredited": "Total Credited",
+          "status": "Status",
+          "clickToPay": "Click to pay",
+          "customAmount": "Custom Amount"
+        },
+        "pagination": {
+          "showing": "Showing",
+          "of": "of",
+          "items": "items"
+        },
+        "empty": "No deposit history",
+        "errors": {
+          "loadFailed": "Failed to load deposit history"
+        }
+      },
+      "transactionHistory": {
+        "title": "Transaction History",
+        "description": "View all your balance transactions",
+        "filters": {
+          "all": "All",
+          "in": "Credit",
+          "out": "Debit",
+          "deposit": "Deposit",
+          "payment": "Payment",
+          "refund": "Refund",
+          "semester_bonus": "Semester Bonus"
+        },
+        "table": {
+          "transactionDate": "Date & Time",
+          "type": "Type",
+          "description": "Description",
+          "amount": "Amount",
+          "direction": "Direction"
+        },
+        "direction": {
+          "in": "Credit",
+          "out": "Debit"
+        },
+        "sourceType": {
+          "deposit": "Deposit",
+          "payment": "Payment",
+          "refund": "Refund",
+          "semester_bonus": "Semester Bonus"
+        },
+        "empty": "No transaction history",
+        "errors": {
+          "loadFailed": "Failed to load transaction history"
+        },
+        "pagination": {
+          "showing": "Showing",
+          "of": "of",
+          "items": "items"
+        }
+      }
     },
     "profile": {
       "title": "Profile",
@@ -534,6 +681,129 @@
           "cancel": "Cancel",
           "confirm": "Confirm",
           "processing": "Processing..."
+        }
+      }
+    },
+    "pageAllocation": {
+      "title": "Material Management",
+      "description": "Manage paper inventory by page type (A3, A4, A5...)",
+      "stats": {
+        "totalTypes": "Total Page Types",
+        "totalAvailable": "Total Available Pages",
+        "lowStockCount": "Low Stock Types",
+        "totalReserved": "Total Reserved"
+      },
+      "table": {
+        "sizeName": "Page Type",
+        "description": "Description",
+        "totalQuantity": "Total Quantity",
+        "reserved": "Reserved",
+        "available": "Available",
+        "threshold": "Low Stock Threshold",
+        "status": "Status",
+        "lastUpdated": "Last Updated",
+        "actions": "Actions",
+        "lowStock": "Low Stock",
+        "normal": "Normal",
+        "noData": "No data"
+      },
+      "actions": {
+        "addPages": "Add Pages",
+        "update": "Update",
+        "checkAvailability": "Check Availability",
+        "initialize": "Initialize Allocations",
+        "viewLowStock": "View Low Stock",
+        "refresh": "Refresh",
+        "retry": "Retry"
+      },
+      "modals": {
+        "addPages": {
+          "title": "Add Pages to Inventory",
+          "quantity": "Quantity",
+          "quantityPlaceholder": "Enter page quantity",
+          "note": "Note",
+          "notePlaceholder": "e.g., Shipment #12345",
+          "submit": "Add",
+          "submitting": "Adding...",
+          "success": "Added {quantity} pages of {sizeName} to inventory"
+        },
+        "update": {
+          "title": "Update Inventory",
+          "quantity": "Quantity",
+          "threshold": "Low Stock Threshold",
+          "thresholdPlaceholder": "Default: 1000",
+          "note": "Note",
+          "notePlaceholder": "e.g., Adjusted per inventory count",
+          "submit": "Update",
+          "submitting": "Updating...",
+          "success": "Updated {sizeName} inventory"
+        },
+        "checkAvailability": {
+          "title": "Check Availability",
+          "pagesNeeded": "Pages Needed",
+          "pagesNeededPlaceholder": "Enter pages to check",
+          "check": "Check",
+          "checking": "Checking...",
+          "result": {
+            "available": "Sufficient paper available",
+            "notAvailable": "Insufficient stock",
+            "currentQuantity": "Current Quantity",
+            "shortage": "Shortage",
+            "message": "Message"
+          }
+        }
+      },
+      "alerts": {
+        "lowStock": {
+          "title": "Low Stock Alert",
+          "message": "{count} page types are running low on stock",
+          "viewAll": "View All"
+        },
+        "initialize": {
+          "title": "No Allocation Data",
+          "message": "Please initialize allocations for all page types",
+          "action": "Initialize Now"
+        }
+      },
+      "filters": {
+        "search": "Search by page type...",
+        "lowStockOnly": "Show low stock only",
+        "clear": "Clear Filters"
+      },
+      "empty": {
+        "title": "No Data",
+        "message": "No page allocations found. Please initialize allocations.",
+        "action": "Initialize Allocations"
+      },
+      "errors": {
+        "fetchFailed": "Failed to load inventory data",
+        "addFailed": "Failed to add pages",
+        "updateFailed": "Failed to update inventory",
+        "checkFailed": "Failed to check availability",
+        "initializeFailed": "Failed to initialize allocations",
+        "notFound": "Page allocation not found",
+        "insufficientStock": "Insufficient paper stock",
+        "validationFailed": "Invalid data",
+        "generic": "An error occurred. Please try again.",
+        "retry": "Retry"
+      },
+      "validation": {
+        "quantity": {
+          "required": "Quantity is required",
+          "invalid": "Quantity must be a number",
+          "min": "Quantity must be greater than 0",
+          "nonNegative": "Quantity cannot be negative",
+          "integer": "Quantity must be an integer"
+        },
+        "threshold": {
+          "invalid": "Threshold must be a number",
+          "nonNegative": "Threshold cannot be negative"
+        },
+        "pagesNeeded": {
+          "required": "Pages needed is required",
+          "invalid": "Pages needed must be a number",
+          "min": "Pages needed must be greater than 0",
+          "integer": "Pages needed must be an integer"
         }
       }
     },

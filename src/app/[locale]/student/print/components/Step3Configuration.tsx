@@ -799,7 +799,8 @@ export function Step3Configuration({
         <Button
           variant="outline"
           onClick={onNext}
-          className="min-w-32 transition-transform duration-150 hover:scale-[1.01]"
+          disabled={isCalculatingCost || !hasCost || calculatedCost === null}
+          className="min-w-32 transition-transform duration-150 hover:scale-[1.01] disabled:cursor-not-allowed disabled:opacity-50"
         >
           {t('next')}
           <svg
