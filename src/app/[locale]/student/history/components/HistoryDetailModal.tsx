@@ -15,6 +15,7 @@ import { DetailModalSkeleton } from './DetailModalSkeleton';
 import { cn } from '@/lib/utils/cn';
 import { usePrintJobProgressData } from '../../print/hooks/usePrintJobProgressData';
 import { formatCurrency } from '@/lib/utils/format';
+import { useTranslations, useLocale } from 'next-intl';
 
 interface HistoryDetailModalProps {
   isOpen: boolean;
@@ -29,6 +30,9 @@ export function HistoryDetailModal({
   item,
   isLoading,
 }: HistoryDetailModalProps) {
+  const t = useTranslations('student.history.detailModal');
+  const tPrinterStatus = useTranslations('student.history.printerStatus');
+  const locale = useLocale();
   const [showLocation, setShowLocation] = useState(false);
 
   const showProgress =
@@ -44,12 +48,7 @@ export function HistoryDetailModal({
 
   return (
     <>
-      <Modal
-        isOpen={isOpen}
-        onClose={onClose}
-        title="Chi tiết lịch sử in"
-        size="lg"
-      >
+      <Modal isOpen={isOpen} onClose={onClose} title={t('title')} size="lg">
         {isLoading ? (
           <DetailModalSkeleton />
         ) : item ? (
@@ -101,7 +100,7 @@ export function HistoryDetailModal({
                       d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
                     />
                   </svg>
-                  Xem file in
+                  {t('viewFile')}
                 </Button>
                 <StatusBadge status={item.status} />
               </div>
@@ -110,7 +109,13 @@ export function HistoryDetailModal({
             <div className="grid gap-4 md:grid-cols-2">
               <div className="relative rounded-xl border border-slate-200/70 bg-slate-50/70 p-4 pt-6 dark:border-white/10 dark:bg-white/5">
                 {(() => {
-                  const meta = getPrinterStatusMeta(item.printerStatus);
+                  const meta = getPrinterStatusMeta(
+                    item.printerStatus,
+                    (key: string) => {
+                      const statusKey = key.split('.').pop() || '';
+                      return tPrinterStatus(statusKey as any);
+                    }
+                  );
                   return (
                     <div
                       className={cn(
@@ -127,14 +132,15 @@ export function HistoryDetailModal({
                   <div className="flex items-start gap-3">
                     <div>
                       <div className="text-xs uppercase text-slate-500 dark:text-white/50">
-                        Máy in
+                        {t('sections.printer.title')}
                       </div>
                       <div className="text-base font-semibold text-slate-900 dark:text-white">
                         {item.printerName}
                       </div>
                       <div className="mt-1 text-sm text-slate-500 dark:text-white/60">
-                        Vị trí: {item.buildingName || '—'}
-                        {item.roomCode ? ` - ${item.roomCode}` : ''}
+                        {t('sections.printer.location', {
+                          location: `${item.buildingName || '—'}${item.roomCode ? ` - ${item.roomCode}` : ''}`,
+                        })}
                       </div>
                     </div>
                   </div>
@@ -158,19 +164,19 @@ export function HistoryDetailModal({
                       />
                       <circle cx="12" cy="11" r="2.5" />
                     </svg>
-                    Xem vị trí
+                    {t('viewLocation')}
                   </Button>
                 </div>
               </div>
 
               <div className="rounded-xl border border-slate-200/70 bg-slate-50/70 p-4 dark:border-white/10 dark:bg-white/5">
                 <div className="text-xs uppercase text-slate-500 dark:text-white/50">
-                  Cấu hình in
+                  {t('sections.printConfig.title')}
                 </div>
                 <div className="mt-2 space-y-2 text-sm">
                   <div className="flex justify-between">
                     <span className="text-slate-600 dark:text-white/70">
-                      Khổ giấy
+                      {t('sections.printConfig.paperSize')}
                     </span>
                     <span className="font-semibold text-slate-900 dark:text-white">
                       {item.paperSize || '—'}
@@ -178,35 +184,39 @@ export function HistoryDetailModal({
                   </div>
                   <div className="flex justify-between">
                     <span className="text-slate-600 dark:text-white/70">
-                      Hướng giấy
+                      {t('sections.printConfig.orientation')}
                     </span>
                     <span className="font-semibold text-slate-900 dark:text-white">
-                      {item.orientation === 'landscape' ? 'Ngang' : 'Dọc'}
+                      {item.orientation === 'landscape'
+                        ? t('sections.printConfig.orientationLandscape')
+                        : t('sections.printConfig.orientationPortrait')}
                     </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-slate-600 dark:text-white/70">
-                      Chế độ màu
+                      {t('sections.printConfig.colorMode')}
                     </span>
                     <span className="font-semibold text-slate-900 dark:text-white">
                       {item.colorMode === 'color'
-                        ? 'In màu'
+                        ? t('sections.printConfig.colorModeColor')
                         : item.colorMode === 'grayscale'
-                          ? 'In xám'
-                          : 'Đen trắng'}
+                          ? t('sections.printConfig.colorModeGrayscale')
+                          : t('sections.printConfig.colorModeBlackWhite')}
                     </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-slate-600 dark:text-white/70">
-                      Mặt in
+                      {t('sections.printConfig.printSide')}
                     </span>
                     <span className="font-semibold text-slate-900 dark:text-white">
-                      {item.duplex ? '2 mặt' : '1 mặt'}
+                      {item.duplex
+                        ? t('sections.printConfig.printSideDouble')
+                        : t('sections.printConfig.printSideOne')}
                     </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-slate-600 dark:text-white/70">
-                      Số bản
+                      {t('sections.printConfig.copies')}
                     </span>
                     <span className="font-semibold text-slate-900 dark:text-white">
                       {item.copies}
@@ -214,7 +224,7 @@ export function HistoryDetailModal({
                   </div>
                   <div className="flex justify-between">
                     <span className="text-slate-600 dark:text-white/70">
-                      Tổng trang
+                      {t('sections.printConfig.totalPages')}
                     </span>
                     <span className="font-semibold text-slate-900 dark:text-white">
                       {item.pageCount}
@@ -225,25 +235,32 @@ export function HistoryDetailModal({
 
               <div className="rounded-xl border border-slate-200/70 bg-slate-50/70 p-4 dark:border-white/10 dark:bg-white/5">
                 <div className="text-xs uppercase text-slate-500 dark:text-white/50">
-                  Thời gian
+                  {t('sections.time.title')}
                 </div>
                 <div className="mt-2 space-y-2 text-sm font-semibold text-slate-900 dark:text-white">
-                  <div>Gửi: {formatDate(item.submittedAt)}</div>
                   <div>
-                    {item.status === 'processing'
-                      ? 'Hoàn tất dự kiến:'
-                      : 'Hoàn tất:'}{' '}
+                    {t('sections.time.submitted', {
+                      date: formatDate(item.submittedAt),
+                    })}
+                  </div>
+                  <div>
                     {item.status === 'processing' &&
                     progress?.timing?.estimatedCompletionTime
-                      ? formatDate(progress.timing.estimatedCompletionTime)
-                      : formatDate(item.completedAt)}
+                      ? t('sections.time.estimatedCompletion', {
+                          date: formatDate(
+                            progress.timing.estimatedCompletionTime
+                          ),
+                        })
+                      : t('sections.time.completed', {
+                          date: formatDate(item.completedAt),
+                        })}
                   </div>
                 </div>
               </div>
 
               <div className="rounded-xl border border-slate-200/70 bg-slate-50/70 p-4 dark:border-white/10 dark:bg-white/5">
                 <div className="text-xs uppercase text-slate-500 dark:text-white/50">
-                  Chi phí
+                  {t('sections.cost.title')}
                 </div>
                 <div className="mt-2 space-y-2 text-sm">
                   {(() => {
@@ -262,7 +279,7 @@ export function HistoryDetailModal({
                         {item.subtotalBeforeDiscount != null && (
                           <div className="flex justify-between">
                             <span className="text-slate-600 dark:text-white/70">
-                              Tạm tính
+                              {t('sections.cost.subtotal')}
                             </span>
                             <span className="font-semibold text-slate-900 dark:text-white">
                               {formatCurrency(item.subtotalBeforeDiscount)}
@@ -272,7 +289,7 @@ export function HistoryDetailModal({
                         {hasDiscount && (
                           <div className="flex justify-between">
                             <span className="text-slate-600 dark:text-white/70">
-                              Giảm giá
+                              {t('sections.cost.discount')}
                               {item.discountPercent != null
                                 ? ` (${item.discountPercent * 100}%)`
                                 : ''}
@@ -287,7 +304,7 @@ export function HistoryDetailModal({
                   })()}
                   <div className="flex justify-between">
                     <span className="text-slate-600 dark:text-white/70">
-                      Thanh toán
+                      {t('sections.cost.payment')}
                     </span>
                     <span className="text-base font-semibold text-blue-600 dark:text-blue-200">
                       {formatCurrency(item.costVnd || 0)}
@@ -295,7 +312,7 @@ export function HistoryDetailModal({
                   </div>
                   {item.paymentMethod && (
                     <div className="flex justify-between text-xs text-slate-500 dark:text-white/60">
-                      <span>Phương thức</span>
+                      <span>{t('sections.cost.paymentMethod')}</span>
                       <span className="font-semibold text-slate-700 dark:text-white">
                         {item.paymentMethod.toUpperCase()}
                       </span>
@@ -310,22 +327,24 @@ export function HistoryDetailModal({
                 {progressLoading && !progress ? (
                   <div className="flex flex-col gap-2">
                     <div className="flex items-center justify-between text-sm font-semibold text-blue-800 dark:text-blue-200">
-                      <span>Đang tải tiến độ in...</span>
+                      <span>{t('progress.loading')}</span>
                     </div>
                     <div className="mt-1 h-2 w-full animate-pulse rounded-full bg-blue-100 dark:bg-blue-900/40" />
                   </div>
                 ) : progressError || !progress ? (
                   <div className="text-sm text-blue-800 dark:text-blue-200">
-                    Không lấy được tiến độ in. Vui lòng thử lại sau.
+                    {t('progress.error')}
                   </div>
                 ) : (
                   <div className="space-y-2">
                     <div className="flex items-center justify-between text-sm font-semibold text-blue-800 dark:text-blue-200">
-                      <span>Tiến độ in</span>
+                      <span>{t('progress.title')}</span>
                       <span>
-                        {progress.progress.printedPages} /{' '}
-                        {progress.progress.totalPages} trang •{' '}
-                        {progress.progress.percentage.toFixed(1)}%
+                        {t('progress.progress', {
+                          printed: progress.progress.printedPages,
+                          total: progress.progress.totalPages,
+                          percent: progress.progress.percentage.toFixed(1),
+                        })}
                       </span>
                     </div>
                     <div className="mt-1 h-2 rounded-full bg-blue-100 dark:bg-blue-900/40">
@@ -336,18 +355,20 @@ export function HistoryDetailModal({
                     </div>
                     {progress.queueInfo.positionInQueue > 0 && (
                       <div className="text-xs text-blue-700 dark:text-blue-200">
-                        Vị trí trong hàng đợi:{' '}
-                        {progress.queueInfo.positionInQueue + 1}
+                        {t('progress.queuePosition', {
+                          position: progress.queueInfo.positionInQueue + 1,
+                        })}
                         {progress.queueInfo.jobsAhead > 0 &&
-                          ` (${progress.queueInfo.jobsAhead} job phía trước)`}
+                          ` ${t('progress.jobsAhead', { count: progress.queueInfo.jobsAhead })}`}
                       </div>
                     )}
                     {progress.timing.estimatedCompletionTime && (
                       <div className="text-xs text-blue-700 dark:text-blue-200">
-                        Ước tính hoàn tất:{' '}
-                        {new Date(
-                          progress.timing.estimatedCompletionTime
-                        ).toLocaleString('vi-VN')}
+                        {t('progress.estimatedCompletion', {
+                          date: new Date(
+                            progress.timing.estimatedCompletionTime
+                          ).toLocaleString(locale === 'vi' ? 'vi-VN' : 'en-US'),
+                        })}
                       </div>
                     )}
                   </div>

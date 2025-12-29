@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import {
   useColorModePrices,
   useUpdateColorModePrice,
@@ -23,6 +23,7 @@ import { Skeleton } from '@/components/common/Skeleton';
 
 export function ColorModePricesSection() {
   const t = useTranslations('staff.configuration.colorModePrices');
+  const locale = useLocale();
   const { data, isLoading, error } = useColorModePrices();
   const updateMutation = useUpdateColorModePrice();
   const [editingItem, setEditingItem] = useState<ColorModePriceResponse | null>(
@@ -124,17 +125,21 @@ export function ColorModePricesSection() {
                   <div className="flex-1">
                     <div className="font-semibold text-slate-900 dark:text-white">
                       {item.colorModeName === 'black-white'
-                        ? 'Đen trắng'
+                        ? t('colorModeNames.blackWhite')
                         : item.colorModeName === 'color'
-                          ? 'Màu'
-                          : item.colorModeName}
+                          ? t('colorModeNames.color')
+                          : item.colorModeName === 'grayscale'
+                            ? t('colorModeNames.grayscale')
+                            : item.colorModeName}
                     </div>
                     <div className="text-sm text-slate-600 dark:text-white/70">
                       {item.description}
                     </div>
                     <div className="mt-1 text-xs text-slate-500 dark:text-white/60">
                       {t('updated')}:{' '}
-                      {new Date(item.updatedAt).toLocaleString('vi-VN')}{' '}
+                      {new Date(item.updatedAt).toLocaleString(
+                        locale === 'vi' ? 'vi-VN' : 'en-US'
+                      )}{' '}
                       {t('by')} {item.updatedByName || item.updatedByEmail}
                     </div>
                   </div>

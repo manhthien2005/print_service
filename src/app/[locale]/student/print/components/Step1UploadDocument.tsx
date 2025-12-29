@@ -31,7 +31,6 @@ export function Step1UploadDocument({
   const t = useTranslations('student.print.step1');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [localFile, setLocalFile] = useState<File | null>(null);
 
@@ -47,8 +46,17 @@ export function Step1UploadDocument({
       description: t.label,
     }));
 
+  // Generate supported file types list for display
+  const supportedFileTypesList = permittedFileTypes
+    .map((t: any) => {
+      const ext =
+        t.fileExtension || (t.extension ? t.extension.replace('.', '') : '');
+      return ext ? ext.toUpperCase() : null;
+    })
+    .filter(Boolean)
+    .join(', ');
+
   const handleFileChange = async (file: File) => {
-    setError(null);
     setIsUploading(true);
     setLocalFile(file);
 
@@ -78,8 +86,8 @@ export function Step1UploadDocument({
         )
         .filter(Boolean)
         .join(', ');
-      setError(
-        t('errors.fileTypeNotSupported', { extensions: allowedExtensions })
+      toast.error(
+        t('toasts.fileTypeNotSupported', { extensions: allowedExtensions })
       );
       setIsUploading(false);
       setLocalFile(null);
@@ -90,7 +98,7 @@ export function Step1UploadDocument({
     const maxSizeMB = 50;
     const fileSizeMB = file.size / (1024 * 1024);
     if (fileSizeMB > maxSizeMB) {
-      setError(t('errors.fileTooLarge', { maxSize: maxSizeMB }));
+      toast.error(t('toasts.fileTooLarge', { maxSize: maxSizeMB }));
       setIsUploading(false);
       setLocalFile(null);
       return;
@@ -136,8 +144,8 @@ export function Step1UploadDocument({
         errorWithResponse?.response?.data?.message ||
         errorWithResponse?.response?.data?.error ||
         errorWithResponse?.message ||
-        t('errors.uploadFailed');
-      setError(errorMessage);
+        t('toasts.uploadFailed');
+      toast.error(errorMessage);
       setIsUploading(false);
       setLocalFile(null);
     }
@@ -190,7 +198,6 @@ export function Step1UploadDocument({
       page_count: undefined,
       uploaded_file_id: undefined,
     });
-    setError(null);
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
@@ -280,9 +287,7 @@ export function Step1UploadDocument({
             'group relative cursor-pointer overflow-hidden rounded-2xl border-2 border-dashed p-12 text-center transition-all duration-300',
             isDragging
               ? 'scale-[1.02] border-blue-400 bg-gradient-to-br from-blue-50 to-blue-100 shadow-lg shadow-blue-500/20 dark:from-blue-500/20 dark:to-blue-500/10'
-              : 'border-blue-300 bg-gradient-to-br from-blue-50/80 to-blue-100/60 hover:border-blue-400 hover:from-blue-100 hover:to-blue-200 hover:shadow-md dark:border-blue-400/50 dark:from-blue-500/10 dark:to-blue-500/5 dark:hover:border-blue-400 dark:hover:from-blue-500/20 dark:hover:to-blue-500/10',
-            error &&
-              'bg-destructive/10 dark:bg-destructive/10 border-destructive'
+              : 'border-blue-300 bg-gradient-to-br from-blue-50/80 to-blue-100/60 hover:border-blue-400 hover:from-blue-100 hover:to-blue-200 hover:shadow-md dark:border-blue-400/50 dark:from-blue-500/10 dark:to-blue-500/5 dark:hover:border-blue-400 dark:hover:from-blue-500/20 dark:hover:to-blue-500/10'
           )}
         >
           {/* Animated background gradient */}
@@ -311,7 +316,11 @@ export function Step1UploadDocument({
               {t('dragDrop')}
             </p>
             <p className="text-sm text-muted-foreground dark:text-muted-foreground">
-              {t('fileSizeLimit')}
+              {supportedFileTypesList
+                ? t('fileSizeLimitWithTypes', {
+                    types: supportedFileTypesList,
+                  })
+                : t('fileSizeLimit')}
             </p>
           </div>
         </div>
@@ -400,14 +409,6 @@ export function Step1UploadDocument({
               </svg>
             </Button>
           </div>
-        </div>
-      )}
-
-      {error && (
-        <div className="border-destructive/30 bg-destructive/10 dark:border-destructive/30 dark:bg-destructive/10 rounded-lg border p-4">
-          <p className="text-sm text-destructive dark:text-destructive">
-            {error}
-          </p>
         </div>
       )}
 

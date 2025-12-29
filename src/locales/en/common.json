@@ -13,6 +13,7 @@
     "search": "Search",
     "filter": "Filter",
     "reset": "Reset",
+    "tryAgain": "Try again",
     "notifications": {
       "title": "Notifications",
       "markAllRead": "Mark all as read",

@@ -97,7 +97,7 @@ export const Modal: React.FC<ModalProps> = ({
                   fill="none"
                   stroke="currentColor"
                   strokeWidth="2"
-                  className="h-5 w-5"
+                  className="h-5 w-5 text-slate-500 dark:text-slate-400"
                 >
                   <path
                     strokeLinecap="round"

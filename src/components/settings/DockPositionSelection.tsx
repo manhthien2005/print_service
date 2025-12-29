@@ -181,9 +181,9 @@ function DockPositionCard({
             <span className="text-base font-semibold text-slate-900 dark:text-white">
               {title}
             </span>
-            {active ? (
+            {active && activeLabel ? (
               <span className="rounded-full bg-cyan-100 px-2 py-0.5 text-xs font-semibold text-cyan-800 dark:bg-cyan-500/20 dark:text-cyan-100">
-                {activeLabel ?? 'Active'}
+                {activeLabel}
               </span>
             ) : null}
           </div>

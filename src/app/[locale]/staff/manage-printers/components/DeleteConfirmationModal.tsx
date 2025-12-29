@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { useTranslations } from 'next-intl';
 import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
 
@@ -27,6 +28,7 @@ export const DeleteConfirmationModal: React.FC<
   isLoading = false,
   type = 'brand',
 }) => {
+  const t = useTranslations('staff.managePrinters.deleteModal');
   const handleConfirm = async () => {
     try {
       await onConfirm();
@@ -142,7 +144,7 @@ export const DeleteConfirmationModal: React.FC<
             </p>
           )}
           <p className="mb-6 text-sm text-slate-500 dark:text-slate-400">
-            Hành động này không thể hoàn tác.
+            {t('cannotUndo')}
           </p>
 
           {/* Actions */}
@@ -154,7 +156,7 @@ export const DeleteConfirmationModal: React.FC<
               disabled={isLoading}
               className="flex-1 border border-slate-300 bg-slate-200/80 text-slate-900 hover:border-slate-400 hover:bg-slate-300/90 dark:border-white/20 dark:bg-slate-700/80 dark:text-white dark:hover:border-white/30 dark:hover:bg-slate-600/90"
             >
-              Hủy
+              {t('cancel')}
             </Button>
             <Button
               type="button"
@@ -163,7 +165,7 @@ export const DeleteConfirmationModal: React.FC<
               disabled={isLoading}
               className="flex-1 border border-red-400 bg-red-500/20 text-red-700 hover:border-red-500 hover:bg-red-500/30 dark:border-red-500/50 dark:bg-red-500/20 dark:text-red-400 dark:hover:border-red-500 dark:hover:bg-red-500/30"
             >
-              {isLoading ? 'Đang xóa...' : 'Xóa'}
+              {isLoading ? t('deleting') : t('delete')}
             </Button>
           </div>
         </div>

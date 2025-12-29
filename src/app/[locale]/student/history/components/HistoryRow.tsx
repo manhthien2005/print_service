@@ -6,6 +6,7 @@ import { formatDate } from '@/app/[locale]/student/history/utils';
 import { formatCurrency } from '@/lib/utils/format';
 import { StatusBadge } from './StatusBadge';
 import { tagExcludes } from '@/app/[locale]/student/history/constants';
+import { useTranslations, useLocale } from 'next-intl';
 
 interface HistoryRowProps {
   item: PrintHistoryItem;
@@ -13,6 +14,8 @@ interface HistoryRowProps {
 }
 
 export function HistoryRow({ item, onClick }: HistoryRowProps) {
+  const t = useTranslations('student.history.row');
+  const locale = useLocale();
   const readableTags =
     item.tags?.filter(tag => !tagExcludes.includes(tag)).join(', ') ?? '';
 
@@ -30,7 +33,7 @@ export function HistoryRow({ item, onClick }: HistoryRowProps) {
               {item.documentName}
             </div>
             <div className="text-xs text-slate-500 dark:text-white/60">
-              {item.copies} bản • {item.fileSizeKB} KB
+              {t('copies', { count: item.copies })} • {item.fileSizeKB} KB
             </div>
           </div>
         </div>
@@ -48,13 +51,13 @@ export function HistoryRow({ item, onClick }: HistoryRowProps) {
       <div className="col-span-2">
         <div className="text-sm text-slate-800 dark:text-white">
           {item.colorMode === 'color'
-            ? 'In màu'
+            ? t('colorMode.color')
             : item.colorMode === 'grayscale'
-              ? 'In xám'
-              : 'Đen trắng'}
+              ? t('colorMode.grayscale')
+              : t('colorMode.blackWhite')}
         </div>
         <div className="text-xs text-slate-500 dark:text-white/60">
-          {item.duplex ? '2 mặt' : '1 mặt'}
+          {item.duplex ? t('duplex.doubleSided') : t('duplex.oneSided')}
         </div>
         {readableTags && (
           <div className="mt-1 text-xs text-slate-500 dark:text-white/60">
@@ -65,7 +68,7 @@ export function HistoryRow({ item, onClick }: HistoryRowProps) {
 
       <div className="col-span-1">
         <div className="text-sm font-semibold text-slate-900 dark:text-white">
-          {item.pageCount} trang
+          {t('pages', { count: item.pageCount })}
         </div>
         <div className="text-xs text-slate-500 dark:text-white/60">
           {formatCurrency(item.costVnd || 0)}
@@ -74,10 +77,10 @@ export function HistoryRow({ item, onClick }: HistoryRowProps) {
 
       <div className="col-span-2">
         <div className="text-sm text-slate-800 dark:text-white">
-          {formatDate(item.submittedAt)}
+          {formatDate(item.submittedAt, locale)}
         </div>
         <div className="text-xs text-slate-500 dark:text-white/60">
-          Kết thúc: {formatDate(item.completedAt)}
+          {t('completedAt', { date: formatDate(item.completedAt, locale) })}
         </div>
       </div>
 

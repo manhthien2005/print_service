@@ -125,7 +125,7 @@ export function RechargeContent({ t }: RechargeContentProps) {
         depositId: currentDeposit.depositId,
         cancellationReason: reason,
       });
-      toast.success('Đã hủy đơn nạp tiền');
+      toast.success(t.messages?.cancelSuccess || t.errors?.cancelFailed);
       setShowCancelModal(false);
       setShowQRModal(false);
       setCurrentDeposit(null);
@@ -139,8 +139,7 @@ export function RechargeContent({ t }: RechargeContentProps) {
       const message =
         errorWithResponse?.response?.data?.message ||
         errorWithResponse?.message ||
-        t.errors?.cancelFailed ||
-        'Failed to cancel deposit';
+        t.errors?.cancelFailed;
       toast.error(message);
     }
   };

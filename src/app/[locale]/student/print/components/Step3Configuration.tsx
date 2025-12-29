@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useMemo, useRef } from 'react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { Button } from '@/components/ui/Button';
 import { Select } from '@/components/ui/Select';
 import { Input } from '@/components/ui/Input';
@@ -54,6 +54,7 @@ export function Step3Configuration({
   onBack,
 }: Step3ConfigurationProps) {
   const t = useTranslations('student.print.step3');
+  const locale = useLocale();
   const [localConfig, setLocalConfig] = useState<MockPrintConfig>({
     ...config,
     page_range: config.page_range || 'all',
@@ -608,7 +609,8 @@ export function Step3Configuration({
                     </button>
                     <button
                       onClick={() => handleChange('page_range', 'custom')}
-                      className={`flex-1 rounded-lg border-2 px-4 py-2 text-sm font-medium transition-all ${
+                      disabled={true}
+                      className={`flex-1 rounded-lg border-2 px-4 py-2 text-sm font-medium transition-all disabled:cursor-not-allowed disabled:opacity-50 ${
                         localConfig.page_range === 'custom'
                           ? 'border-blue-500 bg-blue-50/70 text-blue-700 dark:border-blue-500 dark:bg-blue-500/15 dark:text-blue-300'
                           : 'dark:text-foreground/70 border-slate-200 bg-white text-foreground hover:border-blue-300 hover:bg-blue-50/40 dark:border-white/10 dark:bg-white/5 dark:hover:border-blue-300/60 dark:hover:bg-white/10'
@@ -708,7 +710,9 @@ export function Step3Configuration({
                   {balanceLoading ? (
                     <span className="inline-block h-5 w-28 animate-pulse rounded bg-slate-200/80 align-middle dark:bg-white/10" />
                   ) : (
-                    balance.balanceAmount.toLocaleString('vi-VN') +
+                    balance.balanceAmount.toLocaleString(
+                      locale === 'vi' ? 'vi-VN' : 'en-US'
+                    ) +
                     ' ' +
                     t('currency')
                   )}
@@ -732,7 +736,7 @@ export function Step3Configuration({
                   ) : (
                     (
                       costDetail.subtotalBeforeDiscount || estimatedCost!
-                    ).toLocaleString('vi-VN') +
+                    ).toLocaleString(locale === 'vi' ? 'vi-VN' : 'en-US') +
                     ' ' +
                     t('currency')
                   )}
@@ -748,7 +752,10 @@ export function Step3Configuration({
                     :
                   </span>
                   <span className="text-base font-bold text-green-700 dark:text-green-300">
-                    -{(costDetail.discountAmount || 0).toLocaleString('vi-VN')}{' '}
+                    -
+                    {(costDetail.discountAmount || 0).toLocaleString(
+                      locale === 'vi' ? 'vi-VN' : 'en-US'
+                    )}{' '}
                     {t('currency')}
                   </span>
                 </div>
@@ -761,7 +768,11 @@ export function Step3Configuration({
                   {!hasCost || isCalculatingCost ? (
                     <span className="inline-block h-6 w-32 animate-pulse rounded bg-slate-200/80 align-middle dark:bg-white/10" />
                   ) : (
-                    estimatedCost!.toLocaleString('vi-VN') + ' ' + t('currency')
+                    estimatedCost!.toLocaleString(
+                      locale === 'vi' ? 'vi-VN' : 'en-US'
+                    ) +
+                    ' ' +
+                    t('currency')
                   )}
                 </span>
               </div>
@@ -773,7 +784,9 @@ export function Step3Configuration({
                   {balanceLoading || !hasCost || isCalculatingCost ? (
                     <span className="inline-block h-5 w-28 animate-pulse rounded bg-slate-200/80 align-middle dark:bg-white/10" />
                   ) : (
-                    remainingBalanceMoney!.toLocaleString('vi-VN') +
+                    remainingBalanceMoney!.toLocaleString(
+                      locale === 'vi' ? 'vi-VN' : 'en-US'
+                    ) +
                     ' ' +
                     t('currency')
                   )}

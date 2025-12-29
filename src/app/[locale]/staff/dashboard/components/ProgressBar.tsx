@@ -1,12 +1,17 @@
 interface ProgressBarProps {
   value: number;
   label?: string;
+  defaultLabel?: string;
 }
 
-export const ProgressBar = ({ value, label }: ProgressBarProps) => (
+export const ProgressBar = ({
+  value,
+  label,
+  defaultLabel = 'Utilization',
+}: ProgressBarProps) => (
   <div>
     <div className="mb-2 flex items-center justify-between text-sm text-white/70">
-      <span>{label ?? 'Utilization'}</span>
+      <span>{label || defaultLabel}</span>
       <span className="font-semibold text-white">{value}%</span>
     </div>
     <div className="h-2 rounded-full bg-white/10">

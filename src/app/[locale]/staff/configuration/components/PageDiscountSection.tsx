@@ -141,7 +141,7 @@ export function PageDiscountSection() {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Gói giảm giá theo số trang</CardTitle>
+          <CardTitle>{t('title')}</CardTitle>
           <CardDescription className="text-red-600">
             {t('createError')}
           </CardDescription>

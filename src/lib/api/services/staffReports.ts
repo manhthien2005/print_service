@@ -1,4 +1,6 @@
-import { useApiQuery } from '@/lib/hooks';
+import { useApiQuery, useApiMutation } from '@/lib/hooks';
+import { useQueryClient } from '@tanstack/react-query';
+import { apiClient } from '@/lib/api/client';
 import type { ApiResponse } from '@/types/api';
 import type {
   StaffDashboardOverviewResponse,
@@ -139,6 +141,88 @@ export function useReportsList(
     {
       staleTime: 5 * 60 * 1000, // 5 minutes
       gcTime: 10 * 60 * 1000, // 10 minutes
+    }
+  );
+}
+
+/**
+ * Hook to fetch report detail by ID
+ */
+export function useReportDetail(reportId: string) {
+  return useApiQuery<ApiResponse<SystemReportResponse>>(
+    staffReportsKeys.report(reportId),
+    `/admin/reports/${reportId}`,
+    {
+      staleTime: 5 * 60 * 1000, // 5 minutes
+      gcTime: 10 * 60 * 1000, // 10 minutes
+      enabled: Boolean(reportId),
+    }
+  );
+}
+
+/**
+ * Hook to fetch report by period
+ */
+export function useReportByPeriod(type: 'MONTHLY' | 'YEARLY', period: string) {
+  return useApiQuery<ApiResponse<SystemReportResponse>>(
+    staffReportsKeys.period(type, period),
+    `/admin/reports/period/${type}/${period}`,
+    {
+      staleTime: 5 * 60 * 1000, // 5 minutes
+      gcTime: 10 * 60 * 1000, // 10 minutes
+      enabled: Boolean(type && period),
+    }
+  );
+}
+
+/**
+ * Hook to generate monthly report
+ */
+export function useGenerateMonthlyReport() {
+  const queryClient = useQueryClient();
+
+  return useApiMutation<
+    ApiResponse<SystemReportResponse>,
+    { year: number; month: number }
+  >('/admin/reports/generate/monthly', 'post', {
+    mutationFn: ({ year, month }) => {
+      const queryParams = new URLSearchParams();
+      queryParams.append('year', year.toString());
+      queryParams.append('month', month.toString());
+      return apiClient.post<ApiResponse<SystemReportResponse>>(
+        `/admin/reports/generate/monthly?${queryParams.toString()}`
+      );
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: staffReportsKeys.all,
+      });
+    },
+  });
+}
+
+/**
+ * Hook to generate yearly report
+ */
+export function useGenerateYearlyReport() {
+  const queryClient = useQueryClient();
+
+  return useApiMutation<ApiResponse<SystemReportResponse>, { year: number }>(
+    '/admin/reports/generate/yearly',
+    'post',
+    {
+      mutationFn: ({ year }) => {
+        const queryParams = new URLSearchParams();
+        queryParams.append('year', year.toString());
+        return apiClient.post<ApiResponse<SystemReportResponse>>(
+          `/admin/reports/generate/yearly?${queryParams.toString()}`
+        );
+      },
+      onSuccess: () => {
+        queryClient.invalidateQueries({
+          queryKey: staffReportsKeys.all,
+        });
+      },
     }
   );
 }

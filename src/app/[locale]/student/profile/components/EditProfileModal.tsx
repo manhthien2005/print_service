@@ -32,6 +32,13 @@ interface EditProfileModalProps {
     phoneMaxLength?: string;
     addressMaxLength?: string;
     profilePictureMaxLength?: string;
+    noChanges?: string;
+    emailCannotChange?: string;
+    clickToSelectOther?: string;
+    clickToChange?: string;
+    clickToSelect?: string;
+    fileFormatInfo?: string;
+    cancel?: string;
   };
   initialData: StudentProfileResponse;
   onSuccess?: () => void;
@@ -96,7 +103,7 @@ export default function EditProfileModal({
   const handlePhoneBlur = () => {
     const cleanPhone = phoneNumber.trim();
     if (!cleanPhone) {
-      setPhoneError(t.phoneRequired ?? 'Số điện thoại là bắt buộc');
+      setPhoneError(t.phoneRequired || 'Số điện thoại là bắt buộc');
       return;
     }
 
@@ -105,7 +112,11 @@ export default function EditProfileModal({
       setPhoneError(null);
     } catch (error) {
       if (error instanceof z.ZodError) {
-        setPhoneError(error.errors[0]?.message || 'Số điện thoại không hợp lệ');
+        setPhoneError(
+          error.errors[0]?.message ||
+            t.phoneInvalid ||
+            'Số điện thoại không hợp lệ'
+        );
       }
     }
   };
@@ -121,7 +132,9 @@ export default function EditProfileModal({
     } catch (error) {
       if (error instanceof z.ZodError) {
         const errorMessage =
-          error.errors[0]?.message || 'Số điện thoại không hợp lệ';
+          error.errors[0]?.message ||
+          t.phoneInvalid ||
+          'Số điện thoại không hợp lệ';
         setPhoneError(errorMessage);
         toast.error(errorMessage);
       }
@@ -131,7 +144,7 @@ export default function EditProfileModal({
     // Validate address (max 500 chars)
     if (address && address.length > 500) {
       toast.error(
-        t.addressMaxLength ?? 'Địa chỉ không được vượt quá 500 ký tự'
+        t.addressMaxLength || 'Địa chỉ không được vượt quá 500 ký tự'
       );
       return;
     }
@@ -154,7 +167,7 @@ export default function EditProfileModal({
     try {
       // Nothing to do?
       if (!avatarFile && Object.keys(request).length === 0) {
-        toast.error('Không có thay đổi nào để lưu');
+        toast.error(t?.noChanges || 'Không có thay đổi nào để lưu');
         return;
       }
 
@@ -169,14 +182,14 @@ export default function EditProfileModal({
         await uploadAvatar.mutateAsync(formData);
       }
 
-      toast.success(t.success ?? 'Cập nhật thông tin thành công');
+      toast.success(t.success || 'Cập nhật thông tin thành công');
       onSuccess?.();
       onClose();
     } catch (err: unknown) {
       const message =
         err instanceof Error
           ? err.message
-          : (t.error ?? 'Không thể cập nhật thông tin');
+          : t.error || 'Không thể cập nhật thông tin';
       toast.error(message);
     }
   };
@@ -187,7 +200,7 @@ export default function EditProfileModal({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title={t.title ?? 'Chỉnh sửa hồ sơ'}
+      title={t.title || 'Chỉnh sửa hồ sơ'}
       size="md"
     >
       <form onSubmit={handleSubmit} className="p-6">
@@ -195,7 +208,7 @@ export default function EditProfileModal({
           {/* Email - Read Only */}
           <div className="space-y-2">
             <label className="text-sm font-medium text-slate-900 dark:text-white">
-              {t.email ?? 'Email'}
+              {t.email || 'Email'}
             </label>
             <Input
               type="email"
@@ -204,14 +217,14 @@ export default function EditProfileModal({
               className="h-11 bg-muted dark:bg-muted"
             />
             <p className="text-xs text-slate-600 dark:text-white/80">
-              Email không thể thay đổi
+              {t?.emailCannotChange || 'Email không thể thay đổi'}
             </p>
           </div>
 
           {/* Phone Number */}
           <div className="space-y-2">
             <label className="text-sm font-medium text-slate-900 dark:text-white">
-              {t.phone ?? 'Số điện thoại'}{' '}
+              {t.phone || 'Số điện thoại'}{' '}
               <span className="text-destructive">*</span>
             </label>
             <Input
@@ -231,7 +244,8 @@ export default function EditProfileModal({
               </p>
             ) : (
               <p className="text-xs text-slate-600 dark:text-white/80">
-                Tối đa 15 ký tự, chỉ chứa số (10-15 chữ số)
+                {t.phoneMaxLength ||
+                  'Tối đa 15 ký tự, chỉ chứa số (10-15 chữ số)'}
               </p>
             )}
           </div>
@@ -239,7 +253,7 @@ export default function EditProfileModal({
           {/* Address */}
           <div className="space-y-2">
             <label className="text-sm font-medium text-slate-900 dark:text-white">
-              {t.address ?? 'Địa chỉ'}
+              {t.address || 'Địa chỉ'}
             </label>
             <Input
               type="text"
@@ -251,14 +265,17 @@ export default function EditProfileModal({
               className="h-11"
             />
             <p className="text-xs text-slate-600 dark:text-white/80">
-              Tối đa 500 ký tự ({address.length}/500)
+              {t?.addressMaxLength?.replace(
+                '{count}',
+                address.length.toString()
+              ) || `Tối đa 500 ký tự (${address.length}/500)`}
             </p>
           </div>
 
           {/* Profile Picture Upload */}
           <div className="space-y-2">
             <label className="text-sm font-medium text-slate-900 dark:text-white">
-              {t.profilePicture ?? 'Ảnh đại diện'}
+              {t.profilePicture || 'Ảnh đại diện'}
             </label>
             <label
               htmlFor="avatar-upload"
@@ -307,8 +324,8 @@ export default function EditProfileModal({
                   </div>
                   <span className="text-sm font-medium text-slate-700 dark:text-white/90">
                     {avatarFile
-                      ? 'Nhấn để chọn ảnh khác'
-                      : 'Nhấn để thay đổi ảnh'}
+                      ? t?.clickToSelectOther || 'Nhấn để chọn ảnh khác'
+                      : t?.clickToChange || 'Nhấn để thay đổi ảnh'}
                   </span>
                 </div>
               ) : (
@@ -331,10 +348,11 @@ export default function EditProfileModal({
                   </div>
                   <div className="text-center">
                     <span className="text-sm font-medium text-slate-700 dark:text-white/90">
-                      Nhấn để chọn ảnh đại diện
+                      {t?.clickToSelect || 'Nhấn để chọn ảnh đại diện'}
                     </span>
                     <p className="mt-1 text-xs text-slate-500 dark:text-white/70">
-                      JPG, JPEG, PNG, GIF, WEBP (tối đa 5MB)
+                      {t?.fileFormatInfo ||
+                        'JPG, JPEG, PNG, GIF, WEBP (tối đa 5MB)'}
                     </p>
                   </div>
                 </div>
@@ -352,7 +370,7 @@ export default function EditProfileModal({
             disabled={isSubmitting}
             className="border-slate-300 text-slate-700 hover:bg-slate-100 hover:text-slate-900 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700 dark:hover:text-white"
           >
-            Hủy
+            {t?.cancel || 'Hủy'}
           </Button>
           <Button
             type="submit"
@@ -360,8 +378,8 @@ export default function EditProfileModal({
             className="bg-sky-500 text-white hover:bg-sky-600 dark:bg-sky-600 dark:hover:bg-sky-700"
           >
             {isSubmitting
-              ? (t.submitting ?? 'Đang xử lý...')
-              : (t.submit ?? 'Lưu thay đổi')}
+              ? t.submitting || 'Đang xử lý...'
+              : t.submit || 'Lưu thay đổi'}
           </Button>
         </div>
       </form>

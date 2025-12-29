@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { useLocale } from 'next-intl';
 
 interface BalanceCountUpProps {
   to: number;
@@ -18,6 +19,7 @@ export default function BalanceCountUp({
   duration = 3,
   className = '',
 }: BalanceCountUpProps) {
+  const locale = useLocale();
   const [displayValue, setDisplayValue] = useState(0);
   const animationRef = useRef<number>();
   const startTimeRef = useRef<number>();
@@ -78,7 +80,7 @@ export default function BalanceCountUp({
 
   // Format số với dấu phẩy ngăn cách hàng nghìn
   const formatNumber = (num: number): string => {
-    return new Intl.NumberFormat('vi-VN', {
+    return new Intl.NumberFormat(locale === 'vi' ? 'vi-VN' : 'en-US', {
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
     }).format(num);

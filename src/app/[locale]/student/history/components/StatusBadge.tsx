@@ -2,12 +2,15 @@
 
 import type { PrintJobStatus } from '@/app/[locale]/student/history/types';
 import { cn } from '@/lib/utils/cn';
+import { useTranslations } from 'next-intl';
 
 interface StatusBadgeProps {
   status: PrintJobStatus;
 }
 
 export function StatusBadge({ status }: StatusBadgeProps) {
+  const t = useTranslations('student.history.status');
+
   const styles: Record<PrintJobStatus, string> = {
     completed:
       'bg-green-100 text-green-700 ring-green-500/30 dark:bg-green-500/10 dark:text-green-300',
@@ -20,10 +23,10 @@ export function StatusBadge({ status }: StatusBadgeProps) {
   };
 
   const label: Record<PrintJobStatus, string> = {
-    completed: 'Hoàn tất',
-    processing: 'Đang xử lý',
-    queued: 'Đang chờ',
-    failed: 'Lỗi',
+    completed: t('completed'),
+    processing: t('processing'),
+    queued: t('queued'),
+    failed: t('failed'),
   };
 
   return (

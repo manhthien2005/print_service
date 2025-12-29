@@ -9,15 +9,30 @@ import { Pagination } from '@/components/ui/Pagination';
 import { Modal } from '@/components/ui/Modal';
 import { Checkbox } from '@/components/ui/Checkbox';
 import { cn } from '@/lib/utils/cn';
-import {
-  studentFilters,
-  studentStats,
-  studentsMockData,
-} from '@/data/studentsMock';
+import { studentFilters } from '@/data/studentsMock';
 import type { StudentStatus, StudentItem } from '../types';
 import CountUp from '@/components/ui/CountUp';
+import {
+  useAdminUsers,
+  type AdminUserListItem,
+} from '@/lib/api/services/adminUsers';
+import { AddUserModal } from './AddUserModal';
+import { EditUserModal } from './EditUserModal';
+import { UserHistoryModal } from './UserHistoryModal';
+import { DeleteConfirmationModal } from '@/app/[locale]/staff/manage-printers/components/DeleteConfirmationModal';
+import { useDeleteUser, useGetUserDetail } from '@/lib/api/services/adminUsers';
+import { toast } from '@/components/ui/Toast';
+import { Skeleton } from '@/components/common/Skeleton';
 
 const PAGE_SIZE = 10;
+
+// Helper function to validate UUID
+const isValidUUID = (id: string | null | undefined): boolean => {
+  if (!id) return false;
+  const uuidRegex =
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  return uuidRegex.test(id);
+};
 
 type StatusFilterValue = 'all' | StudentStatus;
 type SortColumn =
@@ -27,7 +42,6 @@ type SortColumn =
   | 'faculty'
   | 'yearLevel'
   | 'status'
-  | 'enrollmentDate'
   | null;
 type SortDirection = 'asc' | 'desc' | null;
 
@@ -73,6 +87,7 @@ function SummaryCard({
   trend,
   useCountUp,
   countUpValue,
+  isLoading,
 }: {
   title: string;
   value?: string;
@@ -80,19 +95,24 @@ function SummaryCard({
   trend?: { label: string; positive?: boolean };
   useCountUp?: boolean;
   countUpValue?: number;
+  isLoading?: boolean;
 }) {
   return (
     <div className="relative rounded-2xl border border-slate-200/70 bg-white/80 p-5 shadow-[0_10px_40px_rgba(15,23,42,0.08)] backdrop-blur dark:border-white/10 dark:bg-white/5 dark:shadow-[0_20px_60px_rgba(0,0,0,0.35)]">
       <div className="text-sm font-semibold text-slate-500 dark:text-white/60">
         {title}
       </div>
-      <div className="mt-3 text-3xl font-bold text-slate-900 dark:text-white">
-        {useCountUp && countUpValue !== undefined ? (
-          <CountUp to={countUpValue} separator="." duration={2} />
-        ) : (
-          value
-        )}
-      </div>
+      {isLoading ? (
+        <Skeleton className="mt-3 h-9 w-24" variant="shimmer" />
+      ) : (
+        <div className="mt-3 text-3xl font-bold text-slate-900 dark:text-white">
+          {useCountUp && countUpValue !== undefined ? (
+            <CountUp to={countUpValue} separator="." duration={2} />
+          ) : (
+            value
+          )}
+        </div>
+      )}
       {caption && (
         <div className="mt-1 text-sm text-slate-500 dark:text-white/60">
           {caption}
@@ -168,84 +188,89 @@ export function ManageStudentsContent() {
   const [sortDirection, setSortDirection] = useState<SortDirection>(null);
   const [showFilters, setShowFilters] = useState(false);
 
-  const filtered = useMemo(() => {
-    return studentsMockData.filter(student => {
-      const matchesSearch =
-        search.length === 0 ||
-        student.fullName.toLowerCase().includes(search.toLowerCase()) ||
-        student.studentCode.toLowerCase().includes(search.toLowerCase()) ||
-        student.email.toLowerCase().includes(search.toLowerCase());
+  // Modal states
+  const [isAddUserModalOpen, setIsAddUserModalOpen] = useState(false);
+  const [isEditUserModalOpen, setIsEditUserModalOpen] = useState(false);
+  const [isDeleteUserModalOpen, setIsDeleteUserModalOpen] = useState(false);
+  const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
+  const [historyModalUserId, setHistoryModalUserId] = useState<string | null>(
+    null
+  );
+  const [editingUserId, setEditingUserId] = useState<string | null>(null);
+  const [deletingUserId, setDeletingUserId] = useState<string | null>(null);
+  const [deletingUserName, setDeletingUserName] = useState<string>('');
 
-      const matchesFaculty = !faculty || student.faculty === faculty;
-      const matchesStatus = status === 'all' || student.status === status;
-      const matchesYearLevel =
-        yearLevel === 'all' || student.yearLevel.toString() === yearLevel;
+  const deleteUser = useDeleteUser();
 
-      const enrollment = new Date(student.enrollmentDate);
-      const start = startDate ? new Date(startDate) : null;
-      const end = endDate ? new Date(endDate) : null;
-      const endInclusive = end ? new Date(end) : null;
-      if (endInclusive) endInclusive.setHours(23, 59, 59, 999);
-      const matchesTime =
-        (!start || enrollment >= start) &&
-        (!endInclusive || enrollment <= endInclusive);
+  // Get user detail for edit modal (handled inside EditUserModal)
 
-      return (
-        matchesSearch &&
-        matchesFaculty &&
-        matchesStatus &&
-        matchesYearLevel &&
-        matchesTime
-      );
+  // Get user detail for detail modal
+  const selectedUserId = useMemo(() => {
+    // Only use selected.id if it's a valid UUID, otherwise use null
+    return isValidUUID(selected?.id) ? selected!.id : null;
+  }, [selected?.id]);
+
+  const {
+    data: selectedUserDetailResponse,
+    isLoading: isLoadingSelectedDetail,
+  } = useGetUserDetail(selectedUserId);
+  const selectedUserDetail = selectedUserDetailResponse?.data?.data;
+
+  // Use API to fetch users instead of mock data
+  const { data: usersResponse, isLoading: isLoadingUsers } = useAdminUsers({
+    search: search || undefined,
+    accountStatus:
+      status !== 'all'
+        ? (status as 'active' | 'inactive' | 'suspended')
+        : undefined,
+    studentStatus:
+      status !== 'all'
+        ? (status as 'active' | 'graduated' | 'suspended' | 'withdrawn')
+        : undefined,
+    page: page - 1, // API uses 0-based pagination
+    limit: PAGE_SIZE,
+    sortBy: sortColumn || 'createdAt',
+    sortDirection: sortDirection || 'desc',
+  });
+
+  // Fetch total stats (without filters) for widgets - these should not change when filtering
+  // We fetch with a large limit to get all users for accurate stats
+  const { data: totalStatsResponse, isLoading: isLoadingTotalStats } =
+    useAdminUsers({
+      page: 0,
+      limit: 10000, // Large limit to get all users for stats calculation
     });
-  }, [search, faculty, status, yearLevel, startDate, endDate]);
 
+  const users: AdminUserListItem[] = usersResponse?.data?.data || [];
+  const pagination = usersResponse?.data?.pagination;
+  const totalPagination = totalStatsResponse?.data?.pagination;
+
+  // Convert API response to StudentItem format for compatibility
+  const filtered = useMemo(() => {
+    return users.map(user => ({
+      id: user.userId, // Use userId from API (UUID format)
+      studentCode: user.studentCode || '',
+      fullName: user.fullName,
+      email: user.email,
+      faculty: user.facultyName || '',
+      department: user.departmentName || '',
+      major: user.majorName || '',
+      className: user.className || '',
+      yearLevel: user.yearLevel || 0,
+      status: (user.studentStatus || user.accountStatus) as StudentStatus,
+      enrollmentDate: user.enrollmentDate || '',
+      expectedGraduate: '', // Not available in list response
+      userType: user.userType, // Add userType for account type column
+    }));
+  }, [users]);
+
+  // Reset to page 1 when filters change
   useEffect(() => {
     setPage(1);
-  }, [
-    filtered.length,
-    search,
-    faculty,
-    status,
-    yearLevel,
-    startDate,
-    endDate,
-    sortColumn,
-    sortDirection,
-  ]);
+  }, [search, faculty, status, yearLevel, startDate, endDate]);
 
-  const sorted = useMemo(() => {
-    if (!sortColumn || !sortDirection) return filtered;
-    const data = [...filtered];
-    data.sort((a, b) => {
-      const direction = sortDirection === 'asc' ? 1 : -1;
-      switch (sortColumn) {
-        case 'studentCode':
-          return direction * a.studentCode.localeCompare(b.studentCode);
-        case 'fullName':
-          return direction * a.fullName.localeCompare(b.fullName);
-        case 'email':
-          return direction * a.email.localeCompare(b.email);
-        case 'faculty':
-          return direction * a.faculty.localeCompare(b.faculty);
-        case 'yearLevel':
-          return direction * (a.yearLevel - b.yearLevel);
-        case 'status':
-          return direction * a.status.localeCompare(b.status);
-        case 'enrollmentDate':
-          return (
-            direction *
-            (new Date(a.enrollmentDate).getTime() -
-              new Date(b.enrollmentDate).getTime())
-          );
-        default:
-          return 0;
-      }
-    });
-    return data;
-  }, [filtered, sortColumn, sortDirection]);
-
-  const paginated = sorted.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+  // API handles sorting and pagination, so we use filtered directly
+  const paginated = filtered;
 
   const toggleSort = (column: Exclude<SortColumn, null>) => {
     if (sortColumn === column) {
@@ -337,10 +362,22 @@ export function ManageStudentsContent() {
     setSelectedItems(new Set());
   };
 
-  // Calculate stats from filtered data
-  const activeCount = filtered.filter(s => s.status === 'active').length;
-  const suspendedCount = filtered.filter(s => s.status === 'suspended').length;
-  const graduatedCount = filtered.filter(s => s.status === 'graduated').length;
+  // Calculate stats from total users (without filters) - these should not change when filtering
+  const totalUsers: AdminUserListItem[] = useMemo(() => {
+    return totalStatsResponse?.data?.data || [];
+  }, [totalStatsResponse?.data?.data]);
+
+  const totalActiveCount = useMemo(() => {
+    return totalUsers.filter(
+      u => u.studentStatus === 'active' || u.accountStatus === 'active'
+    ).length;
+  }, [totalUsers]);
+
+  const totalSuspendedCount = useMemo(() => {
+    return totalUsers.filter(
+      u => u.studentStatus === 'suspended' || u.accountStatus === 'suspended'
+    ).length;
+  }, [totalUsers]);
 
   const isAllSelected =
     paginated.length > 0 && paginated.every(item => selectedItems.has(item.id));
@@ -348,36 +385,24 @@ export function ManageStudentsContent() {
   return (
     <div className="flex flex-col gap-6">
       {/* Summary Cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         <SummaryCard
           title={t('stats.totalStudents')}
-          caption={t('stats.fromFaculties', {
-            count: studentFilters.faculties.length,
-          })}
-          trend={{ label: `+${studentStats[0].delta}`, positive: true }}
-          useCountUp
-          countUpValue={filtered.length}
+          useCountUp={!isLoadingTotalStats}
+          countUpValue={totalPagination?.totalItems || totalUsers.length}
+          isLoading={isLoadingTotalStats}
         />
         <SummaryCard
           title={t('stats.activeStudents')}
-          caption={t('stats.studentsStudying')}
-          trend={{ label: `+${studentStats[1].delta}`, positive: true }}
-          useCountUp
-          countUpValue={activeCount}
+          useCountUp={!isLoadingTotalStats}
+          countUpValue={totalActiveCount}
+          isLoading={isLoadingTotalStats}
         />
         <SummaryCard
           title={t('stats.suspendedStudents')}
-          caption={t('stats.needsAttention')}
-          trend={{ label: studentStats[2].delta, positive: false }}
-          useCountUp
-          countUpValue={suspendedCount}
-        />
-        <SummaryCard
-          title={t('stats.graduatedStudents')}
-          caption={t('stats.completedProgram')}
-          trend={{ label: `+${studentStats[3].delta}`, positive: true }}
-          useCountUp
-          countUpValue={graduatedCount}
+          useCountUp={!isLoadingTotalStats}
+          countUpValue={totalSuspendedCount}
+          isLoading={isLoadingTotalStats}
         />
       </div>
 
@@ -444,6 +469,7 @@ export function ManageStudentsContent() {
               type="button"
               variant="default"
               size="sm"
+              onClick={() => setIsAddUserModalOpen(true)}
               className="flex items-center gap-2 rounded-full bg-gradient-to-r from-blue-500 to-indigo-500 px-4 py-2 text-sm font-semibold text-white shadow-md transition-transform hover:scale-[1.01] hover:from-blue-600 hover:to-indigo-600 hover:shadow-lg active:scale-[0.99]"
             >
               <svg
@@ -657,26 +683,11 @@ export function ManageStudentsContent() {
                     {sortIcon('email')}
                   </div>
                 </th>
-                <th
-                  className="cursor-pointer px-4 py-3 text-left text-sm font-semibold text-slate-700 hover:bg-slate-50 dark:text-white/90 dark:hover:bg-white/5"
-                  onClick={() => toggleSort('faculty')}
-                >
-                  <div className="flex items-center">
-                    {t('table.faculty')}
-                    {sortIcon('faculty')}
-                  </div>
-                </th>
                 <th className="px-4 py-3 text-left text-sm font-semibold text-slate-700 dark:text-white/90">
                   {t('table.majorClass')}
                 </th>
-                <th
-                  className="cursor-pointer px-4 py-3 text-left text-sm font-semibold text-slate-700 hover:bg-slate-50 dark:text-white/90 dark:hover:bg-white/5"
-                  onClick={() => toggleSort('yearLevel')}
-                >
-                  <div className="flex items-center">
-                    {t('table.year')}
-                    {sortIcon('yearLevel')}
-                  </div>
+                <th className="px-4 py-3 text-left text-sm font-semibold text-slate-700 dark:text-white/90">
+                  {t('table.accountType')}
                 </th>
                 <th
                   className="cursor-pointer px-4 py-3 text-center text-sm font-semibold text-slate-700 hover:bg-slate-50 dark:text-white/90 dark:hover:bg-white/5"
@@ -687,25 +698,77 @@ export function ManageStudentsContent() {
                     {sortIcon('status')}
                   </div>
                 </th>
-                <th
-                  className="cursor-pointer px-4 py-3 text-left text-sm font-semibold text-slate-700 hover:bg-slate-50 dark:text-white/90 dark:hover:bg-white/5"
-                  onClick={() => toggleSort('enrollmentDate')}
-                >
-                  <div className="flex items-center">
-                    {t('table.enrollmentDate')}
-                    {sortIcon('enrollmentDate')}
-                  </div>
-                </th>
                 <th className="px-4 py-3 text-center text-sm font-semibold text-slate-700 dark:text-white/90">
                   {t('table.actions')}
                 </th>
               </tr>
             </thead>
             <tbody>
-              {paginated.length === 0 ? (
+              {isLoadingUsers ? (
+                Array.from({ length: Math.min(PAGE_SIZE, 5) }).map(
+                  (_, index) => (
+                    <tr
+                      key={`skeleton-${index}`}
+                      className="animate-fade-in border-b border-slate-100 dark:border-white/5"
+                      style={{
+                        animationDelay: `${index * 50}ms`,
+                        animationFillMode: 'both',
+                      }}
+                    >
+                      <td className="px-4 py-3">
+                        <div className="flex items-center justify-center">
+                          <Skeleton
+                            variant="shimmer"
+                            className="h-4 w-4 rounded-full"
+                          />
+                        </div>
+                      </td>
+                      <td className="px-4 py-3">
+                        <Skeleton variant="shimmer" className="h-4 w-32" />
+                      </td>
+                      <td className="px-4 py-3">
+                        <Skeleton variant="shimmer" className="h-4 w-40" />
+                      </td>
+                      <td className="px-4 py-3">
+                        <Skeleton variant="shimmer" className="h-4 w-48" />
+                      </td>
+                      <td className="px-4 py-3">
+                        <Skeleton variant="shimmer" className="h-4 w-36" />
+                      </td>
+                      <td className="px-4 py-3">
+                        <Skeleton variant="shimmer" className="h-4 w-24" />
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="flex justify-center">
+                          <Skeleton
+                            variant="shimmer"
+                            className="h-6 w-20 rounded-full"
+                          />
+                        </div>
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="flex justify-center gap-2">
+                          <Skeleton
+                            variant="shimmer"
+                            className="h-8 w-8 rounded"
+                          />
+                          <Skeleton
+                            variant="shimmer"
+                            className="h-8 w-8 rounded"
+                          />
+                          <Skeleton
+                            variant="shimmer"
+                            className="h-8 w-8 rounded"
+                          />
+                        </div>
+                      </td>
+                    </tr>
+                  )
+                )
+              ) : paginated.length === 0 ? (
                 <tr>
                   <td
-                    colSpan={10}
+                    colSpan={8}
                     className="px-4 py-8 text-center text-slate-500 dark:text-white/50"
                   >
                     {t('table.noData')}
@@ -743,14 +806,6 @@ export function ManageStudentsContent() {
                       </td>
                       <td className="px-4 py-3">
                         <div className="font-medium text-slate-800 dark:text-white">
-                          {item.faculty}
-                        </div>
-                        <div className="text-xs text-slate-500 dark:text-white/60">
-                          {item.department}
-                        </div>
-                      </td>
-                      <td className="px-4 py-3">
-                        <div className="font-medium text-slate-800 dark:text-white">
                           {item.major}
                         </div>
                         <div className="text-xs text-slate-500 dark:text-white/60">
@@ -758,13 +813,12 @@ export function ManageStudentsContent() {
                         </div>
                       </td>
                       <td className="px-4 py-3 text-slate-700 dark:text-white/75">
-                        {t('table.year')} {item.yearLevel}
+                        {item.userType === 'student'
+                          ? t('table.accountTypeStudent')
+                          : t('table.accountTypeStaff')}
                       </td>
                       <td className="px-4 py-3 text-center">
                         <StatusBadge status={item.status} t={t} />
-                      </td>
-                      <td className="px-4 py-3 text-slate-600 dark:text-white/70">
-                        {formatDate(item.enrollmentDate)}
                       </td>
                       <td className="px-4 py-3 text-center">
                         <div className="flex justify-center gap-2">
@@ -772,7 +826,14 @@ export function ManageStudentsContent() {
                             variant="ghost"
                             size="sm"
                             className="h-8 w-8 p-0"
-                            onClick={() => setSelected(item)}
+                            onClick={() => {
+                              if (isValidUUID(item.id)) {
+                                setSelected(item);
+                              } else {
+                                toast.error('ID người dùng không hợp lệ');
+                              }
+                            }}
+                            title="Xem chi tiết"
                           >
                             <svg
                               xmlns="http://www.w3.org/2000/svg"
@@ -798,7 +859,15 @@ export function ManageStudentsContent() {
                             variant="ghost"
                             size="sm"
                             className="h-8 w-8 p-0"
-                            onClick={() => setSelected(item)}
+                            onClick={() => {
+                              if (isValidUUID(item.id)) {
+                                setEditingUserId(item.id);
+                                setIsEditUserModalOpen(true);
+                              } else {
+                                toast.error(t('errors.invalidUserId'));
+                              }
+                            }}
+                            title={t('actions.edit')}
                           >
                             <svg
                               xmlns="http://www.w3.org/2000/svg"
@@ -815,6 +884,36 @@ export function ManageStudentsContent() {
                               />
                             </svg>
                           </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-8 w-8 p-0 text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
+                            onClick={() => {
+                              if (isValidUUID(item.id)) {
+                                setDeletingUserId(item.id);
+                                setDeletingUserName(item.fullName);
+                                setIsDeleteUserModalOpen(true);
+                              } else {
+                                toast.error(t('errors.invalidUserId'));
+                              }
+                            }}
+                            title={t('actions.delete')}
+                          >
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                              className="h-4 w-4"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"
+                              />
+                            </svg>
+                          </Button>
                         </div>
                       </td>
                     </tr>
@@ -825,12 +924,14 @@ export function ManageStudentsContent() {
           </table>
         </div>
 
-        <Pagination
-          page={page}
-          pageSize={PAGE_SIZE}
-          total={filtered.length}
-          onChange={setPage}
-        />
+        {pagination && (
+          <Pagination
+            page={page}
+            pageSize={PAGE_SIZE}
+            total={pagination.totalItems}
+            onChange={setPage}
+          />
+        )}
       </div>
 
       {/* Student Detail Modal */}
@@ -840,24 +941,38 @@ export function ManageStudentsContent() {
         title={t('modal.detail.title')}
         size="lg"
       >
-        {selected && (
+        {isLoadingSelectedDetail ? (
+          <div className="flex items-center justify-center py-8">
+            <div className="text-slate-500 dark:text-slate-400">
+              {t('loading.userInfo')}
+            </div>
+          </div>
+        ) : selectedUserDetail ? (
           <div className="space-y-4 p-6">
             <div className="flex flex-wrap items-start gap-4">
               <div className="flex items-center gap-4">
                 <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-indigo-500 text-2xl font-bold text-white">
-                  {selected.fullName.charAt(0)}
+                  {selectedUserDetail.fullName.charAt(0)}
                 </div>
                 <div>
                   <div className="text-lg font-semibold text-slate-900 dark:text-white">
-                    {selected.fullName}
+                    {selectedUserDetail.fullName}
                   </div>
-                  <div className="text-sm text-slate-500 dark:text-white/60">
-                    {t('modal.detail.studentCode')}: {selected.studentCode}
-                  </div>
+                  {selectedUserDetail.studentCode && (
+                    <div className="text-sm text-slate-500 dark:text-white/60">
+                      {t('modal.detail.studentCode')}:{' '}
+                      {selectedUserDetail.studentCode}
+                    </div>
+                  )}
                 </div>
               </div>
               <div className="ml-auto flex items-center gap-3">
-                <StatusBadge status={selected.status} t={t} />
+                {selectedUserDetail.studentStatus && (
+                  <StatusBadge
+                    status={selectedUserDetail.studentStatus as StudentStatus}
+                    t={t}
+                  />
+                )}
               </div>
             </div>
 
@@ -872,25 +987,52 @@ export function ManageStudentsContent() {
                       {t('modal.detail.email')}:
                     </span>
                     <span className="font-semibold text-slate-900 dark:text-white">
-                      {selected.email}
+                      {selectedUserDetail.email}
                     </span>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-slate-600 dark:text-white/70">
-                      {t('modal.detail.enrollmentDate')}:
-                    </span>
-                    <span className="font-semibold text-slate-900 dark:text-white">
-                      {formatDate(selected.enrollmentDate)}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-slate-600 dark:text-white/70">
-                      {t('modal.detail.expectedGraduate')}:
-                    </span>
-                    <span className="font-semibold text-slate-900 dark:text-white">
-                      {formatDate(selected.expectedGraduate)}
-                    </span>
-                  </div>
+                  {selectedUserDetail.phoneNumber && (
+                    <div className="flex justify-between">
+                      <span className="text-slate-600 dark:text-white/70">
+                        Số điện thoại:
+                      </span>
+                      <span className="font-semibold text-slate-900 dark:text-white">
+                        {selectedUserDetail.phoneNumber}
+                      </span>
+                    </div>
+                  )}
+                  {selectedUserDetail.enrollmentDate && (
+                    <div className="flex justify-between">
+                      <span className="text-slate-600 dark:text-white/70">
+                        {t('modal.detail.enrollmentDate')}:
+                      </span>
+                      <span className="font-semibold text-slate-900 dark:text-white">
+                        {formatDate(selectedUserDetail.enrollmentDate)}
+                      </span>
+                    </div>
+                  )}
+                  {selectedUserDetail.graduationDate && (
+                    <div className="flex justify-between">
+                      <span className="text-slate-600 dark:text-white/70">
+                        {t('modal.detail.expectedGraduate')}:
+                      </span>
+                      <span className="font-semibold text-slate-900 dark:text-white">
+                        {formatDate(selectedUserDetail.graduationDate)}
+                      </span>
+                    </div>
+                  )}
+                  {selectedUserDetail.currentBalance !== undefined && (
+                    <div className="flex justify-between">
+                      <span className="text-slate-600 dark:text-white/70">
+                        Số dư:
+                      </span>
+                      <span className="font-semibold text-blue-600 dark:text-blue-400">
+                        {new Intl.NumberFormat('vi-VN', {
+                          style: 'currency',
+                          currency: 'VND',
+                        }).format(selectedUserDetail.currentBalance)}
+                      </span>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -899,46 +1041,56 @@ export function ManageStudentsContent() {
                   {t('modal.detail.academicInfo')}
                 </div>
                 <div className="mt-2 space-y-2 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-slate-600 dark:text-white/70">
-                      {t('modal.detail.faculty')}:
-                    </span>
-                    <span className="font-semibold text-slate-900 dark:text-white">
-                      {selected.faculty}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-slate-600 dark:text-white/70">
-                      {t('modal.detail.department')}:
-                    </span>
-                    <span className="font-semibold text-slate-900 dark:text-white">
-                      {selected.department}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-slate-600 dark:text-white/70">
-                      {t('modal.detail.major')}:
-                    </span>
-                    <span className="font-semibold text-slate-900 dark:text-white">
-                      {selected.major}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-slate-600 dark:text-white/70">
-                      {t('modal.detail.class')}:
-                    </span>
-                    <span className="font-semibold text-slate-900 dark:text-white">
-                      {selected.className}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-slate-600 dark:text-white/70">
-                      {t('modal.detail.academicYear')}:
-                    </span>
-                    <span className="font-semibold text-slate-900 dark:text-white">
-                      {t('table.year')} {selected.yearLevel}
-                    </span>
-                  </div>
+                  {selectedUserDetail.facultyName && (
+                    <div className="flex justify-between">
+                      <span className="text-slate-600 dark:text-white/70">
+                        {t('modal.detail.faculty')}:
+                      </span>
+                      <span className="font-semibold text-slate-900 dark:text-white">
+                        {selectedUserDetail.facultyName}
+                      </span>
+                    </div>
+                  )}
+                  {selectedUserDetail.departmentName && (
+                    <div className="flex justify-between">
+                      <span className="text-slate-600 dark:text-white/70">
+                        {t('modal.detail.department')}:
+                      </span>
+                      <span className="font-semibold text-slate-900 dark:text-white">
+                        {selectedUserDetail.departmentName}
+                      </span>
+                    </div>
+                  )}
+                  {selectedUserDetail.majorName && (
+                    <div className="flex justify-between">
+                      <span className="text-slate-600 dark:text-white/70">
+                        {t('modal.detail.major')}:
+                      </span>
+                      <span className="font-semibold text-slate-900 dark:text-white">
+                        {selectedUserDetail.majorName}
+                      </span>
+                    </div>
+                  )}
+                  {selectedUserDetail.className && (
+                    <div className="flex justify-between">
+                      <span className="text-slate-600 dark:text-white/70">
+                        {t('modal.detail.class')}:
+                      </span>
+                      <span className="font-semibold text-slate-900 dark:text-white">
+                        {selectedUserDetail.className}
+                      </span>
+                    </div>
+                  )}
+                  {selectedUserDetail.yearLevel && (
+                    <div className="flex justify-between">
+                      <span className="text-slate-600 dark:text-white/70">
+                        {t('modal.detail.academicYear')}:
+                      </span>
+                      <span className="font-semibold text-slate-900 dark:text-white">
+                        {t('table.year')} {selectedUserDetail.yearLevel}
+                      </span>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -947,6 +1099,13 @@ export function ManageStudentsContent() {
               <Button
                 size="sm"
                 variant="default"
+                onClick={() => {
+                  if (selectedUserDetail?.userId) {
+                    setEditingUserId(selectedUserDetail.userId);
+                    setIsEditUserModalOpen(true);
+                    setSelected(null);
+                  }
+                }}
                 className="flex items-center gap-2 bg-gradient-to-r from-blue-500 to-indigo-500 text-white shadow-md transition-transform hover:scale-[1.01] hover:from-blue-600 hover:to-indigo-600 hover:shadow-lg active:scale-[0.99]"
               >
                 <svg
@@ -967,6 +1126,13 @@ export function ManageStudentsContent() {
               <Button
                 size="sm"
                 variant="outline"
+                onClick={() => {
+                  if (selectedUserDetail?.userId) {
+                    setHistoryModalUserId(selectedUserDetail.userId);
+                    setIsHistoryModalOpen(true);
+                    setSelected(null);
+                  }
+                }}
                 className="flex items-center gap-2 border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-slate-300 hover:bg-slate-50 dark:border-white/10 dark:bg-white/5 dark:text-white"
               >
                 <svg
@@ -986,8 +1152,81 @@ export function ManageStudentsContent() {
               </Button>
             </div>
           </div>
-        )}
+        ) : selected ? (
+          <div className="rounded-lg bg-red-50 p-4 text-sm text-red-600 dark:bg-red-900/20 dark:text-red-400">
+            {t('errors.loadUserFailed')}
+          </div>
+        ) : null}
       </Modal>
+
+      {/* Add User Modal */}
+      <AddUserModal
+        isOpen={isAddUserModalOpen}
+        onClose={() => setIsAddUserModalOpen(false)}
+        onSuccess={() => {
+          // Refresh list will be handled by query invalidation in the hook
+        }}
+      />
+
+      {/* Edit User Modal */}
+      <EditUserModal
+        isOpen={isEditUserModalOpen}
+        onClose={() => {
+          setIsEditUserModalOpen(false);
+          setEditingUserId(null);
+        }}
+        userId={editingUserId}
+        onSuccess={() => {
+          // Refresh list will be handled by query invalidation in the hook
+        }}
+      />
+
+      {/* Delete User Modal */}
+      <DeleteConfirmationModal
+        isOpen={isDeleteUserModalOpen}
+        onClose={() => {
+          setIsDeleteUserModalOpen(false);
+          setDeletingUserId(null);
+          setDeletingUserName('');
+        }}
+        onConfirm={async () => {
+          if (!deletingUserId) return;
+          try {
+            await deleteUser.mutateAsync(deletingUserId);
+            toast.success(t('errors.deleteUserSuccess'));
+            setIsDeleteUserModalOpen(false);
+            setDeletingUserId(null);
+            setDeletingUserName('');
+          } catch (error: any) {
+            const errorMessage =
+              error.response?.data?.message ||
+              error.message ||
+              t('errors.deleteUserFailed');
+            toast.error(errorMessage);
+            throw error;
+          }
+        }}
+        title={t('deleteModal.title')}
+        message={t('deleteModal.message')}
+        itemName={deletingUserName}
+        isLoading={deleteUser.isPending}
+        type="activity"
+      />
+
+      {/* User History Modal */}
+      <UserHistoryModal
+        isOpen={isHistoryModalOpen}
+        onClose={() => {
+          setIsHistoryModalOpen(false);
+          setHistoryModalUserId(null);
+        }}
+        userId={
+          historyModalUserId ||
+          selectedUserDetail?.userId ||
+          (isValidUUID(selected?.id) ? selected!.id : null)
+        }
+        userName={selectedUserDetail?.fullName || selected?.fullName}
+      />
     </div>
   );
 }

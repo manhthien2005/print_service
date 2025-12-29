@@ -17,9 +17,43 @@ import { cn } from '@/lib/utils/cn';
 import { useStudentDashboard } from '@/lib/api/services/student';
 import { useBonusPackages } from '@/lib/api/services/payment';
 import type { StudentDashboardResponse } from '@/types/api';
-import { studentQuickActionsMock } from '../constants';
 import { STATUS_STYLES } from '../constants';
 import StudentDashboardSkeleton from './StudentDashboardSkeleton';
+
+// Get greeting based on time of day in UTC+7 (Hanoi timezone)
+function getTimeBasedGreeting(greetings: any): string {
+  const now = new Date();
+
+  // Get current time in Hanoi timezone (UTC+7) - Asia/Ho_Chi_Minh
+  // Format: "HH:mm" then extract hour
+  const formatter = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'Asia/Ho_Chi_Minh',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  });
+
+  const parts = formatter.formatToParts(now);
+  const hourPart = parts.find(part => part.type === 'hour');
+  const hanoiHour = hourPart
+    ? parseInt(hourPart.value, 10)
+    : new Date().getHours();
+
+  // Morning: 5:00 - 11:59
+  if (hanoiHour >= 5 && hanoiHour < 12) {
+    return greetings?.morning ?? 'Chào buổi sáng, ';
+  }
+  // Noon: 12:00 - 13:59
+  if (hanoiHour >= 12 && hanoiHour < 14) {
+    return greetings?.noon ?? 'Chào buổi trưa, ';
+  }
+  // Afternoon: 14:00 - 17:59
+  if (hanoiHour >= 14 && hanoiHour < 18) {
+    return greetings?.afternoon ?? 'Chào buổi chiều, ';
+  }
+  // Evening: 18:00 - 4:59 (next day)
+  return greetings?.evening ?? 'Chào buổi tối, ';
+}
 
 export default function StudentDashboard({
   locale,
@@ -34,6 +68,9 @@ export default function StudentDashboard({
     `/${locale}${path.startsWith('/') ? path : '/' + path}`;
 
   const statusCopy = (studentCopy.recent && studentCopy.recent.status) || {};
+
+  // Get time-based greeting
+  const greetingPrefix = getTimeBasedGreeting(studentCopy.greetings);
 
   // Fetch dashboard data from API
   const {
@@ -64,7 +101,8 @@ export default function StudentDashboard({
   const dashboard = dashboardData?.data?.data as
     | StudentDashboardResponse
     | undefined;
-  const userName = dashboard?.userName || 'Sinh viên';
+  const userName =
+    dashboard?.userName || (studentCopy.defaultUserName ?? 'Sinh viên');
   const recentFiles = Array.isArray(dashboard?.recentFiles)
     ? dashboard.recentFiles
     : [];
@@ -120,19 +158,28 @@ export default function StudentDashboard({
     });
   }
 
+  const highlightsCopy = studentCopy.highlights || {};
   const highlights = [
     // Bonus packages from API
     ...(activeBonusPackages.length > 0
       ? [
           {
             id: 'bonus-packages',
-            title: 'Gói giảm giá khi in',
+            title: highlightsCopy.bonusPackages?.title ?? 'Gói giảm giá khi in',
             description: activeBonusPackages.map((pkg: any) => {
               const discountPercent = (pkg.discountPercentage * 100).toFixed(0);
               if (pkg.discountPercentage === 0) {
-                return `In từ ${pkg.minPages} trang: không giảm giá`;
+                return (
+                  highlightsCopy.bonusPackages?.descriptionNoDiscount ??
+                  'In từ {minPages} trang: không giảm giá'
+                ).replace('{minPages}', pkg.minPages.toString());
               }
-              return `In từ ${pkg.minPages} trang: giảm ${discountPercent}%`;
+              return (
+                highlightsCopy.bonusPackages?.descriptionWithDiscount ??
+                'In từ {minPages} trang: giảm {discountPercent}%'
+              )
+                .replace('{minPages}', pkg.minPages.toString())
+                .replace('{discountPercent}', discountPercent);
             }),
           },
         ]
@@ -140,14 +187,17 @@ export default function StudentDashboard({
     // Hardcoded support info
     {
       id: 'reset',
-      title: 'Làm mới bonus',
+      title: highlightsCopy.reset?.title ?? 'Làm mới bonus',
       description:
+        highlightsCopy.reset?.description ??
         'Hệ thống tự động cập nhật bonus mỗi tháng. Kiểm tra thường xuyên để nhận ưu đãi tốt nhất.',
     },
     {
       id: 'support',
-      title: 'Hỗ trợ kỹ thuật',
-      description: 'Liên hệ IT helpdesk nếu gặp lỗi kết nối hoặc kẹt giấy.',
+      title: highlightsCopy.support?.title ?? 'Hỗ trợ kỹ thuật',
+      description:
+        highlightsCopy.support?.description ??
+        'Liên hệ IT helpdesk nếu gặp lỗi kết nối hoặc kẹt giấy.',
     },
   ];
 
@@ -158,7 +208,7 @@ export default function StudentDashboard({
         {/* Header ngoài Card - đồng bộ style với các trang khác */}
         <header className="mb-8">
           <h1 className="text-4xl font-bold text-slate-900 dark:text-white">
-            Trang chủ
+            {studentCopy.title ?? 'Trang chủ'}
           </h1>
           <p className="mt-2 text-slate-600 dark:text-white/70">
             {studentCopy.subtext ??
@@ -176,7 +226,7 @@ export default function StudentDashboard({
       <div className="space-y-8 pb-24">
         <header className="mb-8">
           <h1 className="text-4xl font-bold text-slate-900 dark:text-white">
-            Trang chủ
+            {studentCopy.title ?? 'Trang chủ'}
           </h1>
           <p className="mt-2 text-slate-600 dark:text-white/70">
             {studentCopy.subtext ??
@@ -185,7 +235,8 @@ export default function StudentDashboard({
         </header>
         <div className="flex items-center justify-center py-12">
           <div className="text-rose-600 dark:text-rose-400">
-            Có lỗi xảy ra khi tải dữ liệu. Vui lòng thử lại sau.
+            {studentCopy.error?.loadFailed ??
+              'Có lỗi xảy ra khi tải dữ liệu. Vui lòng thử lại sau.'}
           </div>
         </div>
       </div>
@@ -219,12 +270,49 @@ export default function StudentDashboard({
   const estimatedPagesLastMonth = Math.max(0, pagesLast30Days - pagesThisMonth);
   const pagesDifference = pagesThisMonth - estimatedPagesLastMonth;
 
+  // Generate quick actions from translations
+  const quickActionsCopy = studentCopy.quickActions?.items || {};
+  const quickActions = [
+    {
+      id: 'print',
+      title: quickActionsCopy.print?.title ?? 'In tài liệu',
+      description:
+        quickActionsCopy.print?.description ?? 'Tải file và gửi lệnh in ngay',
+      href: '/student/print',
+      badge: quickActionsCopy.print?.badge ?? 'Mới',
+    },
+    {
+      id: 'buy',
+      title: quickActionsCopy.buy?.title ?? 'Nạp tiền',
+      description:
+        quickActionsCopy.buy?.description ??
+        'Nạp tiền vào tài khoản bằng ví hoặc thẻ',
+      href: '/student/buy-pages',
+    },
+    {
+      id: 'history',
+      title: quickActionsCopy.history?.title ?? 'Lịch sử in',
+      description:
+        quickActionsCopy.history?.description ??
+        'Theo dõi trạng thái và chi phí',
+      href: '/student/history',
+    },
+    {
+      id: 'printers',
+      title: quickActionsCopy.printers?.title ?? 'Máy in gần bạn',
+      description:
+        quickActionsCopy.printers?.description ??
+        'Xem máy in online theo tòa nhà',
+      href: '/student/printers',
+    },
+  ];
+
   return (
     <div className="space-y-8 pb-24">
       {/* Header ngoài Card - đồng bộ style với các trang khác */}
       <header className="mb-8">
         <h1 className="text-4xl font-bold text-slate-900 dark:text-white">
-          Trang chủ
+          {studentCopy.title ?? 'Trang chủ'}
         </h1>
         <p className="mt-2 text-slate-600 dark:text-white/70">
           {studentCopy.subtext ??
@@ -245,7 +333,7 @@ export default function StudentDashboard({
                 {/* Header trong Card - Xin chào */}
                 <div className="mb-4 pb-2 pt-2">
                   <h2 className="text-4xl font-bold text-slate-900 dark:text-white">
-                    <span>Xin chào, </span>
+                    <span>{greetingPrefix}</span>
                     <GradientText
                       colors={[
                         '#40ffaa',
@@ -299,7 +387,9 @@ export default function StudentDashboard({
                           className={`mt-2 text-xs ${jobsGrowthPercent > 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`}
                         >
                           {jobsGrowthPercent > 0 ? '+' : ''}
-                          {jobsGrowthPercent}% so với tháng trước
+                          {jobsGrowthPercent}%{' '}
+                          {studentCopy.stats?.growthComparison ??
+                            'so với tháng trước'}
                         </p>
                       )}
                     </div>
@@ -318,7 +408,9 @@ export default function StudentDashboard({
                           className={`mt-2 text-xs ${pagesDifference > 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`}
                         >
                           {pagesDifference > 0 ? '+' : ''}
-                          {pagesDifference} trang so với tháng trước
+                          {pagesDifference}{' '}
+                          {studentCopy.stats?.pagesComparison ??
+                            'trang so với tháng trước'}
                         </p>
                       )}
                     </div>
@@ -401,7 +493,9 @@ export default function StudentDashboard({
                       <div className="flex flex-1 flex-col gap-1">
                         <div className="flex items-center justify-between gap-2">
                           <p className="font-semibold text-slate-900 dark:text-white">
-                            {item.fileName || 'Unknown file'}
+                            {item.fileName ||
+                              (studentCopy.recent?.unknownFile ??
+                                'Unknown file')}
                           </p>
                           <span
                             className={cn(
@@ -418,18 +512,19 @@ export default function StudentDashboard({
                         <p className="text-sm text-slate-600 dark:text-white/70">
                           {item.printerName ||
                             item.printerLocation ||
-                            'Unknown printer'}
+                            (studentCopy.recent?.unknownPrinter ??
+                              'Unknown printer')}
                         </p>
                         <div className="flex items-center justify-between text-xs text-slate-500 dark:text-white/60">
                           <span>
                             {item.totalPages
-                              ? `${item.totalPages} trang`
+                              ? `${item.totalPages} ${studentCopy.recent?.pages ?? 'trang'}`
                               : 'N/A'}
                           </span>
                           <span>
                             {item.createdAt
                               ? new Date(item.createdAt).toLocaleDateString(
-                                  'vi-VN'
+                                  locale === 'vi' ? 'vi-VN' : 'en-US'
                                 )
                               : 'N/A'}
                           </span>
@@ -440,7 +535,8 @@ export default function StudentDashboard({
                 })
               ) : (
                 <div className="py-8 text-center text-slate-500 dark:text-white/60">
-                  Chưa có lịch sử in gần đây
+                  {studentCopy.recent?.emptyState ??
+                    'Chưa có lịch sử in gần đây'}
                 </div>
               )}
 
@@ -466,7 +562,7 @@ export default function StudentDashboard({
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              {studentQuickActionsMock.map(action => (
+              {quickActions.map(action => (
                 <Link
                   key={action.id}
                   href={withLocale(action.href)}

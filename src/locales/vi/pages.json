@@ -8,10 +8,22 @@
         "printersOnline": "Máy in online",
         "jobsToday": "Công việc hôm nay",
         "pagesMonth": "Trang trong tháng",
+        "revenueToday": "Doanh thu hôm nay",
+        "revenueMonth": "Doanh thu tháng này",
+        "activeStudents": "Sinh viên hoạt động",
         "caption": {
           "total": "Trên tổng {total}",
           "lastJob": "Công việc gần nhất 6 phút trước"
-        }
+        },
+        "jobs": "công việc",
+        "pages": "trang",
+        "kPages": "{k}K trang",
+        "currency": "VND",
+        "thisMonth": "tháng này",
+        "now": "Hiện tại",
+        "printing": "đang in",
+        "queued": "đang chờ",
+        "new": "mới"
       },
       "weekly": {
         "title": "Hoạt động trong tuần",
@@ -24,12 +36,17 @@
         "description": "Tỉ lệ sử dụng các khổ giấy trong tháng"
       },
       "printer": {
-        "title": "Trạng thái",
+        "title": "Trạng thái máy in",
         "description": "Tình trạng và mức sử dụng chung",
         "cta": "Quản lý máy in",
         "online": "Online",
         "offline": "Offline",
         "maintenance": "Bảo trì",
+        "idle": "Chờ",
+        "printing": "Đang in",
+        "unplugged": "Ngắt kết nối",
+        "error": "Lỗi",
+        "total": "Tổng",
         "utilization": "Sử dụng",
         "utilizationLabel": "Mức sử dụng hệ thống",
         "note": ""
@@ -62,6 +79,7 @@
       "alerts": {
         "title": "Cảnh báo",
         "description": "Mục cần xử lý sớm",
+        "noActivities": "Không có hoạt động gần đây",
         "severity": {
           "info": "Thông tin",
           "warning": "Cảnh báo",
@@ -84,16 +102,62 @@
             "action": "Chuyển job"
           }
         }
+      },
+      "errors": {
+        "loadStatsFailed": "Không thể tải thống kê",
+        "loadDataFailed": "Đã xảy ra lỗi khi tải dữ liệu dashboard",
+        "tryAgain": "Thử lại"
+      },
+      "time": {
+        "justNow": "Vừa xong",
+        "minutesAgo": "{minutes} phút trước",
+        "hoursAgo": "{hours} giờ trước",
+        "daysAgo": "{days} ngày trước"
+      },
+      "actions": {
+        "viewDetails": "Xem chi tiết"
+      },
+      "charts": {
+        "ratio": "Tỉ lệ",
+        "count": "Số lượng"
+      },
+      "skeleton": {
+        "title": "Bảng điều khiển",
+        "printersOnline": "Máy in trực tuyến",
+        "totalCaption": "Tổng {total} máy",
+        "jobsToday": "Công việc hôm nay",
+        "lastJobCaption": "Công việc gần nhất",
+        "pagesMonth": "Trang tháng này",
+        "revenueToday": "Doanh thu hôm nay",
+        "activeStudents": "Sinh viên hoạt động",
+        "weeklyTitle": "Hoạt động in theo tuần",
+        "weeklyDescription": "Thống kê công việc và trang in",
+        "paperTitle": "Sử dụng khổ giấy",
+        "paperDescription": "Phân bố các khổ giấy",
+        "printerTitle": "Trạng thái máy in",
+        "printerDescription": "Tổng quan hệ thống",
+        "alertsTitle": "Cảnh báo",
+        "alertsDescription": "Thông báo hệ thống"
       }
     },
     "student": {
       "sectionLabel": "Trang của sinh viên",
+      "title": "Trang chủ",
       "greeting": "Xin chào, {name}",
+      "greetingPrefix": "Xin chào, ",
+      "greetings": {
+        "morning": "Chào buổi sáng, ",
+        "noon": "Chào buổi trưa, ",
+        "afternoon": "Chào buổi chiều, ",
+        "evening": "Chào buổi tối, "
+      },
       "subtext": "Kiểm tra số dư, in nhanh và theo dõi gần đây.",
       "ctaPrimary": "In tài liệu",
       "ctaSecondary": "Mua thêm trang",
+      "defaultUserName": "Sinh viên",
       "balance": {
-        "title": "Số dư",
+        "title": "Số dư tiền",
+        "subtitle": "Số dư khả dụng",
         "resetLabel": "Làm mới vào {date}",
         "badge": "Ưu tiên",
         "conversion": "Quy đổi khổ giấy",
@@ -103,17 +167,42 @@
         "jobsThisMonth": "Công việc tháng này",
         "pagesThisMonth": "Trang đã in",
         "successRate": "Tỉ lệ thành công",
-        "pending": "Đang chờ"
+        "pending": "Đang chờ",
+        "growthComparison": "so với tháng trước",
+        "pagesComparison": "trang so với tháng trước"
       },
       "quickActions": {
         "title": "Thao tác nhanh",
-        "description": "Đi tới tác vụ được dùng nhiều nhất"
+        "description": "Truy cập các chức năng được sử dụng nhiều nhất",
+        "items": {
+          "print": {
+            "title": "In tài liệu",
+            "description": "Tải file và gửi lệnh in ngay",
+            "badge": "Mới"
+          },
+          "buy": {
+            "title": "Nạp tiền",
+            "description": "Nạp tiền vào tài khoản bằng ví hoặc thẻ"
+          },
+          "history": {
+            "title": "Lịch sử in",
+            "description": "Theo dõi trạng thái và chi phí"
+          },
+          "printers": {
+            "title": "Máy in gần bạn",
+            "description": "Xem máy in online theo tòa nhà"
+          }
+        }
       },
       "recent": {
         "title": "In gần đây",
-        "description": "Theo dõi trạng thái mới nhất",
+        "description": "Theo dõi các công việc mới nhất",
         "pagesLabel": "{pages} trang A4",
+        "pages": "trang",
         "viewAll": "Xem lịch sử",
+        "emptyState": "Chưa có lịch sử in gần đây",
+        "unknownFile": "Unknown file",
+        "unknownPrinter": "Unknown printer",
         "status": {
           "completed": "Hoàn tất",
           "pending": "Đang chờ",
@@ -140,7 +229,23 @@
       },
       "highlights": {
         "title": "Lưu ý nhanh",
-        "description": "Mẹo để in ấn mượt mà"
+        "description": "Giữ cho việc in của bạn diễn ra suôn sẻ.",
+        "bonusPackages": {
+          "title": "Gói giảm giá khi in",
+          "descriptionNoDiscount": "In từ {minPages} trang: không giảm giá",
+          "descriptionWithDiscount": "In từ {minPages} trang: giảm {discountPercent}%"
+        },
+        "reset": {
+          "title": "Làm mới bonus",
+          "description": "Hệ thống tự động cập nhật bonus mỗi tháng. Kiểm tra thường xuyên để nhận ưu đãi tốt nhất."
+        },
+        "support": {
+          "title": "Hỗ trợ kỹ thuật",
+          "description": "Liên hệ IT helpdesk nếu gặp lỗi kết nối hoặc kẹt giấy."
+        }
+      },
+      "error": {
+        "loadFailed": "Có lỗi xảy ra khi tải dữ liệu. Vui lòng thử lại sau."
       }
     }
   },
@@ -162,7 +267,8 @@
         "title": "Tải lên tài liệu",
         "description": "Chọn file bạn muốn in. Hỗ trợ PDF, Word, Excel, PowerPoint và hình ảnh",
         "dragDrop": "Kéo thả file vào đây hoặc click để chọn",
-        "fileSizeLimit": "Tối đa 50MB • PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, JPG, PNG",
+        "fileSizeLimit": "Tối đa 50MB",
+        "fileSizeLimitWithTypes": "Tối đa 50MB • {types}",
         "saveFile": "Lưu file",
         "next": "Tiếp theo",
         "fileSaved": "Đã lưu file thành công!",
@@ -174,7 +280,10 @@
           "fileTooLarge": "File quá lớn. Kích thước tối đa: {maxSize}MB"
         },
         "toasts": {
-          "uploadSuccess": "Upload file thành công"
+          "uploadSuccess": "Upload file thành công",
+          "fileTypeNotSupported": "Loại file không được hỗ trợ. Các loại file được phép: {extensions}",
+          "fileTooLarge": "File quá lớn. Kích thước tối đa: {maxSize}MB",
+          "uploadFailed": "Có lỗi xảy ra khi upload file. Vui lòng thử lại."
         }
       },
       "step2": {
@@ -300,6 +409,7 @@
         "paymentExpired": "Thanh toán đã hết hạn. Vui lòng thử lại.",
         "paymentFailed": "Thanh toán không thành công.",
         "amount": "Số tiền",
+        "currency": "VNĐ",
         "expiresAt": "Hết hạn lúc",
         "instructions": "Quét mã QR bằng ứng dụng SePay để thanh toán",
         "scanQR": "Quét mã QR để thanh toán",
@@ -334,6 +444,9 @@
         "progress": "Tiến trình",
         "pages": "trang",
         "loading": "Đang tải thông tin print job...",
+        "elapsedTime": "Đã trôi qua",
+        "minutes": "phút",
+        "seconds": "giây",
         "status": {
           "queued": "Đang chờ trong hàng đợi",
           "printing": "Đang in",
@@ -350,6 +463,7 @@
         "cancelButton": "Hủy Print Job",
         "viewHistory": "Xem Lịch Sử In",
         "printer": {
+          "name": "Máy in",
           "location": "Vị trí",
           "status": "Trạng thái"
         },
@@ -376,6 +490,20 @@
         "bulkPrint": "In hàng loạt",
         "bulkDelete": "Xóa hàng loạt",
         "deselect": "Bỏ chọn",
+        "deselectAll": "Bỏ chọn tất cả",
+        "upload": "Tải lên",
+        "uploadMultiple": "Tải lên nhiều file",
+        "uploading": "Đang tải lên...",
+        "uploadFiles": "Tải lên {count} file",
+        "dragDropUpload": "Kéo thả file vào đây để tải lên hoặc click để chọn",
+        "fileSizeLimit": "Tối đa 50MB mỗi file",
+        "fileSizeLimitWithTypes": "Tối đa 50MB mỗi file • {types}",
+        "selectedFilesList": "Danh sách file đã chọn ({count})",
+        "removeAll": "Xóa tất cả",
+        "cancel": "Hủy",
+        "download": "Tải xuống",
+        "downloadSelected": "Tải xuống ({count})",
+        "view": "Xem",
         "table": {
           "fileName": "Tên file",
           "pages": "Số trang",
@@ -399,12 +527,224 @@
           "message": "Bạn có muốn in lại file \"{fileName}\"? Bạn sẽ được chuyển đến bước chọn máy in.",
           "cancel": "Hủy",
           "confirm": "In lại"
+        },
+        "toasts": {
+          "deleteSuccess": "Xóa file thành công",
+          "deleteFailed": "Có lỗi xảy ra khi xóa file.",
+          "fileNotFound": "Không tìm thấy đường dẫn file",
+          "openFileFailed": "Có lỗi xảy ra khi mở file",
+          "downloadSuccess": "Đã tải xuống file",
+          "downloadFailed": "Có lỗi xảy ra khi tải xuống file",
+          "bulkDownloadSuccess": "Đã tải xuống {count} file",
+          "uploadFailed": "Có lỗi xảy ra khi upload file",
+          "fileNotSupported": "File {fileName} không được hỗ trợ",
+          "fileTooLarge": "File {fileName} quá lớn (tối đa {maxSize}MB)",
+          "uploadSuccess": "Đã tải lên thành công {count} file",
+          "uploadPartialSuccess": "Có {errorCount} file tải lên thất bại"
+        },
+        "errors": {
+          "loadFailed": "Có lỗi xảy ra khi tải danh sách file. Vui lòng thử lại."
+        },
+        "fileTypeFilters": {
+          "all": "Tất cả loại file",
+          "pdf": "PDF",
+          "docx": "Word (DOCX)",
+          "xlsx": "Excel (XLSX)",
+          "pptx": "PowerPoint (PPTX)"
+        },
+        "dateRangeFilters": {
+          "all": "Tất cả thời gian",
+          "today": "Hôm nay",
+          "week": "Tuần này",
+          "month": "Tháng này",
+          "3months": "3 tháng qua"
+        }
+      },
+      "paperSizeComparisonModal": {
+        "title": "So sánh khổ giấy",
+        "sizeDetails": "Chi tiết kích thước",
+        "paperSize": "Khổ giấy",
+        "width": "Chiều rộng (mm)",
+        "height": "Chiều cao (mm)",
+        "area": "Diện tích (cm²)"
+      },
+      "colorModeInfoModal": {
+        "title": "Chế độ màu",
+        "useWhen": "Sử dụng khi:",
+        "modes": {
+          "color": {
+            "mode": "Màu",
+            "description": "In đầy đủ màu sắc như trong tài liệu gốc",
+            "useCase": "Tài liệu có hình ảnh, biểu đồ màu, logo, hoặc nội dung cần màu sắc"
+          },
+          "grayscale": {
+            "mode": "Xám",
+            "description": "In với thang độ xám, chuyển đổi màu sắc thành các mức xám",
+            "useCase": "Tài liệu có hình ảnh nhưng không cần màu sắc, muốn tiết kiệm chi phí"
+          },
+          "blackWhite": {
+            "mode": "Đen trắng",
+            "description": "Chỉ in màu đen và trắng, không có thang độ xám",
+            "useCase": "Tài liệu văn bản thuần túy, không có hình ảnh hoặc không cần màu sắc"
+          }
+        }
+      },
+      "paymentOptions": {
+        "balance": {
+          "label": "Dùng số dư",
+          "description": "Thanh toán bằng số dư hiện có trong tài khoản"
+        },
+        "qr": {
+          "label": "Thanh toán QR (SePay)",
+          "description": "Quét mã QR để thanh toán trực tiếp qua SePay"
         }
       }
     },
     "history": {
       "title": "Lịch sử in",
-      "description": "Xem lịch sử in của bạn"
+      "description": "Xem lịch sử in của bạn",
+      "summary": {
+        "jobsThisMonth": {
+          "title": "Công việc tháng này",
+          "value": "{count} việc",
+          "caption": "Bao gồm cả in màu và đen trắng",
+          "trendIncrease": "Tăng {percent}% so với tháng trước",
+          "trendDecrease": "Giảm {percent}% so với tháng trước"
+        },
+        "pagesLast30Days": {
+          "title": "Số trang đã in",
+          "value": "{count} trang",
+          "caption": "Tính trong phạm vi 30 ngày gần nhất"
+        },
+        "successRate": {
+          "title": "Tỷ lệ thành công",
+          "value": "{percent}%",
+          "caption": "Bao gồm hoàn tất và đang chờ",
+          "stable": "Ổn định",
+          "needsImprovement": "Cần cải thiện kết nối"
+        }
+      },
+      "table": {
+        "title": "Lịch sử in gần đây",
+        "description": "Tìm kiếm, lọc và sắp xếp lịch sử",
+        "searchPlaceholder": "Tìm theo tên tài liệu, máy in...",
+        "advancedFilters": "Bộ lọc nâng cao",
+        "columns": {
+          "document": "Tài liệu",
+          "printer": "Máy in",
+          "mode": "Chế độ",
+          "pages": "Trang",
+          "time": "Thời gian",
+          "status": "Trạng thái"
+        },
+        "noData": "Không có dữ liệu phù hợp với bộ lọc hiện tại.",
+        "error": "Có lỗi xảy ra khi tải dữ liệu. Vui lòng thử lại sau."
+      },
+      "filters": {
+        "status": {
+          "all": "Tất cả trạng thái",
+          "completed": "Thành công",
+          "processing": "Đang xử lý",
+          "queued": "Đang chờ",
+          "failed": "Lỗi"
+        },
+        "dateFrom": "Ngày bắt đầu",
+        "dateTo": "Ngày kết thúc",
+        "colorMode": {
+          "all": "Tất cả chế độ màu",
+          "color": "In màu",
+          "grayscale": "In xám",
+          "blackWhite": "Đen trắng"
+        },
+        "duplex": {
+          "all": "Tất cả chế độ mặt",
+          "doubleSided": "In 2 mặt",
+          "oneSided": "In 1 mặt"
+        },
+        "fileType": {
+          "all": "Tất cả định dạng",
+          "pdf": "PDF",
+          "docx": "DOCX",
+          "pptx": "PPTX",
+          "xlsx": "XLSX",
+          "jpg": "Ảnh (JPG/PNG)"
+        }
+      },
+      "row": {
+        "copies": "{count} bản",
+        "completedAt": "Kết thúc: {date}",
+        "colorMode": {
+          "color": "In màu",
+          "grayscale": "In xám",
+          "blackWhite": "Đen trắng"
+        },
+        "duplex": {
+          "doubleSided": "2 mặt",
+          "oneSided": "1 mặt"
+        },
+        "pages": "{count} trang"
+      },
+      "status": {
+        "completed": "Hoàn tất",
+        "processing": "Đang xử lý",
+        "queued": "Đang chờ",
+        "failed": "Lỗi"
+      },
+      "printerStatus": {
+        "online": "Đang hoạt động",
+        "maintenance": "Bảo trì",
+        "offline": "Ngoại tuyến",
+        "unknown": "Chưa rõ"
+      },
+      "detailModal": {
+        "title": "Chi tiết lịch sử in",
+        "viewFile": "Xem file in",
+        "viewLocation": "Xem vị trí",
+        "sections": {
+          "printer": {
+            "title": "Máy in",
+            "location": "Vị trí: {location}"
+          },
+          "printConfig": {
+            "title": "Cấu hình in",
+            "paperSize": "Khổ giấy",
+            "orientation": "Hướng giấy",
+            "orientationPortrait": "Dọc",
+            "orientationLandscape": "Ngang",
+            "colorMode": "Chế độ màu",
+            "colorModeColor": "In màu",
+            "colorModeGrayscale": "In xám",
+            "colorModeBlackWhite": "Đen trắng",
+            "printSide": "Mặt in",
+            "printSideDouble": "2 mặt",
+            "printSideOne": "1 mặt",
+            "copies": "Số bản",
+            "totalPages": "Tổng trang"
+          },
+          "time": {
+            "title": "Thời gian",
+            "submitted": "Gửi: {date}",
+            "completed": "Hoàn tất: {date}",
+            "estimatedCompletion": "Hoàn tất dự kiến: {date}"
+          },
+          "cost": {
+            "title": "Chi phí",
+            "subtotal": "Tạm tính",
+            "discount": "Giảm giá",
+            "payment": "Thanh toán",
+            "paymentMethod": "Phương thức"
+          }
+        },
+        "progress": {
+          "loading": "Đang tải tiến độ in...",
+          "error": "Không lấy được tiến độ in. Vui lòng thử lại sau.",
+          "title": "Tiến độ in",
+          "progress": "{printed} / {total} trang • {percent}%",
+          "queuePosition": "Vị trí trong hàng đợi: {position}",
+          "jobsAhead": "({count} job phía trước)",
+          "estimatedCompletion": "Ước tính hoàn tất: {date}"
+        }
+      }
     },
     "buyPages": {
       "title": "Nạp tiền",
@@ -426,7 +766,8 @@
         "bonusAmount": "Bonus",
         "totalReceived": "Tổng nhận được",
         "savings": "Tiết kiệm",
-        "packageName": "Tên gói"
+        "packageName": "Tên gói",
+        "noPackages": "Không có gói nạp tiền nào"
       },
       "custom": {
         "title": "Nạp số tiền tùy chọn",
@@ -434,7 +775,8 @@
         "amountLabel": "Số tiền (VND)",
         "amountPlaceholder": "Nhập số tiền",
         "depositAmount": "Số tiền nạp",
-        "pay": "Nạp tiền"
+        "pay": "Nạp tiền",
+        "creating": "Đang tạo..."
       },
       "qrModal": {
         "title": "Thanh toán QR Code",
@@ -460,6 +802,9 @@
         "cancelFailed": "Không thể hủy đơn nạp tiền",
         "minAmount": "Số tiền tối thiểu là 10,000 VND",
         "mustBeMultipleOf1000": "Số tiền phải là bội số của 1,000 VND"
+      },
+      "messages": {
+        "cancelSuccess": "Đã hủy đơn nạp tiền"
       },
       "cancelModal": {
         "title": "Xác nhận hủy đơn nạp tiền",
@@ -574,7 +919,16 @@
       "logOutSuccess": "Đăng xuất thành công",
       "badges": {
         "student": "Sinh viên",
-        "active": "Hoạt động"
+        "active": "Hoạt động",
+        "graduated": "Đã tốt nghiệp",
+        "suspended": "Tạm ngưng",
+        "withdrawn": "Thôi học"
+      },
+      "error": {
+        "title": "Không thể tải thông tin",
+        "message": "Đã xảy ra lỗi khi tải thông tin profile",
+        "retry": "Thử lại",
+        "notFound": "Không tìm thấy thông tin profile"
       },
       "balance": {
         "title": "SỐ DƯ",
@@ -590,6 +944,7 @@
       "academicDetails": {
         "title": "THÔNG TIN HỌC TẬP",
         "studentId": "Mã sinh viên",
+        "class": "Lớp",
         "faculty": "Khoa",
         "major": "Chuyên ngành",
         "academicYear": "Năm học"
@@ -610,7 +965,25 @@
       "editProfileModal": {
         "title": "Chỉnh sửa hồ sơ",
         "email": "Email",
+        "emailCannotChange": "Email không thể thay đổi",
         "phone": "Số điện thoại",
+        "phoneRequired": "Số điện thoại là bắt buộc",
+        "phoneInvalid": "Số điện thoại không hợp lệ",
+        "phoneMaxLength": "Tối đa 15 ký tự, chỉ chứa số (10-15 chữ số)",
+        "address": "Địa chỉ",
+        "addressMaxLength": "Địa chỉ không được vượt quá 500 ký tự",
+        "addressMaxLengthInfo": "Tối đa 500 ký tự ({count}/500)",
+        "profilePicture": "Ảnh đại diện",
+        "clickToSelect": "Nhấn để chọn ảnh đại diện",
+        "clickToChange": "Nhấn để thay đổi ảnh",
+        "clickToSelectOther": "Nhấn để chọn ảnh khác",
+        "fileFormatInfo": "JPG, JPEG, PNG, GIF, WEBP (tối đa 5MB)",
+        "cancel": "Hủy",
+        "submit": "Lưu thay đổi",
+        "submitting": "Đang xử lý...",
+        "success": "Cập nhật thông tin thành công",
+        "error": "Không thể cập nhật thông tin",
+        "noChanges": "Không có thay đổi nào để lưu",
         "otpCode": "Mã OTP",
         "sendOtp": "Gửi OTP",
         "sendingOtp": "Đang gửi...",
@@ -618,10 +991,6 @@
         "verifyOtp": "Xác thực",
         "verifyingOtp": "Đang xác thực...",
         "otpVerified": "Xác thực OTP thành công",
-        "submit": "Lưu thay đổi",
-        "submitting": "Đang xử lý...",
-        "success": "Cập nhật thông tin thành công",
-        "error": "Không thể cập nhật thông tin",
         "invalidOtp": "Mã OTP không hợp lệ",
         "emailChanged": "Email đã thay đổi. Vui lòng xác thực bằng mã OTP."
       }
@@ -645,7 +1014,11 @@
         "englishDescription": "Sử dụng tiếng Anh làm ngôn ngữ giao diện.",
         "vietnameseTitle": "Tiếng Việt",
         "vietnameseDescription": "Sử dụng tiếng Việt làm ngôn ngữ giao diện.",
-        "activeLabel": "Đang dùng"
+        "activeLabel": "Đang dùng",
+        "englishName": "Tiếng Anh",
+        "vietnameseName": "Tiếng Việt",
+        "usFlagAlt": "Cờ Mỹ",
+        "vietnamFlagAlt": "Cờ Việt Nam"
       },
       "dockPosition": {
         "title": "Vị trí App Dock",
@@ -668,7 +1041,11 @@
         "next": "Bài tiếp",
         "previous": "Bài trước",
         "autoPlay": "Tự động phát nhạc",
-        "autoPlayDescription": "Tự động phát nhạc khi vào trang"
+        "autoPlayDescription": "Tự động phát nhạc khi vào trang",
+        "loading": "Đang tải trình phát nhạc...",
+        "loop": "Lặp lại",
+        "loopOn": "Bật lặp lại",
+        "loopOff": "Tắt lặp lại"
       }
     }
   },
@@ -789,40 +1166,185 @@
         "deletePrinter": "Xóa Máy In",
         "confirmDeleteBrand": "Bạn có chắc chắn muốn xóa hãng này?",
         "confirmDeleteModel": "Bạn có chắc chắn muốn xóa model này?",
-        "confirmDeletePrinter": "Bạn có chắc chắn muốn xóa máy in này?"
+        "confirmDeletePrinter": "Bạn có chắc chắn muốn xóa máy in này?",
+        "cannotUndo": "Hành động này không thể hoàn tác.",
+        "deleting": "Đang xóa...",
+        "delete": "Xóa"
+      },
+      "modals": {
+        "editModel": {
+          "title": "Sửa Model Máy In",
+          "addTitle": "Thêm Model Máy In",
+          "image2D": "Hình ảnh 2D",
+          "model3D": "Model 3D",
+          "brand": "Hãng",
+          "modelName": "Tên Model",
+          "description": "Mô tả",
+          "maxPaperSize": "Khổ giấy tối đa",
+          "features": "Tính năng",
+          "supportsColor": "Hỗ trợ in màu",
+          "supportsDuplex": "Hỗ trợ in 2 mặt",
+          "change": "Thay đổi",
+          "remove": "Xóa",
+          "clickToUpload2D": "Click để tải lên hình 2D",
+          "clickToUpload3D": "Click để tải lên model 3D",
+          "fileFormat2D": "PNG, JPG (tối đa 5MB)",
+          "fileFormat3D": "GLB, USDZ, GLTF (tối đa 20MB)",
+          "selectBrand": "Chọn hãng",
+          "selectPaperSize": "Chọn khổ giấy",
+          "modelNamePlaceholder": "VD: LaserJet Pro M404dn",
+          "descriptionPlaceholder": "Mô tả về model máy in...",
+          "errors": {
+            "brandRequired": "Vui lòng chọn hãng",
+            "modelNameRequired": "Vui lòng nhập tên model",
+            "paperSizeRequired": "Vui lòng chọn khổ giấy tối đa",
+            "invalidImage2D": "Vui lòng chọn file hình ảnh (JPG, PNG)",
+            "image2DTooLarge": "Kích thước file không được vượt quá 5MB",
+            "invalidImage3D": "Vui lòng chọn file 3D (GLB, USDZ, GLTF)",
+            "image3DTooLarge": "Kích thước file không được vượt quá 20MB",
+            "load3DError": "Không thể tải model 3D. Vui lòng kiểm tra file.",
+            "saveError": "Có lỗi xảy ra khi lưu. Vui lòng thử lại."
+          },
+          "cancel": "Hủy",
+          "saving": "Đang lưu...",
+          "saveChanges": "Lưu thay đổi",
+          "addNew": "Thêm mới"
+        },
+        "editBrand": {
+          "title": "Sửa Hãng Máy In",
+          "addTitle": "Thêm Hãng Máy In",
+          "brandName": "Tên Hãng",
+          "country": "Quốc Gia",
+          "website": "Website",
+          "selectCountry": "Chọn quốc gia",
+          "brandNamePlaceholder": "VD: HP, Canon, Epson",
+          "websitePlaceholder": "https://www.example.com",
+          "websiteOptional": "(Tùy chọn) URL website của hãng",
+          "errors": {
+            "brandNameRequired": "Vui lòng nhập tên hãng",
+            "countryRequired": "Vui lòng chọn quốc gia",
+            "invalidUrl": "URL không hợp lệ",
+            "saveError": "Có lỗi xảy ra khi lưu. Vui lòng thử lại."
+          },
+          "cancel": "Hủy",
+          "saving": "Đang lưu...",
+          "saveChanges": "Lưu thay đổi",
+          "addBrand": "Thêm hãng"
+        },
+        "addBrand": {
+          "title": "Thêm Mới Hãng Máy In",
+          "brandName": "Tên Hãng",
+          "countryOfOrigin": "Quốc Gia Xuất Xứ",
+          "website": "Website",
+          "selectCountry": "Chọn quốc gia",
+          "brandNamePlaceholder": "VD: HP, Canon, Epson",
+          "websitePlaceholder": "https://www.example.com",
+          "websiteOptional": "(Tùy chọn) URL website của hãng",
+          "errors": {
+            "brandNameRequired": "Vui lòng nhập tên hãng",
+            "countryRequired": "Vui lòng chọn quốc gia xuất xứ",
+            "invalidUrl": "URL không hợp lệ. Ví dụ: https://www.example.com",
+            "saveError": "Có lỗi xảy ra khi lưu. Vui lòng thử lại."
+          },
+          "cancel": "Hủy",
+          "saving": "Đang lưu...",
+          "addNew": "Thêm mới"
+        },
+        "editPrinter": {
+          "title": "Sửa Máy In Vật Lý",
+          "addTitle": "Thêm Máy In Vật Lý",
+          "brand": "Hãng",
+          "model": "Model",
+          "serialNumber": "Serial Number",
+          "room": "Phòng",
+          "status": "Trạng thái",
+          "installedDate": "Ngày lắp đặt",
+          "lastMaintenanceDate": "Ngày bảo trì gần nhất",
+          "enablePrinter": "Kích hoạt máy in",
+          "selectBrand": "Chọn hãng",
+          "selectModel": "Chọn model",
+          "selectRoom": "Chọn phòng",
+          "serialNumberPlaceholder": "VD: SN123456789",
+          "errors": {
+            "brandRequired": "Vui lòng chọn hãng",
+            "modelRequired": "Vui lòng chọn model",
+            "serialRequired": "Vui lòng nhập số serial",
+            "roomRequired": "Vui lòng chọn phòng",
+            "installedDateRequired": "Vui lòng chọn ngày lắp đặt",
+            "saveError": "Có lỗi xảy ra khi lưu. Vui lòng thử lại."
+          },
+          "cancel": "Hủy",
+          "saving": "Đang lưu...",
+          "saveChanges": "Lưu thay đổi",
+          "addNew": "Thêm mới"
+        }
+      },
+      "messages": {
+        "pageSizeNotFound": "Không tìm thấy khổ giấy được chọn",
+        "roomNotFound": "Không tìm thấy phòng được chọn",
+        "modelNotFound": "Không tìm thấy model được chọn",
+        "updateModelSuccess": "Đã cập nhật model thành công!",
+        "addModelSuccess": "Đã thêm model mới thành công!",
+        "updateBrandSuccess": "Đã cập nhật hãng thành công!",
+        "addBrandSuccess": "Đã thêm hãng mới thành công!",
+        "updatePrinterSuccess": "Đã cập nhật máy in thành công!",
+        "addPrinterSuccess": "Đã thêm máy in mới thành công!",
+        "deleteBrandSuccess": "Đã xóa hãng \"{name}\" thành công!",
+        "deleteModelSuccess": "Đã xóa model \"{name}\" thành công!",
+        "deletePrinterSuccess": "Đã xóa máy in \"{name}\" thành công!",
+        "bulkDeleteBrandsSuccess": "Đã xóa {count} hãng thành công!",
+        "bulkDeleteModelsSuccess": "Đã xóa {count} model thành công!",
+        "bulkDeletePrintersSuccess": "Đã xóa {count} máy in thành công!",
+        "bulkUpdateStatusSuccess": "Đã cập nhật trạng thái {count} máy in thành công!",
+        "exportSuccess": "Đã xuất file Excel thành công!",
+        "importSuccess": "Import thành công: {success}/{total} dòng. {failed} dòng lỗi.",
+        "saveError": "Có lỗi xảy ra khi lưu. Vui lòng thử lại.",
+        "deleteError": "Có lỗi xảy ra khi xóa. Vui lòng thử lại.",
+        "exportError": "Có lỗi xảy ra khi xuất Excel. Vui lòng thử lại.",
+        "importError": "Có lỗi xảy ra khi nhập Excel. Vui lòng thử lại.",
+        "error": "Có lỗi xảy ra. Vui lòng thử lại.",
+        "actionNotSupported": "Chức năng \"{action}\" chưa được hỗ trợ",
+        "actionNotImplemented": "Chức năng \"{action}\" sẽ được triển khai"
+      },
+      "features": {
+        "selectFeatures": "Chọn tính năng...",
+        "selectedCount": "Đã chọn {count} tính năng"
       }
     },
     "manageStudents": {
       "title": "Quản lý người dùng",
       "description": "Xem và quản lý tài khoản người dùng",
       "stats": {
-        "totalStudents": "Tổng sinh viên",
+        "totalStudents": "Tổng người dùng",
         "activeStudents": "Đang hoạt động",
         "suspendedStudents": "Tạm dừng",
         "graduatedStudents": "Đã tốt nghiệp",
         "fromFaculties": "Từ {count} khoa",
-        "studentsStudying": "Sinh viên đang học",
+        "studentsStudying": "Người dùng đang hoạt động",
         "needsAttention": "Cần theo dõi",
         "completedProgram": "Hoàn thành chương trình"
       },
       "table": {
-        "title": "Danh sách sinh viên",
-        "subtitle": "Tìm kiếm, lọc và sắp xếp danh sách sinh viên",
+        "title": "Danh sách người dùng",
+        "subtitle": "Tìm kiếm, lọc và sắp xếp danh sách người dùng",
         "searchPlaceholder": "Tìm theo tên, mã SV, email...",
         "advancedFilters": "Bộ lọc nâng cao",
-        "addStudent": "Thêm sinh viên",
+        "addStudent": "Thêm người dùng",
         "studentCode": "Mã SV",
         "fullName": "Họ tên",
         "email": "Email",
         "faculty": "Khoa / Bộ môn",
         "majorClass": "Ngành / Lớp",
         "year": "Năm",
+        "accountType": "Loại tài khoản",
+        "accountTypeStudent": "Sinh viên",
+        "accountTypeStaff": "Nhân viên",
         "status": "Trạng thái",
         "enrollmentDate": "Ngày nhập học",
         "actions": "Thao tác",
         "noData": "Không có dữ liệu phù hợp với bộ lọc hiện tại.",
         "bulkActions": {
-          "selected": "Đã chọn {count} sinh viên",
+          "selected": "Đã chọn {count} người dùng",
           "activate": "Kích hoạt",
           "suspend": "Tạm dừng",
           "delete": "Xóa",
@@ -852,7 +1374,7 @@
       },
       "modal": {
         "detail": {
-          "title": "Chi tiết sinh viên",
+          "title": "Chi tiết người dùng",
           "studentCode": "Mã SV",
           "personalInfo": "Thông tin cá nhân",
           "academicInfo": "Thông tin học tập",
@@ -867,6 +1389,57 @@
           "edit": "Chỉnh sửa",
           "viewHistory": "Xem lịch sử"
         },
+        "edit": {
+          "tabs": {
+            "personal": "Thông tin cá nhân",
+            "account": "Tài khoản"
+          },
+          "account": {
+            "balance": {
+              "title": "Quản lý số dư",
+              "current": "Số dư hiện tại",
+              "credit": "Cộng tiền",
+              "debit": "Trừ tiền",
+              "noData": "Không có thông tin số dư"
+            },
+            "printStats": {
+              "title": "Thống kê in ấn",
+              "totalJobs": "Tổng số lệnh in",
+              "totalPages": "Tổng số trang đã in",
+              "totalAmount": "Tổng tiền đã chi",
+              "completed": "Lệnh in thành công",
+              "failed": "Lệnh in thất bại",
+              "thisMonth": "Tháng này",
+              "lastPrint": "Lần in gần nhất",
+              "mostUsedPrinter": "Máy in hay dùng nhất",
+              "jobs": "lệnh",
+              "pages": "trang",
+              "noData": "Không có thống kê in ấn"
+            },
+            "resetPassword": {
+              "title": "Đổi mật khẩu",
+              "newPasswordLabel": "Mật khẩu mới",
+              "optional": "Để trống sẽ tạo mật khẩu ngẫu nhiên",
+              "newPasswordPlaceholder": "Nhập mật khẩu mới (tùy chọn)",
+              "hint": "Nếu để trống, hệ thống sẽ tạo mật khẩu ngẫu nhiên và hiển thị cho bạn",
+              "sendEmail": "Gửi email thông báo cho người dùng",
+              "temporaryPassword": "Mật khẩu tạm thời",
+              "temporaryPasswordHint": "Vui lòng lưu lại mật khẩu này và cung cấp cho người dùng",
+              "submit": "Reset mật khẩu",
+              "processing": "Đang xử lý..."
+            }
+          }
+        },
+        "balance": {
+          "currentBalance": "Số dư hiện tại",
+          "creditButton": "Cộng tiền",
+          "debitButton": "Trừ tiền",
+          "totalDeposited": "Tổng đã nạp",
+          "totalSpent": "Tổng đã chi",
+          "totalBonus": "Tổng thưởng",
+          "totalRefunded": "Tổng hoàn trả",
+          "totalAdjustment": "Tổng điều chỉnh"
+        },
         "bulkStatus": {
           "title": "Cập nhật trạng thái {count} người dùng sang '{status}'",
           "description": "Bạn có chắc chắn muốn cập nhật trạng thái của {count} người dùng sang '{status}'?",
@@ -879,10 +1452,408 @@
           "cancel": "Hủy",
           "confirm": "Xác nhận",
           "processing": "Đang xử lý..."
+        },
+        "creditBalance": {
+          "title": "Cộng tiền cho {userName}",
+          "currentBalance": "Số dư hiện tại",
+          "amountLabel": "Số tiền",
+          "amountPlaceholder": "Nhập số tiền cần cộng",
+          "reasonLabel": "Lý do",
+          "reasonPlaceholder": "Nhập lý do cộng tiền...",
+          "referenceCodeLabel": "Mã tham chiếu",
+          "referenceCodePlaceholder": "Mã tham chiếu (tùy chọn)",
+          "referenceCodeHint": "Mã tham chiếu để liên kết với hệ thống bên ngoài",
+          "characters": "ký tự",
+          "cancelButton": "Hủy",
+          "confirmButton": "Xác nhận cộng tiền",
+          "processingButton": "Đang xử lý...",
+          "successMessage": "Cộng tiền thành công",
+          "errorMessage": "Có lỗi xảy ra khi cộng tiền",
+          "validation": {
+            "amountRequired": "Vui lòng nhập số tiền",
+            "amountMin": "Số tiền phải lớn hơn 0",
+            "reasonRequired": "Vui lòng nhập lý do",
+            "reasonMaxLength": "Lý do không được vượt quá 500 ký tự",
+            "referenceCodeMaxLength": "Mã tham chiếu không được vượt quá 100 ký tự"
+          }
+        },
+        "debitBalance": {
+          "title": "Trừ tiền cho {userName}",
+          "currentBalance": "Số dư hiện tại",
+          "balanceAfter": "Số dư sau khi trừ",
+          "insufficientBalance": "Số dư không đủ",
+          "amountLabel": "Số tiền",
+          "amountPlaceholder": "Nhập số tiền cần trừ",
+          "reasonLabel": "Lý do",
+          "reasonPlaceholder": "Nhập lý do trừ tiền...",
+          "referenceCodeLabel": "Mã tham chiếu",
+          "referenceCodePlaceholder": "Mã tham chiếu (tùy chọn)",
+          "referenceCodeHint": "Mã tham chiếu để liên kết với hệ thống bên ngoài",
+          "characters": "ký tự",
+          "cancelButton": "Hủy",
+          "confirmButton": "Xác nhận trừ tiền",
+          "processingButton": "Đang xử lý...",
+          "successMessage": "Trừ tiền thành công",
+          "errorMessage": "Có lỗi xảy ra khi trừ tiền",
+          "validation": {
+            "amountRequired": "Vui lòng nhập số tiền",
+            "amountMin": "Số tiền phải lớn hơn 0",
+            "amountExceedsBalance": "Số tiền vượt quá số dư hiện có",
+            "reasonRequired": "Vui lòng nhập lý do",
+            "reasonMaxLength": "Lý do không được vượt quá 500 ký tự",
+            "referenceCodeMaxLength": "Mã tham chiếu không được vượt quá 100 ký tự"
+          }
         }
       },
       "bulkAction": {
-        "alert": "Đã thực hiện \"{action}\" cho {count} sinh viên đã chọn"
+        "alert": "Đã thực hiện \"{action}\" cho {count} người dùng đã chọn"
+      },
+      "actions": {
+        "edit": "Sửa",
+        "delete": "Xóa",
+        "view": "Xem",
+        "close": "Đóng"
+      },
+      "errors": {
+        "loadUserFailed": "Không thể tải thông tin người dùng",
+        "deleteUserSuccess": "Xóa người dùng thành công",
+        "deleteUserFailed": "Có lỗi xảy ra khi xóa người dùng. Vui lòng thử lại.",
+        "updateUserSuccess": "Cập nhật thông tin người dùng thành công",
+        "updateUserFailed": "Có lỗi xảy ra khi cập nhật thông tin. Vui lòng thử lại.",
+        "resetPasswordSuccess": "Reset mật khẩu thành công",
+        "resetPasswordFailed": "Có lỗi xảy ra khi reset mật khẩu. Vui lòng thử lại.",
+        "createUserSuccess": "Tạo người dùng thành công",
+        "createUserFailed": "Có lỗi xảy ra khi tạo người dùng. Vui lòng thử lại.",
+        "invalidUserId": "ID người dùng không hợp lệ",
+        "loadBalanceFailed": "Không thể tải thông tin số dư",
+        "loadBalanceHistoryFailed": "Không thể tải lịch sử số dư. Vui lòng thử lại sau.",
+        "loadPrintStatsFailed": "Không thể tải thống kê in ấn. Vui lòng thử lại sau.",
+        "noUserSelected": "Không có thông tin người dùng. Vui lòng chọn người dùng để xem thông tin số dư.",
+        "noUserForHistory": "Không có thông tin người dùng. Vui lòng chọn người dùng để xem lịch sử số dư.",
+        "noUserForStats": "Không có thông tin người dùng. Vui lòng chọn người dùng để xem thống kê in ấn."
+      },
+      "loading": {
+        "userInfo": "Đang tải thông tin...",
+        "balanceInfo": "Đang tải thông tin số dư...",
+        "balanceHistory": "Đang tải lịch sử số dư...",
+        "printStats": "Đang tải thống kê in ấn...",
+        "saving": "Đang lưu...",
+        "creating": "Đang tạo...",
+        "processing": "Đang xử lý..."
+      },
+      "deleteModal": {
+        "title": "Xác nhận xóa người dùng",
+        "message": "Bạn có chắc chắn muốn xóa người dùng này?"
+      },
+      "addUserModal": {
+        "title": "Thêm Người Dùng Mới",
+        "userTypeLabel": "Loại người dùng",
+        "userTypeStudent": "Sinh viên",
+        "userTypeStaff": "Nhân viên",
+        "emailLabel": "Email",
+        "fullNameLabel": "Họ và tên",
+        "passwordLabel": "Mật khẩu",
+        "passwordHint": "Mật khẩu phải có ít nhất 6 ký tự",
+        "studentCodeLabel": "Mã sinh viên",
+        "enrollmentDateLabel": "Ngày nhập học",
+        "enrollmentDatePlaceholder": "Chọn ngày nhập học",
+        "classIdLabel": "Lớp học",
+        "classIdPlaceholder": "UUID của lớp học",
+        "classIdHint": "(Tùy chọn) Nhập UUID của lớp học",
+        "phoneNumberLabel": "Số điện thoại",
+        "dateOfBirthLabel": "Ngày sinh",
+        "dateOfBirthPlaceholder": "Chọn ngày sinh",
+        "genderLabel": "Giới tính",
+        "genderPlaceholder": "Chọn giới tính",
+        "genderMale": "Nam",
+        "genderFemale": "Nữ",
+        "genderOther": "Khác",
+        "citizenIdLabel": "CMND/CCCD",
+        "addressLabel": "Địa chỉ",
+        "cancelButton": "Hủy",
+        "submitButton": "Tạo người dùng",
+        "validation": {
+          "emailRequired": "Vui lòng nhập email",
+          "emailInvalid": "Email không hợp lệ",
+          "fullNameRequired": "Vui lòng nhập họ và tên",
+          "passwordRequired": "Vui lòng nhập mật khẩu",
+          "passwordMinLength": "Mật khẩu phải có ít nhất 6 ký tự",
+          "userTypeRequired": "Vui lòng chọn loại người dùng",
+          "studentCodeRequired": "Vui lòng nhập mã sinh viên"
+        }
+      },
+      "editUserModal": {
+        "title": "Sửa Thông Tin Người Dùng",
+        "loadingUserInfo": "Đang tải thông tin...",
+        "accountInfoTitle": "Thông tin tài khoản (Không thể chỉnh sửa)",
+        "locked": "Khóa",
+        "typeLabel": "Loại",
+        "typeStudent": "Sinh viên",
+        "typeStaff": "Nhân viên",
+        "fullNameLabel": "Họ và tên",
+        "studentCodeLabel": "Mã sinh viên",
+        "studentStatusLabel": "Trạng thái sinh viên",
+        "studentStatusPlaceholder": "Chọn trạng thái",
+        "studentStatusActive": "Đang học",
+        "studentStatusGraduated": "Đã tốt nghiệp",
+        "studentStatusSuspended": "Bị đình chỉ",
+        "studentStatusWithdrawn": "Thôi học",
+        "enrollmentDateLabel": "Ngày nhập học",
+        "enrollmentDatePlaceholder": "Chọn ngày nhập học",
+        "classIdLabel": "Lớp học",
+        "classIdPlaceholder": "UUID của lớp học",
+        "phoneNumberLabel": "Số điện thoại",
+        "dateOfBirthLabel": "Ngày sinh",
+        "dateOfBirthPlaceholder": "Chọn ngày sinh",
+        "genderLabel": "Giới tính",
+        "genderPlaceholder": "Chọn giới tính",
+        "genderMale": "Nam",
+        "genderFemale": "Nữ",
+        "genderOther": "Khác",
+        "citizenIdLabel": "CMND/CCCD",
+        "addressLabel": "Địa chỉ",
+        "cancelButton": "Hủy",
+        "saveButton": "Lưu thay đổi",
+        "closeButton": "Đóng",
+        "validation": {
+          "fullNameMaxLength": "Họ và tên không được vượt quá 100 ký tự",
+          "passwordMinLength": "Mật khẩu phải có ít nhất 8 ký tự",
+          "passwordMaxLength": "Mật khẩu không được vượt quá 100 ký tự"
+        }
+      },
+      "userHistoryModal": {
+        "title": "Lịch sử - {userName}",
+        "tabs": {
+          "balanceManagement": "Quản lý số dư",
+          "balanceHistory": "Lịch sử số dư",
+          "printStats": "Thống kê in ấn"
+        },
+        "sourceTypes": {
+          "DEPOSIT": "Nạp tiền",
+          "PAYMENT": "Thanh toán",
+          "REFUND": "Hoàn tiền",
+          "ADJUSTMENT": "Điều chỉnh",
+          "SEMESTER_BONUS": "Thưởng học kỳ"
+        },
+        "balanceAfter": "Số dư sau",
+        "page": "Trang",
+        "previous": "Trước",
+        "next": "Sau",
+        "noTransactionHistory": "Chưa có lịch sử giao dịch",
+        "noPrintStats": "Chưa có dữ liệu thống kê",
+        "printStats": {
+          "totalJobs": "Tổng lệnh in",
+          "totalPages": "Tổng trang in",
+          "totalCost": "Tổng chi phí",
+          "byStatus": "Theo trạng thái",
+          "byType": "Theo loại in",
+          "success": "Thành công",
+          "failed": "Thất bại",
+          "cancelled": "Đã hủy",
+          "pending": "Đang chờ",
+          "color": "In màu",
+          "blackWhite": "Đen trắng",
+          "duplex": "In 2 mặt"
+        }
+      },
+      "balanceWidget": {
+        "loading": "Đang tải thông tin số dư...",
+        "loadFailed": "Không thể tải thông tin số dư",
+        "lastUpdated": "Cập nhật"
+      }
+    },
+    "managePrintHistory": {
+      "title": "Quản lý lịch sử in",
+      "description": "Xem và phân tích lịch sử in ấn của toàn bộ hệ thống",
+      "stats": {
+        "totalJobs": "Tổng số công việc in",
+        "completedJobs": "Hoàn thành",
+        "failedJobs": "Thất bại",
+        "cancelledJobs": "Đã hủy",
+        "pendingPaymentJobs": "Chờ thanh toán",
+        "queuedJobs": "Đang chờ",
+        "printingJobs": "Đang in",
+        "totalPages": "Tổng số trang",
+        "completedPages": "Trang đã in",
+        "colorPages": "Trang màu",
+        "blackWhitePages": "Trang đen trắng",
+        "totalRevenue": "Doanh thu tổng",
+        "totalDiscount": "Tổng giảm giá",
+        "netRevenue": "Doanh thu thực tế",
+        "uniqueStudents": "Số sinh viên",
+        "successRate": "Tỷ lệ thành công"
+      },
+      "table": {
+        "title": "Lịch sử in ấn",
+        "subtitle": "Tìm kiếm, lọc và sắp xếp lịch sử in ấn",
+        "searchPlaceholder": "Tìm theo mã SV, tên sinh viên...",
+        "advancedFilters": "Bộ lọc nâng cao",
+        "jobId": "Mã công việc",
+        "createdAt": "Ngày tạo",
+        "student": "Sinh viên",
+        "printer": "Máy in",
+        "file": "File",
+        "pages": "Trang",
+        "price": "Giá",
+        "status": "Trạng thái",
+        "paymentMethod": "Phương thức thanh toán",
+        "actions": "Thao tác",
+        "viewDetail": "Xem chi tiết",
+        "noData": "Không có dữ liệu phù hợp với bộ lọc hiện tại."
+      },
+      "filters": {
+        "allStatuses": "Tất cả trạng thái",
+        "allFileTypes": "Tất cả loại file",
+        "allPaymentMethods": "Tất cả phương thức",
+        "allPrinters": "Tất cả máy in",
+        "status": "Trạng thái",
+        "fileType": "Loại file",
+        "paymentMethod": "Phương thức thanh toán",
+        "student": "Sinh viên",
+        "printer": "Máy in",
+        "dateFrom": "Từ ngày",
+        "dateTo": "Đến ngày",
+        "clearFilters": "Xóa bộ lọc"
+      },
+      "status": {
+        "queued": "Đang chờ",
+        "printing": "Đang in",
+        "completed": "Hoàn thành",
+        "failed": "Thất bại",
+        "cancelled": "Đã hủy",
+        "pending_payment": "Chờ thanh toán"
+      },
+      "paymentMethod": {
+        "balance": "Số dư",
+        "qr": "QR Code"
+      },
+      "modal": {
+        "detail": {
+          "title": "Chi tiết công việc in",
+          "jobInfo": "Thông tin công việc",
+          "jobId": "Mã công việc",
+          "createdAt": "Ngày tạo",
+          "startTime": "Thời gian bắt đầu",
+          "endTime": "Thời gian kết thúc",
+          "printStatus": "Trạng thái",
+          "studentInfo": "Thông tin sinh viên",
+          "studentCode": "Mã SV",
+          "studentName": "Họ tên",
+          "studentEmail": "Email",
+          "printerInfo": "Thông tin máy in",
+          "printerCode": "Mã máy in",
+          "printerName": "Tên máy in",
+          "location": "Vị trí",
+          "fileInfo": "Thông tin file",
+          "fileName": "Tên file",
+          "fileType": "Loại file",
+          "printConfig": "Cấu hình in",
+          "pageSize": "Khổ giấy",
+          "colorMode": "Chế độ màu",
+          "orientation": "Hướng giấy",
+          "printSide": "Mặt in",
+          "numberOfCopy": "Số bản",
+          "pricing": "Giá cả",
+          "subtotal": "Tổng tiền",
+          "discount": "Giảm giá",
+          "totalPrice": "Thành tiền",
+          "discountPackage": "Gói giảm giá",
+          "payment": "Thanh toán",
+          "paymentMethod": "Phương thức thanh toán",
+          "close": "Đóng"
+        }
+      },
+      "errors": {
+        "loadHistoryFailed": "Không thể tải lịch sử in. Vui lòng thử lại sau.",
+        "loadStatsFailed": "Không thể tải thống kê. Vui lòng thử lại sau."
+      }
+    },
+    "manageTransactions": {
+      "title": "Quản lý giao dịch",
+      "description": "Xem và phân tích lịch sử giao dịch ví của toàn bộ hệ thống",
+      "stats": {
+        "totalTransactions": "Tổng giao dịch",
+        "incomingTransactions": "Giao dịch vào",
+        "outgoingTransactions": "Giao dịch ra",
+        "totalInflow": "Tổng tiền vào",
+        "totalOutflow": "Tổng tiền ra",
+        "netFlow": "Dòng tiền ròng",
+        "depositTransactions": "Giao dịch nạp tiền",
+        "semesterBonusTransactions": "Giao dịch bonus học kỳ",
+        "paymentTransactions": "Giao dịch thanh toán",
+        "refundTransactions": "Giao dịch hoàn tiền",
+        "totalDeposits": "Tổng tiền nạp",
+        "totalSemesterBonus": "Tổng tiền bonus học kỳ",
+        "totalPayments": "Tổng tiền thanh toán",
+        "totalRefunds": "Tổng tiền hoàn",
+        "uniqueStudents": "Số sinh viên duy nhất"
+      },
+      "table": {
+        "title": "Lịch sử giao dịch",
+        "subtitle": "Tìm kiếm, lọc và sắp xếp lịch sử giao dịch",
+        "searchPlaceholder": "Tìm theo mã SV, tên sinh viên...",
+        "advancedFilters": "Bộ lọc nâng cao",
+        "createdAt": "Thời gian",
+        "student": "Sinh viên",
+        "sourceType": "Loại nguồn",
+        "direction": "Hướng",
+        "amount": "Số tiền",
+        "description": "Mô tả",
+        "actions": "Thao tác",
+        "viewDetail": "Xem chi tiết",
+        "noData": "Không có dữ liệu phù hợp với bộ lọc hiện tại."
+      },
+      "filters": {
+        "student": "Sinh viên (UUID)",
+        "dateFrom": "Từ ngày",
+        "dateTo": "Đến ngày",
+        "allDirections": "Tất cả hướng",
+        "directionIn": "Vào",
+        "directionOut": "Ra",
+        "allSourceTypes": "Tất cả loại nguồn",
+        "sourceTypeDeposit": "Nạp tiền",
+        "sourceTypeSemesterBonus": "Bonus học kỳ",
+        "sourceTypePayment": "Thanh toán",
+        "sourceTypeRefund": "Hoàn tiền",
+        "clearFilters": "Xóa bộ lọc"
+      },
+      "sourceTypes": {
+        "DEPOSIT": "Nạp tiền",
+        "SEMESTER_BONUS": "Bonus học kỳ",
+        "PAYMENT": "Thanh toán",
+        "REFUND": "Hoàn tiền"
+      },
+      "directions": {
+        "IN": "Vào",
+        "OUT": "Ra"
+      },
+      "modal": {
+        "detail": {
+          "title": "Chi tiết giao dịch",
+          "transactionInfo": "Thông tin giao dịch",
+          "ledgerId": "Mã giao dịch",
+          "createdAt": "Thời gian",
+          "amount": "Số tiền",
+          "direction": "Hướng",
+          "sourceType": "Loại nguồn",
+          "description": "Mô tả",
+          "studentInfo": "Thông tin sinh viên",
+          "studentCode": "Mã SV",
+          "studentName": "Họ tên",
+          "studentEmail": "Email",
+          "sourceInfo": "Thông tin nguồn",
+          "sourceId": "Mã nguồn",
+          "sourceTable": "Bảng nguồn",
+          "additionalInfo": "Thông tin bổ sung",
+          "paymentMethod": "Phương thức thanh toán",
+          "paymentReference": "Mã tham chiếu thanh toán",
+          "depositCode": "Mã đơn nạp tiền",
+          "printJobId": "Mã công việc in"
+        }
+      },
+      "errors": {
+        "loadHistoryFailed": "Không thể tải lịch sử giao dịch. Vui lòng thử lại sau.",
+        "loadStatsFailed": "Không thể tải thống kê. Vui lòng thử lại sau."
       }
     },
     "pageAllocation": {
@@ -1008,13 +1979,214 @@
         }
       }
     },
-    "systemLogs": {
-      "title": "Nhật ký hệ thống",
-      "description": "Xem hoạt động và nhật ký hệ thống"
-    },
     "reports": {
       "title": "Báo cáo",
-      "description": "Xem và tạo báo cáo hệ thống"
+      "description": "Xem và tạo báo cáo hệ thống",
+      "summary": {
+        "totalPrintJobs": "Tổng công việc in",
+        "totalPagesPrinted": "Tổng trang đã in",
+        "totalRevenue": "Tổng doanh thu",
+        "averageJobsPerDay": "TB công việc/ngày",
+        "successRate": "Tỷ lệ thành công",
+        "caption": {
+          "inSelectedPeriod": "Trong khoảng thời gian đã chọn",
+          "includingColorAndBW": "Bao gồm màu và đen trắng",
+          "fromPagePurchases": "Từ mua trang in",
+          "dailyAverage": "Trung bình hàng ngày",
+          "completedOverTotal": "Hoàn tất / Tổng số"
+        },
+        "trend": {
+          "stable": "Ổn định"
+        }
+      },
+      "filters": {
+        "title": "Bộ lọc thời gian",
+        "dateRanges": {
+          "7days": "7 ngày gần nhất",
+          "30days": "30 ngày gần nhất",
+          "90days": "90 ngày gần nhất",
+          "custom": "Tùy chỉnh"
+        },
+        "fromDate": "Từ ngày",
+        "toDate": "Đến ngày",
+        "reset": "Đặt lại"
+      },
+      "charts": {
+        "dailyJobTrends": {
+          "title": "Xu hướng công việc in theo ngày",
+          "description": "Phân tích công việc in theo trạng thái",
+          "legend": {
+            "completed": "Hoàn tất",
+            "failed": "Thất bại",
+            "cancelled": "Đã hủy"
+          }
+        },
+        "dailyPageAnalytics": {
+          "title": "Phân tích số trang in theo ngày",
+          "description": "Phân tích số trang in màu và đen trắng",
+          "legend": {
+            "colorPages": "Trang màu",
+            "bwPages": "Trang đen trắng"
+          },
+          "tooltip": {
+            "total": "Tổng",
+            "pages": "trang",
+            "color": "Màu",
+            "bw": "Đen trắng"
+          }
+        },
+        "topActivePrinters": {
+          "title": "Top máy in hoạt động",
+          "description": "Top 5 máy in có nhiều công việc nhất trong khoảng thời gian",
+          "legend": {
+            "jobCount": "Số công việc",
+            "pageCount": "Số trang"
+          },
+          "tooltip": {
+            "location": "Vị trí",
+            "serial": "Serial"
+          }
+        },
+        "monthlyRevenueTrends": {
+          "title": "Xu hướng doanh thu theo tháng",
+          "description": "Doanh thu in và tiền nạp theo từng tháng",
+          "legend": {
+            "printRevenue": "Doanh thu in",
+            "depositAmount": "Tiền nạp"
+          },
+          "tooltip": {
+            "totalJobs": "Tổng công việc",
+            "totalPages": "Tổng trang"
+          }
+        },
+        "printStatusDistribution": {
+          "title": "Phân bố trạng thái in",
+          "description": "Tỷ lệ các trạng thái công việc in",
+          "labels": {
+            "completed": "Hoàn tất",
+            "failed": "Thất bại",
+            "queued": "Đang chờ"
+          },
+          "tooltip": {
+            "quantity": "Số lượng"
+          }
+        },
+        "colorModeDistribution": {
+          "title": "Phân bố chế độ màu",
+          "description": "Tỷ lệ sử dụng các chế độ in",
+          "labels": {
+            "blackWhite": "Đen trắng",
+            "color": "In màu",
+            "grayscale": "In xám"
+          },
+          "noData": "Dữ liệu phân bố chế độ màu không khả dụng"
+        },
+        "paperSizeDistribution": {
+          "title": "Phân bố khổ giấy",
+          "description": "Sử dụng các khổ giấy khác nhau",
+          "legend": {
+            "count": "Số lượng"
+          },
+          "noData": "Dữ liệu phân bố khổ giấy không khả dụng"
+        },
+        "noData": "Không có dữ liệu"
+      },
+      "management": {
+        "title": "Quản lý báo cáo",
+        "tabs": {
+          "generate": "Tạo báo cáo",
+          "reports": "Báo cáo đã tạo"
+        },
+        "generate": {
+          "title": "Tạo báo cáo mới",
+          "monthly": "Tạo báo cáo tháng",
+          "yearly": "Tạo báo cáo năm",
+          "description": "Báo cáo sẽ được tạo và lưu vào hệ thống. Bạn có thể xem lại các báo cáo đã tạo ở tab \"Báo cáo đã tạo\"."
+        }
+      },
+      "list": {
+        "title": "Báo cáo đã tạo",
+        "filter": {
+          "all": "Tất cả",
+          "monthly": "Báo cáo tháng",
+          "yearly": "Báo cáo năm"
+        },
+        "columns": {
+          "type": "Loại",
+          "period": "Kỳ",
+          "createdAt": "Ngày tạo",
+          "createdBy": "Người tạo",
+          "actions": "Thao tác"
+        },
+        "type": {
+          "monthly": "Tháng",
+          "yearly": "Năm"
+        },
+        "period": {
+          "month": "Tháng {month}/{year}",
+          "year": "Năm {year}"
+        },
+        "viewDetail": "Xem chi tiết",
+        "pagination": {
+          "previous": "Trước",
+          "next": "Sau",
+          "page": "Trang {page}"
+        },
+        "empty": "Chưa có báo cáo nào được tạo",
+        "loading": "Đang tải danh sách báo cáo...",
+        "error": "Có lỗi xảy ra khi tải danh sách báo cáo"
+      },
+      "generateModal": {
+        "monthly": {
+          "title": "Tạo báo cáo tháng"
+        },
+        "yearly": {
+          "title": "Tạo báo cáo năm"
+        },
+        "year": "Năm",
+        "month": "Tháng",
+        "months": {
+          "1": "Tháng 1",
+          "2": "Tháng 2",
+          "3": "Tháng 3",
+          "4": "Tháng 4",
+          "5": "Tháng 5",
+          "6": "Tháng 6",
+          "7": "Tháng 7",
+          "8": "Tháng 8",
+          "9": "Tháng 9",
+          "10": "Tháng 10",
+          "11": "Tháng 11",
+          "12": "Tháng 12"
+        },
+        "cancel": "Hủy",
+        "submit": "Tạo báo cáo",
+        "submitting": "Đang tạo...",
+        "success": {
+          "monthly": "Đã tạo báo cáo tháng {month}/{year}",
+          "yearly": "Đã tạo báo cáo năm {year}"
+        },
+        "error": "Có lỗi xảy ra khi tạo báo cáo"
+      },
+      "detailModal": {
+        "title": "Chi tiết báo cáo",
+        "titleWithPeriod": "Chi tiết báo cáo - {period}",
+        "info": {
+          "title": "Thông tin báo cáo",
+          "type": "Loại",
+          "period": "Kỳ",
+          "fromDate": "Từ ngày",
+          "toDate": "Đến ngày",
+          "createdAt": "Ngày tạo",
+          "createdBy": "Người tạo"
+        },
+        "type": {
+          "monthly": "Báo cáo tháng",
+          "yearly": "Báo cáo năm"
+        },
+        "loading": "Đang tải dữ liệu báo cáo...",
+        "error": "Có lỗi xảy ra khi tải dữ liệu báo cáo"
+      }
     },
     "configuration": {
       "title": "Cấu hình",
@@ -1045,7 +2217,8 @@
         "saving": "Đang lưu...",
         "cancel": "Hủy",
         "saveSuccess": "Đã cập nhật giá khổ giấy thành công",
-        "saveError": "Có lỗi xảy ra khi cập nhật"
+        "saveError": "Có lỗi xảy ra khi cập nhật",
+        "currency": "VND"
       },
       "colorModePrices": {
         "title": "Hệ số giá theo chế độ màu",
@@ -1065,7 +2238,12 @@
         "saving": "Đang lưu...",
         "cancel": "Hủy",
         "saveSuccess": "Đã cập nhật hệ số giá thành công",
-        "saveError": "Có lỗi xảy ra khi cập nhật"
+        "saveError": "Có lỗi xảy ra khi cập nhật",
+        "colorModeNames": {
+          "blackWhite": "Đen trắng",
+          "color": "Màu",
+          "grayscale": "Xám"
+        }
       },
       "depositBonus": {
         "title": "Gói bonus nạp tiền",
@@ -1097,7 +2275,8 @@
         "createError": "Có lỗi xảy ra khi tạo gói bonus",
         "updateError": "Có lỗi xảy ra khi cập nhật",
         "deleteError": "Có lỗi xảy ra khi xóa",
-        "deleteConfirm": "Bạn có chắc chắn muốn xóa gói bonus này?"
+        "deleteConfirm": "Bạn có chắc chắn muốn xóa gói bonus này?",
+        "currency": "VND"
       },
       "pageDiscount": {
         "title": "Gói giảm giá theo số trang",
@@ -1193,7 +2372,31 @@
         "createSuccess": "Đã tạo bonus học kỳ thành công",
         "updateSuccess": "Đã cập nhật bonus học kỳ thành công",
         "createError": "Có lỗi xảy ra khi tạo bonus học kỳ",
-        "updateError": "Có lỗi xảy ra khi cập nhật"
+        "updateError": "Có lỗi xảy ra khi cập nhật",
+        "status": {
+          "distributed": "Đã phát",
+          "notDistributed": "Chưa phát - Ngày {date}",
+          "distributedCount": "Đã phát: {received}/{total} sinh viên"
+        },
+        "distributeButton": {
+          "redistribute": "Phát lại (nếu có sv mới)",
+          "distribute": "Phát thủ công"
+        },
+        "selectSemester": "Chọn học kỳ",
+        "loadingSemesters": "Đang tải danh sách học kỳ...",
+        "errorLoadingSemesters": "Lỗi khi tải danh sách học kỳ",
+        "allSemestersHaveBonus": "Tất cả học kỳ đã có bonus. Không thể tạo thêm.",
+        "optional": "(Tùy chọn)",
+        "distributionDateHint": {
+          "distributed": "Không thể thay đổi ngày phát vì bonus đã được phát rồi",
+          "notDistributed": "Để trống sẽ tự động dùng ngày bắt đầu học kỳ"
+        },
+        "distributeToast": {
+          "successWithFailed": "Phát thành công cho {newlyDistributed} sinh viên. {failed} sinh viên bị lỗi. Kiểm tra logs.",
+          "noNewStudents": "Không có sinh viên mới. {alreadyReceived} sinh viên đã nhận rồi.",
+          "success": "Đã phát {amount} VNĐ cho {count} sinh viên!"
+        },
+        "currency": "VND"
       },
       "generalConfig": {
         "title": "Cấu hình hệ thống chung",
@@ -1258,7 +2461,11 @@
         "englishDescription": "Sử dụng tiếng Anh làm ngôn ngữ giao diện.",
         "vietnameseTitle": "Tiếng Việt",
         "vietnameseDescription": "Sử dụng tiếng Việt làm ngôn ngữ giao diện.",
-        "activeLabel": "Đang dùng"
+        "activeLabel": "Đang dùng",
+        "englishName": "Tiếng Anh",
+        "vietnameseName": "Tiếng Việt",
+        "usFlagAlt": "Cờ Mỹ",
+        "vietnamFlagAlt": "Cờ Việt Nam"
       },
       "dockPosition": {
         "title": "Vị trí App Dock",
@@ -1281,7 +2488,11 @@
         "next": "Bài tiếp",
         "previous": "Bài trước",
         "autoPlay": "Tự động phát nhạc",
-        "autoPlayDescription": "Tự động phát nhạc khi vào trang"
+        "autoPlayDescription": "Tự động phát nhạc khi vào trang",
+        "loading": "Đang tải trình phát nhạc...",
+        "loop": "Lặp lại",
+        "loopOn": "Bật lặp lại",
+        "loopOff": "Tắt lặp lại"
       }
     }
   }

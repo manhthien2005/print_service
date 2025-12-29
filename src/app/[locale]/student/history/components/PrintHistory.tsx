@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useMemo, useState, useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 import type {
   PrintHistoryItem,
   StatusFilterValue,
@@ -27,6 +28,7 @@ import { HistoryTableSkeleton } from './HistoryTableSkeleton';
 import { PAGE_SIZE } from '@/app/[locale]/student/history/constants';
 
 export function PrintHistory() {
+  const t = useTranslations('student.history');
   const [status, setStatus] = useState<StatusFilterValue>('all');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
@@ -254,13 +256,20 @@ export function PrintHistory() {
       {/* Summary Cards */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         <SummaryCard
-          title="Công việc tháng này"
-          value={`${jobsThisMonth} việc`}
-          caption="Bao gồm cả in màu và đen trắng"
+          title={t('summary.jobsThisMonth.title')}
+          value={t('summary.jobsThisMonth.value', { count: jobsThisMonth })}
+          caption={t('summary.jobsThisMonth.caption')}
           trend={
             growthPercent !== 0
               ? {
-                  label: `${growthPercent > 0 ? 'Tăng' : 'Giảm'} ${Math.abs(growthPercent)}% so với tháng trước`,
+                  label:
+                    growthPercent > 0
+                      ? t('summary.jobsThisMonth.trendIncrease', {
+                          percent: Math.abs(growthPercent),
+                        })
+                      : t('summary.jobsThisMonth.trendDecrease', {
+                          percent: Math.abs(growthPercent),
+                        }),
                   positive: growthPercent > 0,
                 }
               : undefined
@@ -268,17 +277,20 @@ export function PrintHistory() {
           isLoading={statsLoading}
         />
         <SummaryCard
-          title="Số trang đã in"
-          value={`${pagesLast30Days} trang`}
-          caption="Tính trong phạm vi 30 ngày gần nhất"
+          title={t('summary.pagesLast30Days.title')}
+          value={t('summary.pagesLast30Days.value', { count: pagesLast30Days })}
+          caption={t('summary.pagesLast30Days.caption')}
           isLoading={statsLoading}
         />
         <SummaryCard
-          title="Tỷ lệ thành công"
-          value={`${successRate}%`}
-          caption="Bao gồm hoàn tất và đang chờ"
+          title={t('summary.successRate.title')}
+          value={t('summary.successRate.value', { percent: successRate })}
+          caption={t('summary.successRate.caption')}
           trend={{
-            label: successRate >= 95 ? 'Ổn định' : 'Cần cải thiện kết nối',
+            label:
+              successRate >= 95
+                ? t('summary.successRate.stable')
+                : t('summary.successRate.needsImprovement'),
             positive: successRate >= 95,
           }}
           isLoading={statsLoading}
@@ -290,10 +302,10 @@ export function PrintHistory() {
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div>
             <div className="text-lg font-semibold text-slate-900 dark:text-white">
-              Lịch sử in gần đây
+              {t('table.title')}
             </div>
             <div className="text-sm text-slate-500 dark:text-white/60">
-              Tìm kiếm, lọc và sắp xếp lịch sử
+              {t('table.description')}
             </div>
           </div>
 
@@ -316,7 +328,7 @@ export function PrintHistory() {
                 value={search}
                 onChange={e => setSearch(e.target.value)}
                 className="ml-2 w-56 bg-transparent text-slate-800 outline-none placeholder:text-slate-400 dark:text-white"
-                placeholder="Tìm theo tên tài liệu, máy in..."
+                placeholder={t('table.searchPlaceholder')}
               />
             </div>
 
@@ -341,7 +353,7 @@ export function PrintHistory() {
                   d="M3 6h18M7 12h10M10 18h4"
                 />
               </svg>
-              Bộ lọc nâng cao
+              {t('table.advancedFilters')}
             </Button>
           </div>
         </div>
@@ -367,7 +379,7 @@ export function PrintHistory() {
             <HistoryTableSkeleton />
           ) : historyError ? (
             <div className="rounded-xl border border-rose-200/70 bg-rose-50/80 px-4 py-10 text-center text-sm text-rose-700 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-200">
-              Có lỗi xảy ra khi tải dữ liệu. Vui lòng thử lại sau.
+              {t('table.error')}
             </div>
           ) : (
             <>

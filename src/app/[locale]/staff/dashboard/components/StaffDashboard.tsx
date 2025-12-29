@@ -1,12 +1,6 @@
 'use client';
 
-import { useDashboardPrinterStats } from '@/lib/api/services/dashboard';
-import {
-  useDashboardOverview,
-  useWeeklyActivity,
-  usePaperUsage,
-} from '@/lib/api/services/staffReports';
-// import { Card } from '@/components/ui/Card'; // Not used currently
+import { useDashboardOverview } from '@/lib/api/services/staffReports';
 import { Button } from '@/components/ui/Button';
 import StaffDashboardSkeleton from '@/app/[locale]/staff/dashboard/components/StaffDashboardSkeleton';
 import { DashboardStats } from '@/app/[locale]/staff/dashboard/components/DashboardStats';
@@ -19,21 +13,14 @@ import type { AlertItem } from '@/app/[locale]/staff/dashboard/components/Alerts
 export default function StaffDashboard({ locale, t }: StaffDashboardProps) {
   const staff = t.staff ?? {};
   const {
-    data: printerStatsData,
-    isLoading: isLoadingPrinters,
-    error: printerError,
-    refetch: refetchPrinters,
-  } = useDashboardPrinterStats();
-  const {
     data: dashboardOverviewData,
     isLoading: isLoadingOverview,
     error: overviewError,
+    refetch: refetchDashboard,
   } = useDashboardOverview();
-  const { data: weeklyActivityData } = useWeeklyActivity();
-  const { data: paperUsageData } = usePaperUsage();
 
-  const isLoading = isLoadingPrinters || isLoadingOverview;
-  const error = printerError || overviewError;
+  const isLoading = isLoadingOverview;
+  const error = overviewError;
 
   // Handle loading state
   if (isLoading) {
@@ -52,74 +39,80 @@ export default function StaffDashboard({ locale, t }: StaffDashboardProps) {
         </div>
         <div className="border-destructive/20 bg-destructive/10 rounded-xl border p-8 text-center">
           <h3 className="mb-2 text-lg font-semibold text-destructive">
-            Không thể tải thống kê
+            {staff.errors?.loadStatsFailed || 'Failed to load statistics'}
           </h3>
           <p className="text-destructive/80 mb-4">
             {error instanceof Error
               ? error.message
-              : 'Đã xảy ra lỗi khi tải dữ liệu dashboard'}
+              : staff.errors?.loadDataFailed ||
+                'An error occurred while loading dashboard data'}
           </p>
           <Button
             onClick={() => {
-              refetchPrinters();
-              // Note: useDashboardOverview doesn't expose refetch directly, but it will auto-refetch
+              refetchDashboard();
             }}
             className="hover:bg-destructive/90 bg-destructive text-destructive-foreground"
           >
-            Thử lại
+            {staff.errors?.tryAgain || 'Try again'}
           </Button>
         </div>
       </div>
     );
   }
 
-  // Extract data from API responses
-  const statsData = printerStatsData?.data?.data;
+  // Extract data from API response
   const overviewData = dashboardOverviewData?.data?.data;
-  const weeklyActivity =
-    weeklyActivityData?.data?.data || overviewData?.weeklyActivity || [];
-  const paperUsage =
-    paperUsageData?.data?.data || overviewData?.paperSizeUsage || [];
 
-  if (!statsData || !overviewData) {
-    return <StaffDashboardSkeleton />;
+  if (!overviewData) {
+    return <StaffDashboardSkeleton t={t} />;
   }
+
+  // Map printer status from API
+  const printerStatus = overviewData.printerStatus;
+  const totalPrinters = overviewData.totalPrinters;
+
+  // Calculate offline printers (total - idle - printing - maintained - unplugged - error)
+  const offlinePrinters =
+    totalPrinters -
+    printerStatus.idle -
+    printerStatus.printing -
+    printerStatus.maintained -
+    printerStatus.unplugged -
+    printerStatus.error;
 
   // Map API response to component props
   const printerStats = {
-    totalPrinters: statsData.totalPrinters,
-    activePrinters: statsData.activePrinters,
-    maintenancePrinters: statsData.maintenancePrinters || 0,
-    offlinePrinters:
-      statsData.totalPrinters -
-      statsData.activePrinters -
-      (statsData.maintenancePrinters || 0),
+    totalPrinters,
+    activePrinters: printerStatus.idle + printerStatus.printing, // For compatibility
+    maintenancePrinters: printerStatus.maintained,
+    offlinePrinters: Math.max(0, offlinePrinters), // Ensure non-negative
+    idle: printerStatus.idle,
+    printing: printerStatus.printing,
+    unplugged: printerStatus.unplugged,
+    error: printerStatus.error,
   };
 
-  // Calculate utilization (active / total * 100)
-  const utilization =
-    statsData.totalPrinters > 0
-      ? Math.round((statsData.activePrinters / statsData.totalPrinters) * 100)
-      : 0;
-
-  // Prepare stats for DashboardStats component
+  // Prepare stats for DashboardStats component (removed printersOnline)
   const dashboardStats = {
-    totalPrinters: statsData.totalPrinters,
-    activePrinters: statsData.activePrinters,
-    maintenancePrinters: statsData.maintenancePrinters || 0,
-    totalBrands: statsData.totalBrands || 0,
-    totalModels: statsData.totalModels || 0,
-    maintenanceWarning: statsData.maintenanceWarning || 0,
     jobsToday: overviewData.jobsToday,
+    jobsThisMonth: overviewData.jobsThisMonth,
     totalPagesThisMonth: overviewData.totalPagesThisMonth,
+    revenueToday: overviewData.revenueToday,
+    revenueThisMonth: overviewData.revenueThisMonth,
+    activeStudents: overviewData.activeStudents,
+    newStudentsThisMonth: overviewData.newStudentsThisMonth,
+    queuedJobs: overviewData.queuedJobs,
+    printingJobs: overviewData.printingJobs,
   };
 
   // Map weekly activity from API to chart format
-  const mappedWeeklyActivity = weeklyActivity.map(item => ({
-    day: item.dayName,
-    jobs: item.jobCount,
-    pages: item.pageCount,
-  }));
+  const mappedWeeklyActivity = (overviewData.weeklyActivity || []).map(
+    item => ({
+      day: item.dayName,
+      jobs: item.jobCount,
+      pages: item.pageCount,
+    })
+  );
 
   // Map paper usage from API to chart format with colors
   const paperSizeColors: Record<string, string> = {
@@ -129,15 +122,16 @@ export default function StaffDashboard({ locale, t }: StaffDashboardProps) {
     Letter: '#8b5cf6',
     Legal: '#ec4899',
   };
-  const mappedPaperUsage = paperUsage.map(item => ({
+  const mappedPaperUsage = (overviewData.paperSizeUsage || []).map(item => ({
     name: item.sizeName,
     value: item.percentage, // Use percentage as value for pie chart
+    count: item.count, // Include count for tooltip
     color: paperSizeColors[item.sizeName] || '#64748b',
   }));
 
   // Map recent activities to alerts format
   const mappedAlerts: AlertItem[] = (overviewData.recentActivities || [])
-    .slice(0, 2)
+    .slice(0, 4) // Show up to 4 recent activities (no scroll)
     .map((activity, index) => {
       // Determine severity based on activity type and status
       let severity: 'info' | 'warning' | 'critical' = 'info';
@@ -155,26 +149,43 @@ export default function StaffDashboard({ locale, t }: StaffDashboardProps) {
       const now = new Date();
       const diffMs = now.getTime() - timestamp.getTime();
       const diffMins = Math.floor(diffMs / 60000);
-      let timeLabel = 'Vừa xong';
+      let timeLabel = staff.time?.justNow || 'Just now';
       if (diffMins < 1) {
-        timeLabel = 'Vừa xong';
+        timeLabel = staff.time?.justNow || 'Just now';
       } else if (diffMins < 60) {
-        timeLabel = `${diffMins} phút trước`;
+        timeLabel = (staff.time?.minutesAgo || '{minutes} minutes ago').replace(
+          '{minutes}',
+          diffMins.toString()
+        );
       } else if (diffMins < 1440) {
         const hours = Math.floor(diffMins / 60);
-        timeLabel = `${hours} giờ trước`;
+        timeLabel = (staff.time?.hoursAgo || '{hours} hours ago').replace(
+          '{hours}',
+          hours.toString()
+        );
       } else {
         const days = Math.floor(diffMins / 1440);
-        timeLabel = `${days} ngày trước`;
+        timeLabel = (staff.time?.daysAgo || '{days} days ago').replace(
+          '{days}',
+          days.toString()
+        );
       }
+
+      // Build title with student info
+      const title = activity.description || activity.type;
+      const studentInfo = activity.studentName
+        ? `${activity.studentName} (${activity.studentCode})`
+        : activity.studentCode || '';
 
       return {
         id: activity.id || `activity-${index}`,
-        title: activity.description || activity.type,
+        title: studentInfo ? `${title} - ${studentInfo}` : title,
         time: timeLabel,
         severity,
         actionLabel:
-          activity.status === 'completed' ? 'Xem chi tiết' : undefined,
+          activity.status === 'completed'
+            ? staff.actions?.viewDetails || 'View details'
+            : undefined,
       };
     });
 
@@ -190,11 +201,20 @@ export default function StaffDashboard({ locale, t }: StaffDashboardProps) {
       <DashboardStats
         stats={dashboardStats}
         translations={{
-          printersOnline: staff.stats?.printersOnline ?? 'Máy in trực tuyến',
-          jobsToday: staff.stats?.jobsToday ?? 'Công việc hôm nay',
-          pagesMonth: staff.stats?.pagesMonth ?? 'Trang tháng này',
-          totalCaption: staff.stats?.caption?.total ?? 'Tổng {total} máy',
-          lastJobCaption: staff.stats?.caption?.lastJob ?? 'Công việc gần nhất',
+          jobsToday: staff.stats?.jobsToday ?? 'Jobs today',
+          pagesMonth: staff.stats?.pagesMonth ?? 'Pages this month',
+          revenueToday: staff.stats?.revenueToday ?? 'Revenue today',
+          revenueMonth: staff.stats?.revenueMonth ?? 'Revenue this month',
+          activeStudents: staff.stats?.activeStudents ?? 'Active students',
+          jobsLabel: staff.stats?.jobs || 'jobs',
+          pagesLabel: staff.stats?.pages || 'pages',
+          kPagesLabel: staff.stats?.kPages || '{k}K pages',
+          currencyLabel: staff.stats?.currency || 'VND',
+          thisMonth: staff.stats?.thisMonth || 'this month',
+          now: staff.stats?.now || 'Now',
+          printing: staff.stats?.printing || 'printing',
+          queued: staff.stats?.queued || 'queued',
+          new: staff.stats?.new || 'new',
         }}
       />
 
@@ -204,43 +224,51 @@ export default function StaffDashboard({ locale, t }: StaffDashboardProps) {
         paperSizeUsage={mappedPaperUsage}
         translations={{
           weekly: {
-            title: staff.weekly?.title ?? 'Hoạt động in theo tuần',
+            title: staff.weekly?.title ?? 'Weekly activity',
             description:
-              staff.weekly?.description ?? 'Thống kê công việc và trang in',
-            jobs: staff.weekly?.jobs ?? 'Công việc',
-            pages: staff.weekly?.pages ?? 'Trang',
+              staff.weekly?.description ?? 'Completed jobs and pages',
+            jobs: staff.weekly?.jobs ?? 'Jobs',
+            pages: staff.weekly?.pages ?? 'Pages',
           },
           paper: {
-            title: staff.paper?.title ?? 'Sử dụng khổ giấy',
-            description: staff.paper?.description ?? 'Phân bố các khổ giấy',
+            title: staff.paper?.title ?? 'Paper size usage',
+            description: staff.paper?.description ?? 'Share of paper sizes',
           },
+          ratioLabel: staff.charts?.ratio || 'Ratio',
+          countLabel: staff.charts?.count || 'Count',
         }}
       />
 
       {/* Printer Status & Alerts */}
-      <div className="grid items-stretch gap-6 lg:grid-cols-[2fr,1fr]">
+      <div className="grid items-start gap-6 lg:grid-cols-[1.5fr,1fr]">
         <PrinterStatusCard
           stats={printerStats}
-          utilization={utilization}
           locale={locale}
           translations={{
-            title: staff.printer?.title ?? 'Trạng thái máy in',
-            description: staff.printer?.description ?? 'Tổng quan hệ thống',
+            title: staff.printer?.title ?? 'Printer Status',
+            description:
+              staff.printer?.description ?? 'Health and utilization overview',
             online: staff.printer?.online ?? 'Online',
             offline: staff.printer?.offline ?? 'Offline',
             maintenance: staff.printer?.maintenance ?? 'Maintenance',
+            idle: staff.printer?.idle ?? 'Idle',
+            printing: staff.printer?.printing ?? 'Printing',
+            unplugged: staff.printer?.unplugged ?? 'Unplugged',
+            error: staff.printer?.error ?? 'Error',
+            total: staff.printer?.total || 'Total',
             utilization: staff.printer?.utilization ?? 'Utilization',
             utilizationLabel:
               staff.printer?.utilizationLabel ?? 'System utilization',
-            cta: staff.printer?.cta ?? 'Go to printers',
+            cta: staff.printer?.cta ?? 'Manage printers',
           }}
         />
 
         <AlertsCard
           alerts={mappedAlerts}
           translations={{
-            title: staff.alerts?.title ?? 'Cảnh báo',
-            description: staff.alerts?.description ?? 'Thông báo hệ thống',
+            title: staff.alerts?.title ?? 'Alerts',
+            description: staff.alerts?.description ?? 'Items to resolve soon',
+            noActivities: staff.alerts?.noActivities || 'No recent activities',
             severity: {
               critical: staff.alerts?.severity?.critical ?? 'Critical',
               warning: staff.alerts?.severity?.warning ?? 'Warning',

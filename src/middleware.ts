@@ -20,10 +20,11 @@ const staffRoutes = [
   '/staff/dashboard',
   '/staff/manage-students',
   '/staff/manage-printers',
+  '/staff/manage-print-history',
+  '/staff/manage-transactions',
   '/staff/reports',
   '/staff/settings',
   '/staff/configuration',
-  '/staff/system-logs',
   '/staff/page-allocation',
 ];
 

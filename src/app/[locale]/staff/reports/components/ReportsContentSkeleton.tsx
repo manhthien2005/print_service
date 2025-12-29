@@ -2,8 +2,11 @@
 
 import { Skeleton } from '@/components/common/Skeleton';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
+import { useTranslations } from 'next-intl';
 
 export default function ReportsContentSkeleton() {
+  const t = useTranslations('staff.reports');
+
   return (
     <div className="flex flex-col gap-6">
       {/* Summary Cards Skeleton */}
@@ -27,11 +30,11 @@ export default function ReportsContentSkeleton() {
         ))}
       </div>
 
-      {/* Filters Card - giữ nguyên vì là UI controls */}
+      {/* Filters Card */}
       <Card className="border-slate-200/70 bg-white/80 shadow-[0_10px_40px_rgba(15,23,42,0.08)] backdrop-blur dark:border-white/10 dark:bg-white/5 dark:shadow-[0_20px_60px_rgba(0,0,0,0.35)]">
         <CardHeader>
           <CardTitle className="text-lg font-semibold text-slate-900 dark:text-white">
-            Bộ lọc thời gian
+            {t('filters.title')}
           </CardTitle>
         </CardHeader>
         <CardContent>

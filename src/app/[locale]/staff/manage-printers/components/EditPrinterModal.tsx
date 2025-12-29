@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -38,6 +39,7 @@ export const EditPrinterModal: React.FC<EditPrinterModalProps> = ({
   rooms,
   onSave,
 }) => {
+  const t = useTranslations('staff.managePrinters.modals.editPrinter');
   const [formData, setFormData] = useState<Partial<PrinterPhysical>>({
     brandName: '',
     modelName: '',
@@ -90,19 +92,19 @@ export const EditPrinterModal: React.FC<EditPrinterModalProps> = ({
     const newErrors: Record<string, string> = {};
 
     if (!formData.brandName) {
-      newErrors.brandName = 'Vui lòng chọn hãng';
+      newErrors.brandName = t('errors.brandRequired');
     }
     if (!formData.modelName) {
-      newErrors.modelName = 'Vui lòng chọn model';
+      newErrors.modelName = t('errors.modelRequired');
     }
     if (!formData.serialNumber?.trim()) {
-      newErrors.serialNumber = 'Vui lòng nhập số serial';
+      newErrors.serialNumber = t('errors.serialRequired');
     }
     if (!formData.roomName) {
-      newErrors.roomName = 'Vui lòng chọn phòng';
+      newErrors.roomName = t('errors.roomRequired');
     }
     if (!formData.installedDate) {
-      newErrors.installedDate = 'Vui lòng chọn ngày lắp đặt';
+      newErrors.installedDate = t('errors.installedDateRequired');
     }
 
     setErrors(newErrors);
@@ -133,7 +135,7 @@ export const EditPrinterModal: React.FC<EditPrinterModalProps> = ({
     } catch (error) {
       console.error('Error saving printer:', error);
       setErrors({
-        submit: 'Có lỗi xảy ra khi lưu. Vui lòng thử lại.',
+        submit: t('errors.saveError'),
       });
     } finally {
       setIsLoading(false);
@@ -151,7 +153,7 @@ export const EditPrinterModal: React.FC<EditPrinterModalProps> = ({
     <Modal
       isOpen={isOpen}
       onClose={handleClose}
-      title={printer ? 'Sửa Máy In Vật Lý' : 'Thêm Máy In Vật Lý'}
+      title={printer ? t('title') : t('addTitle')}
       size="lg"
     >
       <form onSubmit={handleSubmit} className="p-6 pb-6">
@@ -164,7 +166,7 @@ export const EditPrinterModal: React.FC<EditPrinterModalProps> = ({
                 htmlFor="brandName"
                 className="text-sm font-medium text-slate-700 dark:text-slate-300"
               >
-                Hãng <span className="text-red-500">*</span>
+                {t('brand')} <span className="text-red-500">*</span>
               </label>
               <Select
                 id="brandName"
@@ -173,7 +175,7 @@ export const EditPrinterModal: React.FC<EditPrinterModalProps> = ({
                 error={!!errors.brandName}
                 className="rounded-lg border-slate-200/50 bg-white/50 text-slate-900 backdrop-blur-sm focus-visible:ring-slate-400 dark:border-white/10 dark:bg-slate-800/30 dark:text-white dark:focus-visible:ring-white/30"
               >
-                <option value="">Chọn hãng</option>
+                <option value="">{t('selectBrand')}</option>
                 {brands.map(brand => (
                   <option key={brand} value={brand}>
                     {brand}
@@ -193,7 +195,7 @@ export const EditPrinterModal: React.FC<EditPrinterModalProps> = ({
                 htmlFor="modelName"
                 className="text-sm font-medium text-slate-700 dark:text-slate-300"
               >
-                Model <span className="text-red-500">*</span>
+                {t('model')} <span className="text-red-500">*</span>
               </label>
               <Select
                 id="modelName"
@@ -202,7 +204,7 @@ export const EditPrinterModal: React.FC<EditPrinterModalProps> = ({
                 error={!!errors.modelName}
                 className="rounded-lg border-slate-200/50 bg-white/50 text-slate-900 backdrop-blur-sm focus-visible:ring-slate-400 dark:border-white/10 dark:bg-slate-800/30 dark:text-white dark:focus-visible:ring-white/30"
               >
-                <option value="">Chọn model</option>
+                <option value="">{t('selectModel')}</option>
                 {models.map(model => (
                   <option key={model} value={model}>
                     {model}
@@ -225,7 +227,7 @@ export const EditPrinterModal: React.FC<EditPrinterModalProps> = ({
                 htmlFor="serialNumber"
                 className="text-sm font-medium text-slate-700 dark:text-slate-300"
               >
-                Số Serial <span className="text-red-500">*</span>
+                {t('serialNumber')} <span className="text-red-500">*</span>
               </label>
               <Input
                 id="serialNumber"
@@ -233,7 +235,7 @@ export const EditPrinterModal: React.FC<EditPrinterModalProps> = ({
                 onChange={e =>
                   handleInputChange('serialNumber', e.target.value)
                 }
-                placeholder="VD: SN123456789"
+                placeholder={t('serialNumberPlaceholder')}
                 error={!!errors.serialNumber}
                 className="rounded-lg border-slate-200/50 bg-white/50 text-slate-900 backdrop-blur-sm placeholder:text-slate-400 focus-visible:ring-slate-400 dark:border-white/10 dark:bg-slate-800/30 dark:text-white dark:placeholder:text-slate-500 dark:focus-visible:ring-white/30"
               />
@@ -250,7 +252,7 @@ export const EditPrinterModal: React.FC<EditPrinterModalProps> = ({
                 htmlFor="roomName"
                 className="text-sm font-medium text-slate-700 dark:text-slate-300"
               >
-                Phòng <span className="text-red-500">*</span>
+                {t('room')} <span className="text-red-500">*</span>
               </label>
               <Select
                 id="roomName"
@@ -259,7 +261,7 @@ export const EditPrinterModal: React.FC<EditPrinterModalProps> = ({
                 error={!!errors.roomName}
                 className="rounded-lg border-slate-200/50 bg-white/50 text-slate-900 backdrop-blur-sm focus-visible:ring-slate-400 dark:border-white/10 dark:bg-slate-800/30 dark:text-white dark:focus-visible:ring-white/30"
               >
-                <option value="">Chọn phòng</option>
+                <option value="">{t('selectRoom')}</option>
                 {rooms.map(room => (
                   <option key={room} value={room}>
                     {room}
@@ -282,7 +284,7 @@ export const EditPrinterModal: React.FC<EditPrinterModalProps> = ({
                 htmlFor="installedDate"
                 className="text-sm font-medium text-slate-700 dark:text-slate-300"
               >
-                Ngày Lắp Đặt <span className="text-red-500">*</span>
+                {t('installedDate')} <span className="text-red-500">*</span>
               </label>
               <Input
                 id="installedDate"
@@ -307,7 +309,7 @@ export const EditPrinterModal: React.FC<EditPrinterModalProps> = ({
                 htmlFor="lastMaintenanceDate"
                 className="text-sm font-medium text-slate-700 dark:text-slate-300"
               >
-                Ngày Bảo Trì Cuối
+                {t('lastMaintenanceDate')}
               </label>
               <Input
                 id="lastMaintenanceDate"
@@ -324,7 +326,7 @@ export const EditPrinterModal: React.FC<EditPrinterModalProps> = ({
           {/* Enabled Status */}
           <div className="space-y-2">
             <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
-              Trạng Thái
+              {t('status')}
             </label>
             <label className="flex cursor-pointer items-center gap-2">
               <Checkbox
@@ -332,7 +334,7 @@ export const EditPrinterModal: React.FC<EditPrinterModalProps> = ({
                 onChange={e => handleInputChange('isEnabled', e.target.checked)}
               />
               <span className="text-sm text-slate-700 dark:text-slate-300">
-                Kích hoạt máy in
+                {t('enablePrinter')}
               </span>
             </label>
           </div>
@@ -353,7 +355,7 @@ export const EditPrinterModal: React.FC<EditPrinterModalProps> = ({
               disabled={isLoading}
               className="border border-slate-300 bg-slate-200/80 text-slate-900 hover:border-slate-400 hover:bg-slate-300/90 dark:border-white/20 dark:bg-slate-700/80 dark:text-white dark:hover:border-white/30 dark:hover:bg-slate-600/90"
             >
-              Hủy
+              {t('cancel')}
             </Button>
             <Button
               type="submit"
@@ -361,10 +363,10 @@ export const EditPrinterModal: React.FC<EditPrinterModalProps> = ({
               className="border border-blue-700 bg-blue-700/80 text-white hover:border-blue-800 hover:bg-blue-800/90 dark:border-blue-600 dark:bg-blue-600/80 dark:hover:border-blue-700 dark:hover:bg-blue-700/90"
             >
               {isLoading
-                ? 'Đang lưu...'
+                ? t('saving')
                 : printer
-                  ? 'Lưu thay đổi'
-                  : 'Thêm máy in'}
+                  ? t('saveChanges')
+                  : t('addNew')}
             </Button>
           </div>
         </div>

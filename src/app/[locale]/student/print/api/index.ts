@@ -9,6 +9,7 @@ import type {
   AvailablePrintersParams,
   PrinterDetailResponse,
   PrinterQueueResponse,
+  PrinterFloorDiagramResponse,
   PageSizeResponse,
   ColorModeResponse,
   PermittedFileTypeResponse,
@@ -55,6 +56,8 @@ export const studentPrintKeys = {
       [...printersBase, 'detail', printerId] as const,
     queue: (printerId: string) =>
       [...printersBase, 'queue', printerId] as const,
+    floorDiagram: (printerId: string) =>
+      [...printersBase, 'floor-diagram', printerId] as const,
   },
   config: {
     all: configBase,
@@ -255,6 +258,21 @@ export function usePrinterQueue(printerId: string | null) {
       staleTime: 30 * 1000, // 30 seconds (frequently updated)
       gcTime: 2 * 60 * 1000, // 2 minutes
       refetchInterval: 10 * 1000, // Auto-refetch every 10 seconds
+    }
+  );
+}
+
+/**
+ * Hook to fetch printer floor diagram information
+ */
+export function usePrinterFloorDiagram(printerId: string | null) {
+  return useApiQuery<ApiResponse<PrinterFloorDiagramResponse>>(
+    studentPrintKeys.printers.floorDiagram(printerId || ''),
+    printerId ? `/printers/${printerId}/floor-diagram` : '',
+    {
+      enabled: !!printerId,
+      staleTime: 5 * 60 * 1000, // 5 minutes (rarely changes)
+      gcTime: 15 * 60 * 1000, // 15 minutes
     }
   );
 }
