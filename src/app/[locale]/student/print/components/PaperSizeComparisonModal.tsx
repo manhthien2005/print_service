@@ -3,6 +3,7 @@
 import { Modal } from '@/components/ui/Modal';
 import { MockPageSize } from '@/app/[locale]/student/print/types';
 import { useState, useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 
 interface PaperSizeComparisonModalProps {
   isOpen: boolean;
@@ -15,6 +16,7 @@ export function PaperSizeComparisonModal({
   onClose,
   pageSizes,
 }: PaperSizeComparisonModalProps) {
+  const t = useTranslations('student.print.paperSizeComparisonModal');
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
 
   // Sort sizes by area (largest to smallest)
@@ -35,7 +37,7 @@ export function PaperSizeComparisonModal({
   }, [isOpen]);
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="So sánh khổ giấy" size="lg">
+    <Modal isOpen={isOpen} onClose={onClose} title={t('title')} size="lg">
       <div className="space-y-6 p-6">
         {/* Visual Comparison */}
         <div className="relative w-full overflow-hidden rounded-xl border-2 border-slate-800/50 bg-slate-900 p-6 text-white shadow-inner shadow-slate-900/40 dark:border-white/10 dark:bg-slate-900 md:p-8">
@@ -186,23 +188,23 @@ export function PaperSizeComparisonModal({
         {/* Size Details Table */}
         <div className="space-y-3">
           <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
-            Chi tiết kích thước
+            {t('sizeDetails')}
           </h3>
           <div className="overflow-x-auto rounded-lg border border-slate-200 dark:border-white/10">
             <table className="w-full text-sm">
               <thead className="bg-slate-100 dark:bg-white/5">
                 <tr>
                   <th className="px-4 py-3 text-left font-semibold text-slate-700 dark:text-white/80">
-                    Khổ giấy
+                    {t('paperSize')}
                   </th>
                   <th className="px-4 py-3 text-left font-semibold text-slate-700 dark:text-white/80">
-                    Chiều rộng (mm)
+                    {t('width')}
                   </th>
                   <th className="px-4 py-3 text-left font-semibold text-slate-700 dark:text-white/80">
-                    Chiều cao (mm)
+                    {t('height')}
                   </th>
                   <th className="px-4 py-3 text-left font-semibold text-slate-700 dark:text-white/80">
-                    Diện tích (cm²)
+                    {t('area')}
                   </th>
                 </tr>
               </thead>

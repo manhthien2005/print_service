@@ -25,7 +25,12 @@ import { PieTooltip } from './PieTooltip';
 
 export interface DashboardChartsProps {
   weeklyActivity: Array<{ day: string; jobs: number; pages: number }>;
-  paperSizeUsage: Array<{ name: string; value: number; color: string }>;
+  paperSizeUsage: Array<{
+    name: string;
+    value: number;
+    count: number;
+    color: string;
+  }>;
   translations: {
     weekly: {
       title: string;
@@ -37,6 +42,8 @@ export interface DashboardChartsProps {
       title: string;
       description: string;
     };
+    ratioLabel?: string;
+    countLabel?: string;
   };
 }
 
@@ -142,7 +149,14 @@ export function DashboardCharts({
                 height={36}
                 wrapperStyle={{ color: '#cbd5e1' }}
               />
-              <RechartsTooltip content={<PieTooltip />} />
+              <RechartsTooltip
+                content={
+                  <PieTooltip
+                    ratioLabel={translations.ratioLabel || 'Ratio'}
+                    countLabel={translations.countLabel || 'Count'}
+                  />
+                }
+              />
             </PieChart>
           </ResponsiveContainer>
         </CardContent>

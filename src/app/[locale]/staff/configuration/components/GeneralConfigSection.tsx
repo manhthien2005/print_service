@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import {
   useGeneralConfigs,
   useUpdateGeneralConfig,
@@ -23,6 +23,7 @@ import { Skeleton } from '@/components/common/Skeleton';
 
 export function GeneralConfigSection() {
   const t = useTranslations('staff.configuration.generalConfig');
+  const locale = useLocale();
   const { data, isLoading, error } = useGeneralConfigs();
   const updateMutation = useUpdateGeneralConfig();
   const [editingItem, setEditingItem] = useState<GeneralConfigResponse | null>(
@@ -142,7 +143,9 @@ export function GeneralConfigSection() {
                     </div>
                     <div className="mt-1 text-xs text-slate-500 dark:text-white/60">
                       {t('updated')}:{' '}
-                      {new Date(item.updatedAt).toLocaleString('vi-VN')}{' '}
+                      {new Date(item.updatedAt).toLocaleString(
+                        locale === 'vi' ? 'vi-VN' : 'en-US'
+                      )}{' '}
                       {t('by')} {item.updatedByName || item.updatedByEmail}
                     </div>
                   </div>

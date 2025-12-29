@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { PAYMENT_CONSTANTS } from '@/app/[locale]/student/recharge/constants';
+import { useLocale } from 'next-intl';
 
 interface CustomAmountInputProps {
   onRecharge: (amount: number) => void;
@@ -17,6 +18,7 @@ interface CustomAmountInputProps {
       amountPlaceholder: string;
       depositAmount: string;
       pay: string;
+      creating?: string;
     };
     errors: {
       minAmount: string;
@@ -29,11 +31,12 @@ export function CustomAmountInput({
   isLoading,
   t,
 }: CustomAmountInputProps) {
+  const locale = useLocale();
   const [customAmount, setCustomAmount] = useState<string>('');
   const [error, setError] = useState<string>('');
 
   const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('vi-VN', {
+    return new Intl.NumberFormat(locale === 'vi' ? 'vi-VN' : 'en-US', {
       style: 'currency',
       currency: 'VND',
     }).format(price);
@@ -117,7 +120,7 @@ export function CustomAmountInput({
           disabled={!isValid || isLoading}
           className="bg-gradient-to-r from-blue-500 to-indigo-500 text-white shadow-md transition-transform hover:scale-[1.01] hover:from-blue-600 hover:to-indigo-600 hover:shadow-lg active:scale-[0.99] disabled:opacity-50"
         >
-          {isLoading ? 'Đang tạo...' : t.custom.pay}
+          {isLoading ? t.custom.creating : t.custom.pay}
         </Button>
       </div>
     </div>

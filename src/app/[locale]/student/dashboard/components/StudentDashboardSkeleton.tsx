@@ -69,11 +69,11 @@ export default function StudentDashboardSkeleton({
         <Card className="h-full border-slate-200/70 bg-white/90 shadow-lg backdrop-blur dark:border-white/10 dark:bg-white/5">
           <CardHeader className="pb-2">
             <CardTitle className="text-xl text-slate-900 dark:text-white">
-              {studentCopy.highlights?.title ?? 'Lưu ý nhanh'}
+              {studentCopy.highlights?.title ?? 'Quick notes'}
             </CardTitle>
             <CardDescription className="text-slate-600 dark:text-white/70">
               {studentCopy.highlights?.description ??
-                'Giữ cho việc in của bạn diễn ra suôn sẻ.'}
+                'Keep your printing smooth.'}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
@@ -98,11 +98,10 @@ export default function StudentDashboardSkeleton({
         <Card className="h-full border-slate-200/70 bg-white/90 shadow-lg backdrop-blur dark:border-white/10 dark:bg-white/5">
           <CardHeader className="pb-3">
             <CardTitle className="text-2xl font-semibold text-slate-900 dark:text-white">
-              {studentCopy.recent?.title ?? 'In gần đây'}
+              {studentCopy.recent?.title ?? 'Recent prints'}
             </CardTitle>
             <CardDescription className="text-slate-600 dark:text-white/70">
-              {studentCopy.recent?.description ??
-                'Theo dõi các công việc mới nhất.'}
+              {studentCopy.recent?.description ?? 'Track the latest jobs.'}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
@@ -135,15 +134,15 @@ export default function StudentDashboardSkeleton({
           </CardContent>
         </Card>
 
-        {/* Quick actions card - giữ nguyên vì là hardcoded */}
+        {/* Quick actions card */}
         <Card className="h-full border-slate-200/70 bg-white/90 shadow-lg backdrop-blur dark:border-white/10 dark:bg-white/5">
           <CardHeader>
             <CardTitle className="text-xl text-slate-900 dark:text-white">
-              {studentCopy.quickActions?.title ?? 'Thao tác nhanh'}
+              {studentCopy.quickActions?.title ?? 'Quick actions'}
             </CardTitle>
             <CardDescription className="text-slate-600 dark:text-white/70">
               {studentCopy.quickActions?.description ??
-                'Truy cập các chức năng được sử dụng nhiều nhất.'}
+                'Jump into the most used student flows.'}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">

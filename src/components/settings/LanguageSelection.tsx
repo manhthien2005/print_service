@@ -6,7 +6,15 @@ import { useRouter, usePathname } from 'next/navigation';
 import { type Locale } from '@/lib/i18n/config';
 import { cn } from '@/lib/utils/cn';
 
-function FlagIcon({ locale }: { locale: Locale }) {
+function FlagIcon({
+  locale,
+  usFlagAlt,
+  vietnamFlagAlt,
+}: {
+  locale: Locale;
+  usFlagAlt: string;
+  vietnamFlagAlt: string;
+}) {
   const flagSrc =
     locale === 'en'
       ? '/images/flag-us-svgrepo-com.svg'
@@ -15,7 +23,7 @@ function FlagIcon({ locale }: { locale: Locale }) {
   return (
     <Image
       src={flagSrc}
-      alt={locale === 'en' ? 'US Flag' : 'Vietnam Flag'}
+      alt={locale === 'en' ? usFlagAlt : vietnamFlagAlt}
       width={20}
       height={20}
       className="h-5 w-5 object-contain"
@@ -26,13 +34,17 @@ function FlagIcon({ locale }: { locale: Locale }) {
 function LanguagePreview({
   locale,
   active,
+  englishName,
+  vietnameseName,
 }: {
   locale: Locale;
   active: boolean;
+  englishName: string;
+  vietnameseName: string;
 }) {
   const languageNames: Record<Locale, string> = {
-    en: 'English',
-    vi: 'Tiếng Việt',
+    en: englishName,
+    vi: vietnameseName,
   };
 
   const flags: Record<Locale, string> = {
@@ -87,6 +99,10 @@ type LanguageCardProps = {
   active: boolean;
   activeLabel?: string;
   onSelect: (value: Locale) => void;
+  usFlagAlt: string;
+  vietnamFlagAlt: string;
+  englishName: string;
+  vietnameseName: string;
 };
 
 function LanguageCard({
@@ -96,6 +112,10 @@ function LanguageCard({
   active,
   activeLabel,
   onSelect,
+  usFlagAlt,
+  vietnamFlagAlt,
+  englishName,
+  vietnameseName,
 }: LanguageCardProps) {
   return (
     <button
@@ -114,9 +134,9 @@ function LanguageCard({
             <span className="text-base font-semibold text-slate-900 dark:text-white">
               {title}
             </span>
-            {active ? (
+            {active && activeLabel ? (
               <span className="rounded-full bg-cyan-100 px-2 py-0.5 text-xs font-semibold text-cyan-800 dark:bg-cyan-500/20 dark:text-cyan-100">
-                {activeLabel ?? 'Active'}
+                {activeLabel}
               </span>
             ) : null}
           </div>
@@ -132,10 +152,19 @@ function LanguageCard({
               : 'border-slate-200 bg-slate-50 dark:border-white/10 dark:bg-white/10'
           )}
         >
-          <FlagIcon locale={value} />
+          <FlagIcon
+            locale={value}
+            usFlagAlt={usFlagAlt}
+            vietnamFlagAlt={vietnamFlagAlt}
+          />
         </div>
       </div>
-      <LanguagePreview locale={value} active={active} />
+      <LanguagePreview
+        locale={value}
+        active={active}
+        englishName={englishName}
+        vietnameseName={vietnameseName}
+      />
     </button>
   );
 }
@@ -148,6 +177,10 @@ type LanguageCopy = {
   vietnameseTitle: string;
   vietnameseDescription: string;
   activeLabel?: string;
+  englishName: string;
+  vietnameseName: string;
+  usFlagAlt: string;
+  vietnamFlagAlt: string;
 };
 
 export function LanguageSelection({ copy }: { copy: LanguageCopy }) {
@@ -186,6 +219,10 @@ export function LanguageSelection({ copy }: { copy: LanguageCopy }) {
           active={currentLocale === 'en'}
           activeLabel={copy.activeLabel}
           onSelect={handleLanguageChange}
+          usFlagAlt={copy.usFlagAlt}
+          vietnamFlagAlt={copy.vietnamFlagAlt}
+          englishName={copy.englishName}
+          vietnameseName={copy.vietnameseName}
         />
         <LanguageCard
           value="vi"
@@ -194,6 +231,10 @@ export function LanguageSelection({ copy }: { copy: LanguageCopy }) {
           active={currentLocale === 'vi'}
           activeLabel={copy.activeLabel}
           onSelect={handleLanguageChange}
+          usFlagAlt={copy.usFlagAlt}
+          vietnamFlagAlt={copy.vietnamFlagAlt}
+          englishName={copy.englishName}
+          vietnameseName={copy.vietnameseName}
         />
       </div>
     </section>

@@ -4,66 +4,102 @@ import { StatWidget } from './StatWidget';
 
 export interface DashboardStatsProps {
   stats: {
-    totalPrinters: number;
-    activePrinters: number;
-    maintenancePrinters: number;
-    totalBrands: number;
-    totalModels: number;
-    maintenanceWarning: number;
-    jobsToday?: number;
-    totalPagesThisMonth?: number;
+    jobsToday: number;
+    jobsThisMonth: number;
+    totalPagesThisMonth: number;
+    revenueToday: number;
+    revenueThisMonth: number;
+    activeStudents: number;
+    newStudentsThisMonth: number;
+    queuedJobs?: number;
+    printingJobs?: number;
   };
   translations: {
-    printersOnline: string;
     jobsToday: string;
     pagesMonth: string;
-    totalCaption: string;
-    lastJobCaption: string;
+    revenueToday: string;
+    revenueMonth: string;
+    activeStudents: string;
+    jobsLabel?: string;
+    pagesLabel?: string;
+    kPagesLabel?: string;
+    currencyLabel?: string;
+    thisMonth?: string;
+    now?: string;
+    printing?: string;
+    queued?: string;
+    new?: string;
   };
 }
 
 export function DashboardStats({ stats, translations }: DashboardStatsProps) {
-  // Calculate derived stats
-  // const offlinePrinters = stats.totalPrinters - stats.activePrinters - stats.maintenancePrinters; // Not used currently
+  const currencyLabel = translations.currencyLabel || 'VND';
+  const kPagesLabel = translations.kPagesLabel || '{k}K pages';
+  const thisMonth = translations.thisMonth || 'this month';
+  const now = translations.now || 'Now';
+  const printing = translations.printing || 'printing';
+  const queued = translations.queued || 'queued';
+  const newLabel = translations.new || 'new';
 
-  // Calculate trends (simplified - in real app, compare with previous period)
-  const jobsToday = stats.jobsToday ?? 0;
-  const pagesThisMonth = stats.totalPagesThisMonth ?? 0;
-
-  // Format change strings (simplified - would need previous period data for real trends)
-  const jobsChange = jobsToday > 0 ? `+${jobsToday} jobs` : '';
+  // Format values and changes
   const pagesChange =
-    pagesThisMonth > 0 ? `${Math.round(pagesThisMonth / 1000)}K pages` : '';
+    stats.totalPagesThisMonth > 0
+      ? kPagesLabel.replace(
+          '{k}',
+          Math.round(stats.totalPagesThisMonth / 1000).toString()
+        )
+      : '';
 
-  // Map API data to widget format
+  // Format revenue this month with full number (e.g., 2,100,100)
+  const revenueThisMonthFormatted =
+    stats.revenueThisMonth.toLocaleString('en-US');
+
+  // Map API data to widget format - Key metrics for management dashboard
+  // Removed printersOnline as it's shown in PrinterStatusCard
   const widgets = [
     {
-      label: translations.printersOnline,
-      value: stats.activePrinters,
-      change: '',
-      trend: 'flat' as const,
-      caption: translations.totalCaption.replace(
-        '{total}',
-        stats.totalPrinters.toString()
-      ),
-    },
-    {
       label: translations.jobsToday,
-      value: jobsToday,
-      change: jobsChange,
-      trend: jobsToday > 0 ? ('up' as const) : ('flat' as const),
-      caption: translations.lastJobCaption,
+      value: stats.jobsToday,
+      change:
+        stats.jobsThisMonth > 0 ? `${stats.jobsThisMonth} ${thisMonth}` : '',
+      trend: stats.jobsToday > 0 ? ('up' as const) : ('flat' as const),
+      caption: stats.printingJobs
+        ? `${stats.printingJobs} ${printing}`
+        : stats.queuedJobs
+          ? `${stats.queuedJobs} ${queued}`
+          : '',
     },
     {
       label: translations.pagesMonth,
-      value: pagesThisMonth,
+      value: stats.totalPagesThisMonth,
       change: pagesChange,
-      trend: pagesThisMonth > 0 ? ('up' as const) : ('flat' as const),
+      trend:
+        stats.totalPagesThisMonth > 0 ? ('up' as const) : ('flat' as const),
+      caption: '',
+    },
+    {
+      label: translations.revenueToday,
+      value: stats.revenueToday,
+      suffix: currencyLabel,
+      change: '',
+      trend: stats.revenueToday > 0 ? ('up' as const) : ('flat' as const),
+      caption: `${revenueThisMonthFormatted} ${thisMonth}`,
+    },
+    {
+      label: translations.activeStudents,
+      value: stats.activeStudents,
+      change:
+        stats.newStudentsThisMonth > 0
+          ? `+${stats.newStudentsThisMonth} ${newLabel}`
+          : '',
+      trend:
+        stats.newStudentsThisMonth > 0 ? ('up' as const) : ('flat' as const),
+      caption: now,
     },
   ];
 
   return (
-    <div className="grid gap-4 md:grid-cols-3 xl:grid-cols-3">
+    <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
       {widgets.map((widget, index) => (
         <StatWidget key={index} {...widget} />
       ))}

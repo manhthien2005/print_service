@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import {
   usePageSizePrices,
   useUpdatePageSizePrice,
@@ -23,6 +23,7 @@ import { Skeleton } from '@/components/common/Skeleton';
 
 export function PageSizePricesSection() {
   const t = useTranslations('staff.configuration.pageSizePrices');
+  const locale = useLocale();
   const { data, isLoading, error } = usePageSizePrices();
   const updateMutation = useUpdatePageSizePrice();
   const [editingItem, setEditingItem] = useState<PageSizePriceResponse | null>(
@@ -130,14 +131,19 @@ export function PageSizePricesSection() {
                     </div>
                     <div className="mt-1 text-xs text-slate-500 dark:text-white/60">
                       {t('updated')}:{' '}
-                      {new Date(item.updatedAt).toLocaleString('vi-VN')}{' '}
+                      {new Date(item.updatedAt).toLocaleString(
+                        locale === 'vi' ? 'vi-VN' : 'en-US'
+                      )}{' '}
                       {t('by')} {item.updatedByName || item.updatedByEmail}
                     </div>
                   </div>
                   <div className="ml-4 flex items-center gap-4">
                     <div className="text-right">
                       <div className="text-lg font-bold text-slate-900 dark:text-white">
-                        {item.pagePrice.toLocaleString('vi-VN')} VND
+                        {item.pagePrice.toLocaleString(
+                          locale === 'vi' ? 'vi-VN' : 'en-US'
+                        )}{' '}
+                        {t('currency')}
                       </div>
                       <div
                         className={`text-xs ${

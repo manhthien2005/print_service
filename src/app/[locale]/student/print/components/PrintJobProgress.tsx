@@ -261,7 +261,7 @@ export function PrintJobProgress({ jobId, onComplete }: PrintJobProgressProps) {
                     {t('estimatedCompletion')}:{' '}
                     {new Date(
                       progress.timing.estimatedCompletionTime
-                    ).toLocaleString('vi-VN')}
+                    ).toLocaleString(locale === 'vi' ? 'vi-VN' : 'en-US')}
                   </p>
                 )}
               </div>
@@ -273,7 +273,9 @@ export function PrintJobProgress({ jobId, onComplete }: PrintJobProgressProps) {
               <div className="flex justify-between">
                 <span>{t('startTime')}:</span>
                 <span className="font-medium">
-                  {new Date(progress.timing.startTime).toLocaleString('vi-VN')}
+                  {new Date(progress.timing.startTime).toLocaleString(
+                    locale === 'vi' ? 'vi-VN' : 'en-US'
+                  )}
                 </span>
               </div>
               {progress.timing.estimatedCompletionTime && (
@@ -282,16 +284,16 @@ export function PrintJobProgress({ jobId, onComplete }: PrintJobProgressProps) {
                   <span className="font-medium">
                     {new Date(
                       progress.timing.estimatedCompletionTime
-                    ).toLocaleString('vi-VN')}
+                    ).toLocaleString(locale === 'vi' ? 'vi-VN' : 'en-US')}
                   </span>
                 </div>
               )}
               {progress.printStatus === 'printing' && (
                 <div className="flex justify-between">
-                  <span>Đã trôi qua:</span>
+                  <span>{t('elapsedTime')}:</span>
                   <span className="font-medium">
-                    {progress.timing.elapsedMinutes} phút{' '}
-                    {progress.timing.elapsedSeconds % 60} giây
+                    {progress.timing.elapsedMinutes} {t('minutes')}{' '}
+                    {progress.timing.elapsedSeconds % 60} {t('seconds')}
                   </span>
                 </div>
               )}
@@ -301,7 +303,7 @@ export function PrintJobProgress({ jobId, onComplete }: PrintJobProgressProps) {
           {/* Printer Info */}
           <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 dark:border-white/10 dark:bg-white/5">
             <p className="text-sm font-semibold text-slate-900 dark:text-white">
-              Máy in: {progress.printer.printerName}
+              {t('printer.name')}: {progress.printer.printerName}
             </p>
             <p className="mt-1 text-sm text-slate-600 dark:text-white/70">
               {t('printer.location')}: {progress.printer.location}

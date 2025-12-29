@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -27,6 +28,7 @@ export const AddBrandModal: React.FC<AddBrandModalProps> = ({
   onSave,
   countries = [],
 }) => {
+  const t = useTranslations('staff.managePrinters.modals.addBrand');
   const [formData, setFormData] = useState<Partial<Brand>>({
     brandName: '',
     countryOfOrigin: '',
@@ -81,11 +83,11 @@ export const AddBrandModal: React.FC<AddBrandModalProps> = ({
     const newErrors: Record<string, string> = {};
 
     if (!formData.brandName?.trim()) {
-      newErrors.brandName = 'Vui lòng nhập tên hãng';
+      newErrors.brandName = t('errors.brandNameRequired');
     }
 
     if (!formData.countryOfOrigin) {
-      newErrors.countryOfOrigin = 'Vui lòng chọn quốc gia xuất xứ';
+      newErrors.countryOfOrigin = t('errors.countryRequired');
     }
 
     // Validate website URL if provided
@@ -93,7 +95,7 @@ export const AddBrandModal: React.FC<AddBrandModalProps> = ({
       const urlPattern =
         /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/;
       if (!urlPattern.test(formData.website)) {
-        newErrors.website = 'URL không hợp lệ. Ví dụ: https://www.example.com';
+        newErrors.website = t('errors.invalidUrl');
       }
     }
 
@@ -115,7 +117,7 @@ export const AddBrandModal: React.FC<AddBrandModalProps> = ({
     } catch (error) {
       console.error('Error saving brand:', error);
       setErrors({
-        submit: 'Có lỗi xảy ra khi lưu. Vui lòng thử lại.',
+        submit: t('errors.saveError'),
       });
     } finally {
       setIsLoading(false);
@@ -130,12 +132,7 @@ export const AddBrandModal: React.FC<AddBrandModalProps> = ({
   };
 
   return (
-    <Modal
-      isOpen={isOpen}
-      onClose={handleClose}
-      title="Thêm Mới Hãng Máy In"
-      size="md"
-    >
+    <Modal isOpen={isOpen} onClose={handleClose} title={t('title')} size="md">
       <form onSubmit={handleSubmit} className="p-6">
         <div className="space-y-6">
           {/* Brand Name */}
@@ -144,13 +141,13 @@ export const AddBrandModal: React.FC<AddBrandModalProps> = ({
               htmlFor="brandName"
               className="text-sm font-medium text-slate-700 dark:text-slate-300"
             >
-              Tên Hãng <span className="text-red-500">*</span>
+              {t('brandName')} <span className="text-red-500">*</span>
             </label>
             <Input
               id="brandName"
               value={formData.brandName || ''}
               onChange={e => handleInputChange('brandName', e.target.value)}
-              placeholder="VD: HP, Canon, Epson"
+              placeholder={t('brandNamePlaceholder')}
               error={!!errors.brandName}
               className="rounded-lg border-slate-200/50 bg-white/50 text-slate-900 backdrop-blur-sm placeholder:text-slate-400 focus-visible:ring-slate-400 dark:border-white/10 dark:bg-slate-800/30 dark:text-white dark:placeholder:text-slate-500 dark:focus-visible:ring-white/30"
             />
@@ -167,7 +164,7 @@ export const AddBrandModal: React.FC<AddBrandModalProps> = ({
               htmlFor="countryOfOrigin"
               className="text-sm font-medium text-slate-700 dark:text-slate-300"
             >
-              Quốc Gia Xuất Xứ <span className="text-red-500">*</span>
+              {t('countryOfOrigin')} <span className="text-red-500">*</span>
             </label>
             <Select
               id="countryOfOrigin"
@@ -178,7 +175,7 @@ export const AddBrandModal: React.FC<AddBrandModalProps> = ({
               error={!!errors.countryOfOrigin}
               className="rounded-lg border-slate-200/50 bg-white/50 text-slate-900 backdrop-blur-sm focus-visible:ring-slate-400 dark:border-white/10 dark:bg-slate-800/30 dark:text-white dark:focus-visible:ring-white/30"
             >
-              <option value="">Chọn quốc gia</option>
+              <option value="">{t('selectCountry')}</option>
               {availableCountries.map(country => (
                 <option key={country} value={country}>
                   {country}
@@ -198,14 +195,14 @@ export const AddBrandModal: React.FC<AddBrandModalProps> = ({
               htmlFor="website"
               className="text-sm font-medium text-slate-700 dark:text-slate-300"
             >
-              Website
+              {t('website')}
             </label>
             <Input
               id="website"
               type="url"
               value={formData.website || ''}
               onChange={e => handleInputChange('website', e.target.value)}
-              placeholder="https://www.example.com"
+              placeholder={t('websitePlaceholder')}
               error={!!errors.website}
               className="rounded-lg border-slate-200/50 bg-white/50 text-slate-900 backdrop-blur-sm placeholder:text-slate-400 focus-visible:ring-slate-400 dark:border-white/10 dark:bg-slate-800/30 dark:text-white dark:placeholder:text-slate-500 dark:focus-visible:ring-white/30"
             />
@@ -215,7 +212,7 @@ export const AddBrandModal: React.FC<AddBrandModalProps> = ({
               </p>
             )}
             <p className="text-xs text-slate-500 dark:text-slate-400">
-              (Tùy chọn) URL website của hãng
+              {t('websiteOptional')}
             </p>
           </div>
 
@@ -235,14 +232,14 @@ export const AddBrandModal: React.FC<AddBrandModalProps> = ({
               disabled={isLoading}
               className="border border-slate-300 bg-slate-200 text-slate-900 hover:border-slate-400 hover:bg-slate-300 dark:border-white/20 dark:bg-slate-700 dark:text-white dark:hover:border-white/30 dark:hover:bg-slate-600"
             >
-              Hủy
+              {t('cancel')}
             </Button>
             <Button
               type="submit"
               disabled={isLoading}
               className="border border-blue-700 bg-blue-700/80 text-white hover:border-blue-800 hover:bg-blue-800/90 dark:border-blue-600 dark:bg-blue-600/80 dark:hover:border-blue-700 dark:hover:bg-blue-700/90"
             >
-              {isLoading ? 'Đang lưu...' : 'Thêm mới'}
+              {isLoading ? t('saving') : t('addNew')}
             </Button>
           </div>
         </div>

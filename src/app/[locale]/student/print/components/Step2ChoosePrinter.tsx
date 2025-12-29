@@ -10,6 +10,7 @@ import { MockPrinter } from '@/app/[locale]/student/print/types';
 import { PrinterLocationModal } from '@/app/[locale]/student/printers/components/PrinterLocationModal';
 import { useAvailablePrinters } from '@/app/[locale]/student/print/api';
 import { mapAvailablePrintersResponse } from '@/lib/utils/mappers/studentPrintMapper';
+import { useAllBuildings, useAllRooms } from '@/lib/api/services/references';
 
 interface Step2ChoosePrinterProps {
   printers?: MockPrinter[]; // Optional, will load from API if not provided
@@ -41,15 +42,46 @@ export function Step2ChoosePrinter({
   const [selectedPrinterForLocation, setSelectedPrinterForLocation] =
     useState<MockPrinter | null>(null);
 
-  // Load printers from API
+  // Load buildings and rooms from API to get UUIDs
+  const { data: buildingsData } = useAllBuildings();
+  const { data: roomsData } = useAllRooms();
+
+  // Map buildings: buildingCode -> buildingId (UUID)
+  const buildingMap = useMemo(() => {
+    const map = new Map<string, string>(); // buildingCode -> buildingId
+    if (buildingsData?.data?.data) {
+      buildingsData.data.data.forEach(building => {
+        // Map by buildingCode
+        if (building.buildingCode) {
+          map.set(building.buildingCode, building.buildingId);
+        }
+      });
+    }
+    return map;
+  }, [buildingsData]);
+
+  // Convert selected building code to UUID
+  const selectedBuildingId = useMemo(() => {
+    if (selectedBuilding === 'all') return undefined;
+    return buildingMap.get(selectedBuilding);
+  }, [selectedBuilding, buildingMap]);
+
+  // selectedRoom now stores roomId (UUID) directly, so no conversion needed
+  const selectedRoomId = useMemo(() => {
+    if (selectedRoom === 'all') return undefined;
+    return selectedRoom; // selectedRoom is already roomId (UUID)
+  }, [selectedRoom]);
+
+  // Load filtered printers from API
+  // Note: Backend keyword search only supports serialNumber, not brand/model/room/building
   const {
     data: printersData,
     isLoading: isLoadingPrinters,
     error: printersError,
   } = useAvailablePrinters({
-    keyword: searchQuery || undefined,
-    buildingId: selectedBuilding !== 'all' ? selectedBuilding : undefined,
-    roomId: selectedRoom !== 'all' ? selectedRoom : undefined,
+    keyword: searchQuery.trim() || undefined, // Only use searchQuery for serialNumber search
+    buildingId: selectedBuildingId, // Send UUID, not code
+    roomId: selectedRoomId, // Send UUID, not code
     supportsColor: supportsColorFilter,
     supportsDuplex: supportsDuplexFilter,
     page,
@@ -58,10 +90,19 @@ export function Step2ChoosePrinter({
     sortDirection: 'desc',
   });
 
-  // Map API response to MockPrinter format
+  // Map API response to MockPrinter format for display
   const apiPrinters = useMemo(() => {
     if (printersData?.data?.data) {
-      return mapAvailablePrintersResponse(printersData.data.data);
+      const mapped = mapAvailablePrintersResponse(printersData.data.data);
+      // Debug: Log printers data
+      if (process.env.NODE_ENV === 'development') {
+        console.log('📦 Mapped printers:', mapped.length, mapped);
+        console.log('📦 Raw API response:', printersData.data);
+      }
+      return mapped;
+    }
+    if (process.env.NODE_ENV === 'development') {
+      console.log('⚠️ No printers data:', printersData);
     }
     return [];
   }, [printersData]);
@@ -73,25 +114,63 @@ export function Step2ChoosePrinter({
       ? (apiPrinters as MockPrinter[])
       : propsPrinters || [];
 
-  // Extract unique buildings and rooms from current printers list
-  const { buildings, rooms } = useMemo(() => {
+  // Extract unique buildings from API data (for dropdown options)
+  const buildings = useMemo(() => {
     const buildingSet = new Set<string>();
-    const roomSet = new Set<string>();
 
+    // Use buildings from API
+    if (buildingsData?.data?.data) {
+      buildingsData.data.data.forEach(building => {
+        if (building.buildingCode) {
+          buildingSet.add(building.buildingCode);
+        }
+      });
+    }
+
+    // Also extract from printers
     printers.forEach(printer => {
-      if (printer.building_name) buildingSet.add(printer.building_name);
-      if (printer.room_code) roomSet.add(printer.room_code);
+      if (printer.building_name) {
+        buildingSet.add(printer.building_name);
+      }
     });
 
-    return {
-      buildings: Array.from(buildingSet).sort(),
-      rooms: Array.from(roomSet).sort(),
-    };
-  }, [printers]);
+    return Array.from(buildingSet).sort();
+  }, [buildingsData, printers]);
 
-  // Filter printers (client-side filtering for UI, API handles server-side filtering)
+  // Extract rooms from API data with roomId, roomCode, and buildingCode
+  // Format: { roomId: string, roomCode: string, buildingCode: string }[]
+  // Include buildingCode to differentiate rooms with same code in different buildings
+  const rooms = useMemo(() => {
+    const roomMap = new Map<
+      string,
+      { roomId: string; roomCode: string; buildingCode: string }
+    >();
+
+    // Use rooms from API
+    if (roomsData?.data?.data) {
+      roomsData.data.data.forEach(room => {
+        if (room.roomId && room.roomCode) {
+          roomMap.set(room.roomId, {
+            roomId: room.roomId,
+            roomCode: room.roomCode,
+            buildingCode: room.buildingCode || '',
+          });
+        }
+      });
+    }
+
+    return Array.from(roomMap.values()).sort((a, b) => {
+      // Sort by buildingCode first, then roomCode
+      const buildingCompare = a.buildingCode.localeCompare(b.buildingCode);
+      if (buildingCompare !== 0) return buildingCompare;
+      return a.roomCode.localeCompare(b.roomCode);
+    });
+  }, [roomsData]);
+
+  // Sort printers (API already handles filtering by buildingId/roomId)
   const filteredAndSortedPrinters = useMemo(() => {
-    // API already filters by keyword, building, room, etc., so we just sort here
+    // API already filters by buildingId and roomId correctly
+    // So we don't need client-side filtering, just sort
     const sorted = [...printers];
 
     // Sort by status: online -> maintenance -> offline
@@ -113,14 +192,38 @@ export function Step2ChoosePrinter({
   }, [printers]);
 
   // Get available rooms based on selected building
+  // Filter rooms from API data by buildingId
+  // Returns array of { roomId, roomCode, buildingCode } objects
   const availableRooms = useMemo(() => {
     if (selectedBuilding === 'all') return rooms;
-    return printers
-      .filter(p => p.building_name === selectedBuilding)
-      .map(p => p.room_code)
-      .filter((room, index, self) => room && self.indexOf(room) === index)
-      .sort();
-  }, [printers, selectedBuilding, rooms]);
+
+    const roomMap = new Map<
+      string,
+      { roomId: string; roomCode: string; buildingCode: string }
+    >();
+
+    // Get buildingId for selected building
+    const buildingId = buildingMap.get(selectedBuilding);
+
+    // Filter rooms by buildingId from API data
+    if (buildingId && roomsData?.data?.data) {
+      roomsData.data.data
+        .filter(room => room.buildingId === buildingId)
+        .forEach(room => {
+          if (room.roomId && room.roomCode) {
+            roomMap.set(room.roomId, {
+              roomId: room.roomId,
+              roomCode: room.roomCode,
+              buildingCode: room.buildingCode || '',
+            });
+          }
+        });
+    }
+
+    return Array.from(roomMap.values()).sort((a, b) =>
+      a.roomCode.localeCompare(b.roomCode)
+    );
+  }, [selectedBuilding, buildingMap, roomsData, rooms]);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -228,8 +331,10 @@ export function Step2ChoosePrinter({
             >
               <option value="all">{t('allRooms')}</option>
               {availableRooms.map(room => (
-                <option key={room} value={room}>
-                  {room}
+                <option key={room.roomId} value={room.roomId}>
+                  {selectedBuilding === 'all'
+                    ? `${room.roomCode} (${room.buildingCode})`
+                    : room.roomCode}
                 </option>
               ))}
             </Select>
@@ -303,7 +408,7 @@ export function Step2ChoosePrinter({
           {[1, 2, 3, 4, 5, 6, 7, 8].map(i => (
             <div
               key={i}
-              className="dark:bg-background/5 group relative flex flex-col overflow-hidden rounded-xl border-2 border-border bg-background p-5 dark:border-border"
+              className="dark:bg-background/5 group relative flex flex-col overflow-hidden rounded-xl border border-slate-200 bg-background p-5 dark:border-white/10"
             >
               {/* Header skeleton */}
               <div className="mb-3 flex items-start justify-between gap-3">

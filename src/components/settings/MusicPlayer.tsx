@@ -11,6 +11,7 @@ import {
   MusicalNoteIcon,
   ArrowPathIcon,
 } from '@heroicons/react/24/solid';
+import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils/cn';
 import { useMusicPlayer } from '@/lib/providers/MusicPlayerProvider';
 import { useMusicSettingsStore } from '@/lib/stores/useMusicSettingsStore';
@@ -26,6 +27,10 @@ type MusicPlayerCopy = {
   previous: string;
   autoPlay?: string;
   autoPlayDescription?: string;
+  loading?: string;
+  loop?: string;
+  loopOn?: string;
+  loopOff?: string;
 };
 
 function formatTime(seconds: number): string {
@@ -59,12 +64,13 @@ export function MusicPlayer({ copy }: { copy: MusicPlayerCopy }) {
   const [isRotating, setIsRotating] = React.useState(false);
 
   const { autoPlay, toggleAutoPlay } = useMusicSettingsStore();
+  const t = useTranslations('common');
 
   // Fallback nếu copy không có
   if (!copy) {
     return (
       <div className="text-sm text-slate-600 dark:text-white/70">
-        Loading music player...
+        {t('loading')}
       </div>
     );
   }
@@ -120,10 +126,10 @@ export function MusicPlayer({ copy }: { copy: MusicPlayerCopy }) {
       <div className="flex items-center justify-between rounded-lg border border-slate-200/70 bg-white/50 p-3 dark:border-white/10 dark:bg-white/5">
         <div className="flex-1">
           <p className="text-sm font-medium text-slate-900 dark:text-white">
-            {copy.autoPlay || 'Tự động phát nhạc'}
+            {copy.autoPlay || ''}
           </p>
           <p className="text-xs text-slate-600 dark:text-slate-400">
-            {copy.autoPlayDescription || 'Tự động phát nhạc khi vào trang'}
+            {copy.autoPlayDescription || ''}
           </p>
         </div>
         <button
@@ -136,7 +142,7 @@ export function MusicPlayer({ copy }: { copy: MusicPlayerCopy }) {
           )}
           role="switch"
           aria-checked={autoPlay}
-          aria-label={copy.autoPlay || 'Tự động phát nhạc'}
+          aria-label={copy.autoPlay || ''}
         >
           <span
             className={cn(
@@ -232,8 +238,8 @@ export function MusicPlayer({ copy }: { copy: MusicPlayerCopy }) {
                     ? 'bg-yellow-100 text-yellow-700 hover:bg-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-400 dark:hover:bg-yellow-900/50'
                     : 'text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800'
                 )}
-                aria-label="Lặp lại"
-                title={isLoop ? 'Tắt lặp lại' : 'Bật lặp lại'}
+                aria-label={copy.loop || ''}
+                title={isLoop ? copy.loopOff || '' : copy.loopOn || ''}
               >
                 <ArrowPathIcon
                   className={cn(

@@ -15,4 +15,5 @@ export interface StudentItem {
   status: StudentStatus;
   enrollmentDate: string;
   expectedGraduate: string;
+  userType?: 'student' | 'staff';
 }

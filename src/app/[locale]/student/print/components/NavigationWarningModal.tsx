@@ -54,10 +54,16 @@ export function NavigationWarningModal({
         </div>
 
         <div className="flex justify-end gap-3 pt-4">
-          <Button variant="secondary" onClick={onCancel}>
+          <Button
+            onClick={onCancel}
+            className="bg-blue-500 text-white hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700"
+          >
             {t('stay')}
           </Button>
-          <Button variant="destructive" onClick={onConfirm}>
+          <Button
+            onClick={onConfirm}
+            className="bg-red-500 text-white hover:bg-red-600 dark:bg-red-600 dark:hover:bg-red-700"
+          >
             {t('leave')}
           </Button>
         </div>

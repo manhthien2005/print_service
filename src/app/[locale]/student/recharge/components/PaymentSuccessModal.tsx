@@ -3,6 +3,7 @@
 import React from 'react';
 import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
+import { useLocale } from 'next-intl';
 
 interface PaymentSuccessModalProps {
   isOpen: boolean;
@@ -27,8 +28,9 @@ export function PaymentSuccessModal({
   onRechargeMore,
   t,
 }: PaymentSuccessModalProps) {
+  const locale = useLocale();
   const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('vi-VN', {
+    return new Intl.NumberFormat(locale === 'vi' ? 'vi-VN' : 'en-US', {
       style: 'currency',
       currency: 'VND',
     }).format(price);

@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import {
   useSemesterBonus,
+  useSemesters,
   useCreateSemesterBonus,
   useUpdateSemesterBonus,
   useDistributeSemesterBonus,
@@ -12,6 +13,7 @@ import {
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Modal } from '@/components/ui/Modal';
+import { Select } from '@/components/ui/Select';
 import {
   Card,
   CardContent,
@@ -22,11 +24,17 @@ import {
 import { PencilIcon, PlusIcon, GiftIcon } from '@heroicons/react/24/outline';
 import { toast } from '@/components/ui/Toast';
 import { Skeleton } from '@/components/common/Skeleton';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 
 export function SemesterBonusSection() {
   const t = useTranslations('staff.configuration.semesterBonus');
+  const locale = useLocale();
   const { data, isLoading, error } = useSemesterBonus();
+  const {
+    data: semestersData,
+    isLoading: isLoadingSemesters,
+    error: semestersError,
+  } = useSemesters();
   const createMutation = useCreateSemesterBonus();
   const updateMutation = useUpdateSemesterBonus();
   const distributeMutation = useDistributeSemesterBonus();
@@ -34,13 +42,23 @@ export function SemesterBonusSection() {
   const [editingItem, setEditingItem] = useState<SemesterBonusResponse | null>(
     null
   );
-  const [formData, setFormData] = useState<CreateSemesterBonusRequest>({
+  const [formData, setFormData] = useState<
+    CreateSemesterBonusRequest & { distributionDate?: string }
+  >({
     semesterId: '',
     bonusAmount: 0,
-    bonusDescription: '',
-    isActive: true,
-    distributionDate: '',
+    description: '',
   });
+
+  const semesters = semestersData?.data?.data || [];
+  const availableSemesters = semesters.filter(s => !s.hasBonus);
+
+  // Helper function to format semester name: "Fall 2024-2025"
+  const formatSemesterName = (termName: string, academicYearName: string) => {
+    const capitalizedTerm =
+      termName.charAt(0).toUpperCase() + termName.slice(1);
+    return `${capitalizedTerm} ${academicYearName}`;
+  };
 
   const bonuses = data?.data?.data || [];
 
@@ -52,9 +70,7 @@ export function SemesterBonusSection() {
       setFormData({
         semesterId: '',
         bonusAmount: 0,
-        bonusDescription: '',
-        isActive: true,
-        distributionDate: '',
+        description: '',
       });
     } catch (error) {
       toast.error(t('createError'));
@@ -81,8 +97,34 @@ export function SemesterBonusSection() {
 
     try {
       const result = await distributeMutation.mutateAsync(bonusId);
-      const count = result.data?.data?.newlyDistributed || 0;
-      toast.success(t('distributeSuccess', { count }));
+      const data = result.data?.data;
+      if (data) {
+        const { newlyDistributed, alreadyReceived, failed, bonusAmount } = data;
+        if (failed > 0) {
+          toast.warning(
+            t('distributeToast.successWithFailed', {
+              newlyDistributed,
+              failed,
+            })
+          );
+        } else if (newlyDistributed === 0) {
+          toast.info(
+            t('distributeToast.noNewStudents', {
+              alreadyReceived,
+            })
+          );
+        } else {
+          const amount = parseFloat(bonusAmount) || 0;
+          toast.success(
+            t('distributeToast.success', {
+              amount: amount.toLocaleString(
+                locale === 'vi' ? 'vi-VN' : 'en-US'
+              ),
+              count: newlyDistributed,
+            })
+          );
+        }
+      }
     } catch (error) {
       toast.error(t('distributeError'));
     }
@@ -93,8 +135,7 @@ export function SemesterBonusSection() {
     setFormData({
       semesterId: item.semesterId,
       bonusAmount: item.bonusAmount,
-      bonusDescription: item.bonusDescription,
-      isActive: item.isActive,
+      description: item.bonusDescription,
       distributionDate: item.distributionDate,
     });
   };
@@ -144,7 +185,7 @@ export function SemesterBonusSection() {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Bonus học kỳ</CardTitle>
+          <CardTitle>{t('title')}</CardTitle>
           <CardDescription className="text-red-600">
             {t('createError')}
           </CardDescription>
@@ -186,8 +227,27 @@ export function SemesterBonusSection() {
                   className="flex items-center justify-between rounded-lg border border-slate-200/70 bg-white/80 p-4 dark:border-white/10 dark:bg-white/5"
                 >
                   <div className="flex-1">
-                    <div className="font-semibold text-slate-900 dark:text-white">
-                      {item.semesterName}
+                    <div className="flex items-center gap-2">
+                      <div className="font-semibold text-slate-900 dark:text-white">
+                        {item.semesterName}
+                      </div>
+                      <span
+                        className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
+                          item.isDistributed
+                            ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400'
+                            : 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400'
+                        }`}
+                      >
+                        {item.isDistributed
+                          ? t('status.distributed')
+                          : t('status.notDistributed', {
+                              date: new Date(
+                                item.distributionDate
+                              ).toLocaleDateString(
+                                locale === 'vi' ? 'vi-VN' : 'en-US'
+                              ),
+                            })}
+                      </span>
                     </div>
                     <div className="text-sm text-slate-600 dark:text-white/70">
                       {item.bonusDescription}
@@ -195,27 +255,23 @@ export function SemesterBonusSection() {
                     <div className="mt-2 flex gap-4 text-sm">
                       <span className="text-slate-600 dark:text-white/70">
                         {t('amount')}:{' '}
-                        {item.bonusAmount.toLocaleString('vi-VN')} VND
+                        {item.bonusAmount.toLocaleString(
+                          locale === 'vi' ? 'vi-VN' : 'en-US'
+                        )}{' '}
+                        {t('currency')}
                       </span>
                       <span className="text-slate-600 dark:text-white/70">
-                        {t('distributed')}: {item.totalDistributed}{' '}
-                        {t('students')}
+                        {t('status.distributedCount', {
+                          received: item.studentsReceived || 0,
+                          total: item.totalEligibleStudents || 0,
+                        })}
                       </span>
                     </div>
                     <div className="mt-1 text-xs text-slate-500 dark:text-white/60">
                       {t('distributionDateLabel')}:{' '}
                       {new Date(item.distributionDate).toLocaleDateString(
-                        'vi-VN'
+                        locale === 'vi' ? 'vi-VN' : 'en-US'
                       )}
-                    </div>
-                    <div
-                      className={`mt-1 text-xs ${
-                        item.isActive
-                          ? 'text-emerald-600 dark:text-emerald-400'
-                          : 'text-slate-400'
-                      }`}
-                    >
-                      {item.isActive ? t('active') : t('inactive')}
                     </div>
                   </div>
                   <div className="ml-4 flex items-center gap-2">
@@ -223,11 +279,17 @@ export function SemesterBonusSection() {
                       variant="default"
                       size="sm"
                       onClick={() => handleDistribute(item.bonusId)}
-                      disabled={distributeMutation.isPending}
+                      disabled={
+                        distributeMutation.isPending ||
+                        (item.isDistributed &&
+                          item.studentsReceived === item.totalEligibleStudents)
+                      }
                       className="flex items-center gap-2"
                     >
                       <GiftIcon className="h-4 w-4" />
-                      {t('distribute')}
+                      {item.isDistributed
+                        ? t('distributeButton.redistribute')
+                        : t('distributeButton.distribute')}
                     </Button>
                     <Button
                       variant="ghost"
@@ -254,9 +316,7 @@ export function SemesterBonusSection() {
           setFormData({
             semesterId: '',
             bonusAmount: 0,
-            bonusDescription: '',
-            isActive: true,
-            distributionDate: '',
+            description: '',
           });
         }}
         title={editingItem ? t('editTitle') : t('createTitle')}
@@ -267,15 +327,51 @@ export function SemesterBonusSection() {
             <label className="block text-sm font-medium text-slate-700 dark:text-white/70">
               {t('semesterId')}
             </label>
-            <Input
-              type="text"
-              value={formData.semesterId}
-              onChange={e =>
-                setFormData({ ...formData, semesterId: e.target.value })
-              }
-              placeholder={t('semesterIdPlaceholder')}
-              className="w-full"
-            />
+            {editingItem ? (
+              <Input
+                type="text"
+                value={formData.semesterId}
+                disabled
+                className="w-full bg-slate-100 dark:bg-slate-800"
+              />
+            ) : (
+              <Select
+                value={formData.semesterId}
+                onChange={e =>
+                  setFormData({ ...formData, semesterId: e.target.value })
+                }
+                isLoading={isLoadingSemesters}
+                className="w-full"
+              >
+                <option value="">{t('selectSemester')}</option>
+                {availableSemesters.map(semester => (
+                  <option key={semester.semesterId} value={semester.semesterId}>
+                    {formatSemesterName(
+                      semester.termName,
+                      semester.academicYearName
+                    )}
+                  </option>
+                ))}
+              </Select>
+            )}
+            {!editingItem && isLoadingSemesters && (
+              <p className="text-xs text-slate-500 dark:text-white/60">
+                {t('loadingSemesters')}
+              </p>
+            )}
+            {!editingItem && !isLoadingSemesters && semestersError && (
+              <p className="text-xs text-red-500 dark:text-red-400">
+                {t('errorLoadingSemesters')}
+              </p>
+            )}
+            {!editingItem &&
+              !isLoadingSemesters &&
+              !semestersError &&
+              availableSemesters.length === 0 && (
+                <p className="text-xs text-slate-500 dark:text-white/60">
+                  {t('allSemestersHaveBonus')}
+                </p>
+              )}
           </div>
 
           <div className="space-y-2">
@@ -304,9 +400,9 @@ export function SemesterBonusSection() {
             </label>
             <Input
               type="text"
-              value={formData.bonusDescription}
+              value={formData.description}
               onChange={e =>
-                setFormData({ ...formData, bonusDescription: e.target.value })
+                setFormData({ ...formData, description: e.target.value })
               }
               placeholder={t('bonusDescriptionPlaceholder')}
               className="w-full"
@@ -315,32 +411,22 @@ export function SemesterBonusSection() {
 
           <div className="space-y-2">
             <label className="block text-sm font-medium text-slate-700 dark:text-white/70">
-              {t('distributionDate')}
+              {t('distributionDate')} {t('optional')}
             </label>
             <Input
               type="date"
-              value={formData.distributionDate}
+              value={formData.distributionDate || ''}
               onChange={e =>
                 setFormData({ ...formData, distributionDate: e.target.value })
               }
+              disabled={editingItem?.isDistributed}
               className="w-full"
             />
-          </div>
-
-          <div className="space-y-2">
-            <label className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                checked={formData.isActive}
-                onChange={e =>
-                  setFormData({ ...formData, isActive: e.target.checked })
-                }
-                className="h-4 w-4 rounded border-slate-300"
-              />
-              <span className="text-sm font-medium text-slate-700 dark:text-white/70">
-                {t('isActive')}
-              </span>
-            </label>
+            <p className="text-xs text-slate-500 dark:text-white/60">
+              {editingItem?.isDistributed
+                ? t('distributionDateHint.distributed')
+                : t('distributionDateHint.notDistributed')}
+            </p>
           </div>
 
           <div className="flex gap-3">
@@ -348,8 +434,8 @@ export function SemesterBonusSection() {
               onClick={editingItem ? handleUpdate : handleCreate}
               disabled={
                 !formData.semesterId ||
-                !formData.bonusDescription ||
-                !formData.distributionDate ||
+                !formData.description ||
+                !formData.bonusAmount ||
                 createMutation.isPending ||
                 updateMutation.isPending
               }
@@ -369,9 +455,7 @@ export function SemesterBonusSection() {
                 setFormData({
                   semesterId: '',
                   bonusAmount: 0,
-                  bonusDescription: '',
-                  isActive: true,
-                  distributionDate: '',
+                  description: '',
                 });
               }}
               disabled={createMutation.isPending || updateMutation.isPending}

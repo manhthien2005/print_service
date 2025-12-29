@@ -7,8 +7,6 @@ import {
   CartesianGrid,
   Cell,
   Legend,
-  Line,
-  LineChart,
   Pie,
   PieChart,
   ResponsiveContainer,
@@ -16,8 +14,6 @@ import {
   TooltipProps,
   XAxis,
   YAxis,
-  Area,
-  AreaChart,
 } from 'recharts';
 import {
   Card,
@@ -31,11 +27,18 @@ import { DatePicker } from '@/components/ui/DatePicker';
 import { Button } from '@/components/ui/Button';
 import CountUp from '@/components/ui/CountUp';
 import { cn } from '@/lib/utils/cn';
+import { useTranslations } from 'next-intl';
 import {
   useCustomReport,
   usePaperUsage,
+  useDashboardOverview,
 } from '@/lib/api/services/staffReports';
 import ReportsContentSkeleton from './ReportsContentSkeleton';
+import { ReportManagement } from './ReportManagement';
+import { DailyJobTrendsChart } from './charts/DailyJobTrendsChart';
+import { DailyPageAnalyticsChart } from './charts/DailyPageAnalyticsChart';
+import { TopActivePrintersChart } from './charts/TopActivePrintersChart';
+import { MonthlyRevenueTrendsChart } from './charts/MonthlyRevenueTrendsChart';
 
 type ChartTooltipProps = TooltipProps<number, string> & {
   payload?: Array<{
@@ -71,7 +74,7 @@ const CustomTooltip = ({ active, payload, label }: ChartTooltipProps) => {
   );
 };
 
-const PieTooltip = ({ active, payload }: ChartTooltipProps) => {
+const PieTooltip = ({ active, payload, t }: ChartTooltipProps & { t: any }) => {
   if (!active || !payload || payload.length === 0) return null;
   const item = payload[0];
   return (
@@ -80,7 +83,8 @@ const PieTooltip = ({ active, payload }: ChartTooltipProps) => {
         {item.name}
       </p>
       <p className="text-slate-700 dark:text-white/80">
-        Số lượng: <span className="font-semibold">{item.value}</span>
+        {t('charts.printStatusDistribution.tooltip.quantity')}:{' '}
+        <span className="font-semibold">{item.value}</span>
       </p>
     </div>
   );
@@ -146,6 +150,7 @@ function SummaryCard({
 }
 
 export function ReportsContent() {
+  const t = useTranslations('staff.reports');
   const [dateRange, setDateRange] = useState<
     '7days' | '30days' | '90days' | 'custom'
   >('30days');
@@ -180,16 +185,25 @@ export function ReportsContent() {
     return { from, to };
   }, [dateRange, startDate, endDate]);
 
-  // Fetch data from API
-  const { data: customReportData, isLoading: isLoadingReport } =
+  // Use dashboard for 7 days, custom report for other ranges
+  const useDashboard = dateRange === '7days';
+  const { data: dashboardData, isLoading: isLoadingDashboard } =
+    useDashboardOverview();
+  const { data: customReportData, isLoading: isLoadingCustomReport } =
     useCustomReport(dateRangeParams.from, dateRangeParams.to);
   const { data: paperUsageData } = usePaperUsage(
     dateRangeParams.from,
     dateRangeParams.to
   );
 
+  const isLoadingReport = useDashboard
+    ? isLoadingDashboard
+    : isLoadingCustomReport;
+
   // Extract data from API responses
-  const reportData = customReportData?.data?.data;
+  const reportData = useDashboard
+    ? dashboardData?.data?.data
+    : customReportData?.data?.data;
   const paperUsage = paperUsageData?.data?.data || [];
 
   // Map API data to chart formats
@@ -203,24 +217,17 @@ export function ReportsContent() {
           averageJobsPerDay: 0,
           successRate: 0,
         },
-        printJobsByDate: [],
+        dailyJobTrends: [],
+        dailyPageAnalytics: [],
+        topActivePrinters: [],
+        monthlyRevenueTrends: [],
         printStatusDistribution: [],
-        pagesPrintedByDate: [],
-        revenueByMonth: [],
-        topPrinters: [],
         colorModeDistribution: [],
         paperSizeDistribution: [],
       };
     }
 
-    const printJobStats = reportData.printJobStats || {};
-    const revenueStats = reportData.revenueStats || {};
-
-    // Calculate summary
-    const totalJobs = printJobStats.totalJobs || 0;
-    const completedJobs = printJobStats.completedJobs || 0;
-    const totalPages = printJobStats.totalPages || 0;
-    const totalRevenue = revenueStats.totalRevenue || 0;
+    // Calculate days difference for both cases
     const daysDiff = Math.max(
       1,
       Math.ceil(
@@ -229,24 +236,105 @@ export function ReportsContent() {
           (1000 * 60 * 60 * 24)
       )
     );
+
+    let totalJobs = 0;
+    let completedJobs = 0;
+    let failedJobs = 0;
+    let cancelledJobs = 0;
+    let totalPages = 0;
+    let totalRevenue = 0;
+    let bwPages = 0;
+    let colorPages = 0;
+
+    // Handle Dashboard response (different structure)
+    if (useDashboard) {
+      // Dashboard has direct fields, not nested in printJobStats/revenueStats
+      totalJobs = (reportData as any).jobsThisMonth || 0;
+      completedJobs = (reportData as any).completedJobsToday || 0;
+      totalPages = (reportData as any).totalPagesThisMonth || 0;
+      totalRevenue = (reportData as any).revenueThisMonth || 0;
+
+      // Calculate failed/cancelled from dailyJobTrends if available
+      const dailyJobTrends = (reportData as any).dailyJobTrends || [];
+      if (dailyJobTrends.length > 0) {
+        failedJobs = dailyJobTrends.reduce(
+          (sum: number, item: any) => sum + (item.failedJobs || 0),
+          0
+        );
+        cancelledJobs = dailyJobTrends.reduce(
+          (sum: number, item: any) => sum + (item.cancelledJobs || 0),
+          0
+        );
+        // Recalculate completedJobs from trends if available
+        const completedFromTrends = dailyJobTrends.reduce(
+          (sum: number, item: any) => sum + (item.completedJobs || 0),
+          0
+        );
+        if (completedFromTrends > 0) {
+          completedJobs = completedFromTrends;
+        }
+        // Recalculate totalJobs from trends
+        const totalFromTrends = dailyJobTrends.reduce(
+          (sum: number, item: any) => sum + (item.jobCount || 0),
+          0
+        );
+        if (totalFromTrends > 0) {
+          totalJobs = totalFromTrends;
+        }
+      }
+
+      // Calculate color/BW pages from dailyPageAnalytics if available
+      const dailyPageAnalytics = (reportData as any).dailyPageAnalytics || [];
+      if (dailyPageAnalytics.length > 0) {
+        colorPages = dailyPageAnalytics.reduce(
+          (sum: number, item: any) => sum + (item.colorPages || 0),
+          0
+        );
+        bwPages = dailyPageAnalytics.reduce(
+          (sum: number, item: any) => sum + (item.bwPages || 0),
+          0
+        );
+      }
+    } else {
+      // Handle Custom Report response (has nested printJobStats/revenueStats)
+      const printJobStats = (reportData as any).printJobStats || {};
+      const revenueStats = (reportData as any).revenueStats || {};
+
+      totalJobs = printJobStats.totalJobs || 0;
+      completedJobs = printJobStats.completedJobs || 0;
+      failedJobs = printJobStats.failedJobs || 0;
+      cancelledJobs = printJobStats.cancelledJobs || 0;
+      totalPages = printJobStats.totalPages || 0;
+      totalRevenue = revenueStats.totalRevenue || 0;
+      bwPages = printJobStats.bwPages || 0;
+      colorPages = printJobStats.colorPages || 0;
+    }
+
+    // Calculate summary metrics
     const averageJobsPerDay = Math.round(totalJobs / daysDiff);
     const successRate = totalJobs > 0 ? completedJobs / totalJobs : 0;
+
+    // Get analytics fields (available in both response types)
+    const dailyJobTrends = (reportData as any).dailyJobTrends || [];
+    const dailyPageAnalytics = (reportData as any).dailyPageAnalytics || [];
+    const topActivePrinters = (reportData as any).topActivePrinters || [];
+    const monthlyRevenueTrends = (reportData as any).monthlyRevenueTrends || [];
 
     // Print status distribution
     const printStatusDistribution = [
       {
-        name: 'Hoàn tất',
+        name: t('charts.printStatusDistribution.labels.completed'),
         value: completedJobs,
         color: '#10b981',
       },
       {
-        name: 'Thất bại',
-        value: printJobStats.failedJobs || 0,
+        name: t('charts.printStatusDistribution.labels.failed'),
+        value: failedJobs,
         color: '#ef4444',
       },
       {
-        name: 'Đang chờ',
-        value: printJobStats.cancelledJobs || 0,
+        name: t('charts.printStatusDistribution.labels.queued'),
+        value: cancelledJobs,
         color: '#64748b',
       },
     ];
@@ -258,31 +346,27 @@ export function ReportsContent() {
       percentage: item.percentage,
     }));
 
-    // Color mode distribution (if available from API)
+    // Color mode distribution
     const colorModeDistribution = [
       {
-        name: 'Đen trắng',
-        value: printJobStats.bwPages || 0,
+        name: t('charts.colorModeDistribution.labels.blackWhite'),
+        value: bwPages,
         color: '#1e293b',
       },
       {
-        name: 'In màu',
-        value: printJobStats.colorPages || 0,
+        name: t('charts.colorModeDistribution.labels.color'),
+        value: colorPages,
         color: '#3b82f6',
       },
       {
-        name: 'In xám',
-        value:
-          (printJobStats.totalPages || 0) -
-          (printJobStats.colorPages || 0) -
-          (printJobStats.bwPages || 0),
+        name: t('charts.colorModeDistribution.labels.grayscale'),
+        value: Math.max(0, totalPages - colorPages - bwPages),
         color: '#64748b',
       },
     ].filter(item => item.value > 0);
 
-    // Note: Daily breakdowns (printJobsByDate, pagesPrintedByDate) are not available
-    // from the custom report API. These would need to be calculated from print job history
-    // or provided by a separate endpoint. For now, we'll show empty arrays.
+    // Check if range is more than 1 month for monthly revenue display
+    const showMonthlyRevenue = daysDiff > 31;
 
     return {
       summary: {
@@ -292,24 +376,15 @@ export function ReportsContent() {
         averageJobsPerDay,
         successRate,
       },
-      printJobsByDate: reportData.printJobsByDate || [],
+      dailyJobTrends,
+      dailyPageAnalytics,
+      topActivePrinters,
+      monthlyRevenueTrends: showMonthlyRevenue ? monthlyRevenueTrends : [],
       printStatusDistribution,
-      pagesPrintedByDate: reportData.pagesPrintedByDate || [],
-      revenueByMonth: reportData.revenueByMonth || [],
-      topPrinters: reportData.topPrinters || [],
       colorModeDistribution,
       paperSizeDistribution,
     };
-  }, [reportData, paperUsage, dateRangeParams]);
-
-  const COLORS = {
-    completed: '#10b981',
-    failed: '#ef4444',
-    queued: '#64748b',
-    color: '#3b82f6',
-    grayscale: '#64748b',
-    blackWhite: '#1e293b',
-  };
+  }, [reportData, paperUsage, dateRangeParams, useDashboard, t]);
 
   if (isLoadingReport) {
     return <ReportsContentSkeleton />;
@@ -320,160 +395,173 @@ export function ReportsContent() {
       {/* Summary Cards */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
         <SummaryCard
-          title="Tổng công việc in"
+          title={t('summary.totalPrintJobs')}
           useCountUp
           countUpValue={mappedData.summary.totalPrintJobs}
-          caption="Trong khoảng thời gian đã chọn"
+          caption={t('summary.caption.inSelectedPeriod')}
         />
         <SummaryCard
-          title="Tổng trang đã in"
+          title={t('summary.totalPagesPrinted')}
           useCountUp
           countUpValue={mappedData.summary.totalPagesPrinted}
-          caption="Bao gồm màu và đen trắng"
+          caption={t('summary.caption.includingColorAndBW')}
         />
         <SummaryCard
-          title="Tổng doanh thu"
+          title={t('summary.totalRevenue')}
           value={formatCurrency(mappedData.summary.totalRevenue)}
-          caption="Từ mua trang in"
+          caption={t('summary.caption.fromPagePurchases')}
         />
         <SummaryCard
-          title="TB công việc/ngày"
+          title={t('summary.averageJobsPerDay')}
           useCountUp
           countUpValue={mappedData.summary.averageJobsPerDay}
-          caption="Trung bình hàng ngày"
+          caption={t('summary.caption.dailyAverage')}
         />
         <SummaryCard
-          title="Tỷ lệ thành công"
+          title={t('summary.successRate')}
           value={`${Math.round(mappedData.summary.successRate * 100)}%`}
-          caption="Hoàn tất / Tổng số"
+          caption={t('summary.caption.completedOverTotal')}
           trend={{
-            label: 'Ổn định',
+            label: t('summary.trend.stable'),
             positive: mappedData.summary.successRate >= 0.9,
           }}
         />
       </div>
 
-      {/* Filters */}
-      <Card className="border-slate-200/70 bg-white/80 shadow-[0_10px_40px_rgba(15,23,42,0.08)] backdrop-blur dark:border-white/10 dark:bg-white/5 dark:shadow-[0_20px_60px_rgba(0,0,0,0.35)]">
-        <CardHeader>
-          <CardTitle className="text-lg font-semibold text-slate-900 dark:text-white">
-            Bộ lọc thời gian
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex flex-wrap items-center gap-4">
-            <Select
-              value={dateRange}
-              onChange={e => setDateRange(e.target.value as typeof dateRange)}
-              className="w-48"
-            >
-              <option value="7days">7 ngày gần nhất</option>
-              <option value="30days">30 ngày gần nhất</option>
-              <option value="90days">90 ngày gần nhất</option>
-              <option value="custom">Tùy chỉnh</option>
-            </Select>
-            {dateRange === 'custom' && (
-              <>
-                <DatePicker
-                  value={startDate}
-                  onChange={setStartDate}
-                  placeholder="Từ ngày"
-                  className="w-48"
-                />
-                <DatePicker
-                  value={endDate}
-                  onChange={setEndDate}
-                  placeholder="Đến ngày"
-                  className="w-48"
-                  min={startDate || undefined}
-                />
-              </>
-            )}
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                setDateRange('30days');
-                setStartDate('');
-                setEndDate('');
-              }}
-              disabled={isLoadingReport}
-            >
-              Đặt lại
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Charts Grid */}
-      <div className="grid gap-6 lg:grid-cols-2">
-        {/* Print Jobs by Date - Line Chart */}
+      {/* Filters and Report Management */}
+      <div className="space-y-4">
         <Card className="border-slate-200/70 bg-white/80 shadow-[0_10px_40px_rgba(15,23,42,0.08)] backdrop-blur dark:border-white/10 dark:bg-white/5 dark:shadow-[0_20px_60px_rgba(0,0,0,0.35)]">
           <CardHeader>
             <CardTitle className="text-lg font-semibold text-slate-900 dark:text-white">
-              Công việc in theo ngày
+              {t('filters.title')}
             </CardTitle>
-            <CardDescription>
-              Xu hướng công việc in trong khoảng thời gian
-            </CardDescription>
           </CardHeader>
           <CardContent>
-            {mappedData.printJobsByDate.length > 0 ? (
-              <ResponsiveContainer width="100%" height={300}>
-                <LineChart data={mappedData.printJobsByDate}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                  <XAxis
-                    dataKey="date"
-                    tick={{ fill: '#64748b' }}
-                    tickFormatter={value => {
-                      const date = new Date(value);
-                      return `${date.getDate()}/${date.getMonth() + 1}`;
-                    }}
+            <div className="flex flex-wrap items-center gap-4">
+              <Select
+                value={dateRange}
+                onChange={e => setDateRange(e.target.value as typeof dateRange)}
+                className="w-48"
+              >
+                <option value="7days">{t('filters.dateRanges.7days')}</option>
+                <option value="30days">{t('filters.dateRanges.30days')}</option>
+                <option value="90days">{t('filters.dateRanges.90days')}</option>
+                <option value="custom">{t('filters.dateRanges.custom')}</option>
+              </Select>
+              {dateRange === 'custom' && (
+                <>
+                  <DatePicker
+                    value={startDate}
+                    onChange={setStartDate}
+                    placeholder={t('filters.fromDate')}
+                    className="w-48"
                   />
-                  <YAxis tick={{ fill: '#64748b' }} />
-                  <RechartsTooltip content={<CustomTooltip />} />
-                  <Legend />
-                  <Line
-                    type="monotone"
-                    dataKey="completed"
-                    stroke={COLORS.completed}
-                    strokeWidth={2}
-                    name="Hoàn tất"
-                    dot={{ r: 4 }}
+                  <DatePicker
+                    value={endDate}
+                    onChange={setEndDate}
+                    placeholder={t('filters.toDate')}
+                    className="w-48"
+                    min={startDate || undefined}
                   />
-                  <Line
-                    type="monotone"
-                    dataKey="failed"
-                    stroke={COLORS.failed}
-                    strokeWidth={2}
-                    name="Thất bại"
-                    dot={{ r: 4 }}
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="queued"
-                    stroke={COLORS.queued}
-                    strokeWidth={2}
-                    name="Đang chờ"
-                    dot={{ r: 4 }}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            ) : (
-              <div className="flex h-[300px] items-center justify-center text-slate-500 dark:text-white/60">
-                Dữ liệu chi tiết theo ngày không khả dụng
-              </div>
-            )}
+                </>
+              )}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setDateRange('30days');
+                  setStartDate('');
+                  setEndDate('');
+                }}
+                disabled={isLoadingReport}
+              >
+                {t('filters.reset')}
+              </Button>
+            </div>
           </CardContent>
         </Card>
 
+        <ReportManagement defaultView="generate" />
+      </div>
+
+      {/* Daily Analytics Section */}
+      <div className="grid gap-6 lg:grid-cols-2">
+        {/* Daily Job Trends */}
+        <Card className="border-slate-200/70 bg-white/80 shadow-[0_10px_40px_rgba(15,23,42,0.08)] backdrop-blur dark:border-white/10 dark:bg-white/5 dark:shadow-[0_20px_60px_rgba(0,0,0,0.35)]">
+          <CardHeader>
+            <CardTitle className="text-lg font-semibold text-slate-900 dark:text-white">
+              {t('charts.dailyJobTrends.title')}
+            </CardTitle>
+            <CardDescription>
+              {t('charts.dailyJobTrends.description')}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <DailyJobTrendsChart data={mappedData.dailyJobTrends} />
+          </CardContent>
+        </Card>
+
+        {/* Daily Page Analytics */}
+        <Card className="border-slate-200/70 bg-white/80 shadow-[0_10px_40px_rgba(15,23,42,0.08)] backdrop-blur dark:border-white/10 dark:bg-white/5 dark:shadow-[0_20px_60px_rgba(0,0,0,0.35)]">
+          <CardHeader>
+            <CardTitle className="text-lg font-semibold text-slate-900 dark:text-white">
+              {t('charts.dailyPageAnalytics.title')}
+            </CardTitle>
+            <CardDescription>
+              {t('charts.dailyPageAnalytics.description')}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <DailyPageAnalyticsChart data={mappedData.dailyPageAnalytics} />
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Top Active Printers - Full Width */}
+      {mappedData.topActivePrinters.length > 0 && (
+        <Card className="border-slate-200/70 bg-white/80 shadow-[0_10px_40px_rgba(15,23,42,0.08)] backdrop-blur dark:border-white/10 dark:bg-white/5 dark:shadow-[0_20px_60px_rgba(0,0,0,0.35)]">
+          <CardHeader>
+            <CardTitle className="text-lg font-semibold text-slate-900 dark:text-white">
+              {t('charts.topActivePrinters.title')}
+            </CardTitle>
+            <CardDescription>
+              {t('charts.topActivePrinters.description')}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <TopActivePrintersChart data={mappedData.topActivePrinters} />
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Monthly Revenue Trends - Conditional, Full Width */}
+      {mappedData.monthlyRevenueTrends.length > 0 && (
+        <Card className="border-slate-200/70 bg-white/80 shadow-[0_10px_40px_rgba(15,23,42,0.08)] backdrop-blur dark:border-white/10 dark:bg-white/5 dark:shadow-[0_20px_60px_rgba(0,0,0,0.35)]">
+          <CardHeader>
+            <CardTitle className="text-lg font-semibold text-slate-900 dark:text-white">
+              {t('charts.monthlyRevenueTrends.title')}
+            </CardTitle>
+            <CardDescription>
+              {t('charts.monthlyRevenueTrends.description')}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <MonthlyRevenueTrendsChart data={mappedData.monthlyRevenueTrends} />
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Distribution Charts - 2x2 Grid */}
+      <div className="grid gap-6 lg:grid-cols-2">
         {/* Print Status Distribution - Pie Chart */}
         <Card className="border-slate-200/70 bg-white/80 shadow-[0_10px_40px_rgba(15,23,42,0.08)] backdrop-blur dark:border-white/10 dark:bg-white/5 dark:shadow-[0_20px_60px_rgba(0,0,0,0.35)]">
           <CardHeader>
             <CardTitle className="text-lg font-semibold text-slate-900 dark:text-white">
-              Phân bố trạng thái in
+              {t('charts.printStatusDistribution.title')}
             </CardTitle>
-            <CardDescription>Tỷ lệ các trạng thái công việc in</CardDescription>
+            <CardDescription>
+              {t('charts.printStatusDistribution.description')}
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
@@ -494,142 +582,9 @@ export function ReportsContent() {
                     <Cell key={`cell-${index}`} fill={entry.color} />
                   ))}
                 </Pie>
-                <RechartsTooltip content={<PieTooltip />} />
+                <RechartsTooltip content={<PieTooltip t={t} />} />
               </PieChart>
             </ResponsiveContainer>
-          </CardContent>
-        </Card>
-
-        {/* Pages Printed by Date - Area Chart */}
-        <Card className="border-slate-200/70 bg-white/80 shadow-[0_10px_40px_rgba(15,23,42,0.08)] backdrop-blur dark:border-white/10 dark:bg-white/5 dark:shadow-[0_20px_60px_rgba(0,0,0,0.35)]">
-          <CardHeader>
-            <CardTitle className="text-lg font-semibold text-slate-900 dark:text-white">
-              Số trang in theo ngày
-            </CardTitle>
-            <CardDescription>
-              Phân tích số trang in màu và đen trắng
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {mappedData.pagesPrintedByDate.length > 0 ? (
-              <ResponsiveContainer width="100%" height={300}>
-                <AreaChart data={mappedData.pagesPrintedByDate}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                  <XAxis
-                    dataKey="date"
-                    tick={{ fill: '#64748b' }}
-                    tickFormatter={value => {
-                      const date = new Date(value);
-                      return `${date.getDate()}/${date.getMonth() + 1}`;
-                    }}
-                  />
-                  <YAxis tick={{ fill: '#64748b' }} />
-                  <RechartsTooltip content={<CustomTooltip />} />
-                  <Legend />
-                  <Area
-                    type="monotone"
-                    dataKey="colorPages"
-                    stackId="1"
-                    stroke={COLORS.color}
-                    fill={COLORS.color}
-                    name="Trang màu"
-                    fillOpacity={0.6}
-                  />
-                  <Area
-                    type="monotone"
-                    dataKey="blackWhitePages"
-                    stackId="1"
-                    stroke={COLORS.blackWhite}
-                    fill={COLORS.blackWhite}
-                    name="Trang đen trắng"
-                    fillOpacity={0.6}
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
-            ) : (
-              <div className="flex h-[300px] items-center justify-center text-slate-500 dark:text-white/60">
-                Dữ liệu chi tiết theo ngày không khả dụng
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Revenue by Month - Bar Chart */}
-        <Card className="border-slate-200/70 bg-white/80 shadow-[0_10px_40px_rgba(15,23,42,0.08)] backdrop-blur dark:border-white/10 dark:bg-white/5 dark:shadow-[0_20px_60px_rgba(0,0,0,0.35)]">
-          <CardHeader>
-            <CardTitle className="text-lg font-semibold text-slate-900 dark:text-white">
-              Doanh thu theo tháng
-            </CardTitle>
-            <CardDescription>
-              Xu hướng doanh thu từ mua trang in
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {mappedData.revenueByMonth.length > 0 ? (
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={mappedData.revenueByMonth}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                  <XAxis dataKey="month" tick={{ fill: '#64748b' }} />
-                  <YAxis
-                    tick={{ fill: '#64748b' }}
-                    tickFormatter={value => `${(value / 1000000).toFixed(0)}M`}
-                  />
-                  <RechartsTooltip
-                    content={<CustomTooltip />}
-                    formatter={(value: number) => formatCurrency(value)}
-                  />
-                  <Legend />
-                  <Bar
-                    dataKey="revenue"
-                    fill="#3b82f6"
-                    name="Doanh thu (VND)"
-                    radius={[8, 8, 0, 0]}
-                  />
-                </BarChart>
-              </ResponsiveContainer>
-            ) : (
-              <div className="flex h-[300px] items-center justify-center text-slate-500 dark:text-white/60">
-                Dữ liệu doanh thu theo tháng không khả dụng
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Top Printers - Bar Chart */}
-        <Card className="border-slate-200/70 bg-white/80 shadow-[0_10px_40px_rgba(15,23,42,0.08)] backdrop-blur dark:border-white/10 dark:bg-white/5 dark:shadow-[0_20px_60px_rgba(0,0,0,0.35)]">
-          <CardHeader>
-            <CardTitle className="text-lg font-semibold text-slate-900 dark:text-white">
-              Top máy in hoạt động
-            </CardTitle>
-            <CardDescription>5 máy in có nhiều công việc nhất</CardDescription>
-          </CardHeader>
-          <CardContent>
-            {mappedData.topPrinters.length > 0 ? (
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={mappedData.topPrinters} layout="vertical">
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                  <XAxis type="number" tick={{ fill: '#64748b' }} />
-                  <YAxis
-                    dataKey="printerName"
-                    type="category"
-                    width={200}
-                    tick={{ fill: '#64748b', fontSize: 12 }}
-                  />
-                  <RechartsTooltip content={<CustomTooltip />} />
-                  <Legend />
-                  <Bar
-                    dataKey="totalJobs"
-                    fill="#10b981"
-                    name="Số công việc"
-                    radius={[0, 8, 8, 0]}
-                  />
-                </BarChart>
-              </ResponsiveContainer>
-            ) : (
-              <div className="flex h-[300px] items-center justify-center text-slate-500 dark:text-white/60">
-                Dữ liệu top máy in không khả dụng
-              </div>
-            )}
           </CardContent>
         </Card>
 
@@ -637,9 +592,11 @@ export function ReportsContent() {
         <Card className="border-slate-200/70 bg-white/80 shadow-[0_10px_40px_rgba(15,23,42,0.08)] backdrop-blur dark:border-white/10 dark:bg-white/5 dark:shadow-[0_20px_60px_rgba(0,0,0,0.35)]">
           <CardHeader>
             <CardTitle className="text-lg font-semibold text-slate-900 dark:text-white">
-              Phân bố chế độ màu
+              {t('charts.colorModeDistribution.title')}
             </CardTitle>
-            <CardDescription>Tỷ lệ sử dụng các chế độ in</CardDescription>
+            <CardDescription>
+              {t('charts.colorModeDistribution.description')}
+            </CardDescription>
           </CardHeader>
           <CardContent>
             {mappedData.colorModeDistribution.length > 0 ? (
@@ -661,12 +618,12 @@ export function ReportsContent() {
                       <Cell key={`cell-${index}`} fill={entry.color} />
                     ))}
                   </Pie>
-                  <RechartsTooltip content={<PieTooltip />} />
+                  <RechartsTooltip content={<PieTooltip t={t} />} />
                 </PieChart>
               </ResponsiveContainer>
             ) : (
               <div className="flex h-[300px] items-center justify-center text-slate-500 dark:text-white/60">
-                Dữ liệu phân bố chế độ màu không khả dụng
+                {t('charts.colorModeDistribution.noData')}
               </div>
             )}
           </CardContent>
@@ -676,9 +633,11 @@ export function ReportsContent() {
         <Card className="border-slate-200/70 bg-white/80 shadow-[0_10px_40px_rgba(15,23,42,0.08)] backdrop-blur dark:border-white/10 dark:bg-white/5 dark:shadow-[0_20px_60px_rgba(0,0,0,0.35)]">
           <CardHeader>
             <CardTitle className="text-lg font-semibold text-slate-900 dark:text-white">
-              Phân bố khổ giấy
+              {t('charts.paperSizeDistribution.title')}
             </CardTitle>
-            <CardDescription>Sử dụng các khổ giấy khác nhau</CardDescription>
+            <CardDescription>
+              {t('charts.paperSizeDistribution.description')}
+            </CardDescription>
           </CardHeader>
           <CardContent>
             {mappedData.paperSizeDistribution.length > 0 ? (
@@ -698,14 +657,14 @@ export function ReportsContent() {
                   <Bar
                     dataKey="count"
                     fill="#8b5cf6"
-                    name="Số lượng"
+                    name={t('charts.paperSizeDistribution.legend.count')}
                     radius={[8, 8, 0, 0]}
                   />
                 </BarChart>
               </ResponsiveContainer>
             ) : (
               <div className="flex h-[300px] items-center justify-center text-slate-500 dark:text-white/60">
-                Dữ liệu phân bố khổ giấy không khả dụng
+                {t('charts.paperSizeDistribution.noData')}
               </div>
             )}
           </CardContent>

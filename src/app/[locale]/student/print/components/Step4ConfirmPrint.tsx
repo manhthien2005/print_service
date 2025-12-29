@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useMemo, useEffect, useCallback, useRef } from 'react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { Button } from '@/components/ui/Button';
 import {
   MockUploadedFile,
@@ -22,10 +22,7 @@ import {
   mapColorModeToApiValue,
 } from '@/lib/utils/mappers/studentPrintMapper';
 import { toast } from '@/components/ui/Toast';
-import {
-  paymentOptions,
-  type PaymentMethod,
-} from '@/app/[locale]/student/print/types';
+import { type PaymentMethod } from '@/app/[locale]/student/print/types';
 import { cn } from '@/lib/utils/cn';
 import { PrintPaymentModal } from './PrintPaymentModal';
 import { useQueryClient } from '@tanstack/react-query';
@@ -56,6 +53,24 @@ export function Step4ConfirmPrint({
   const t = useTranslations('student.print.step4');
   const t3 = useTranslations('student.print.step3');
   const t2 = useTranslations('student.print.step2');
+  const tPayment = useTranslations('student.print.paymentOptions');
+  const locale = useLocale();
+
+  // Generate payment options from translations
+  const paymentOptions = [
+    {
+      id: 'balance' as PaymentMethod,
+      label: tPayment('balance.label'),
+      description: tPayment('balance.description'),
+      icon: '💰',
+    },
+    {
+      id: 'qr' as PaymentMethod,
+      label: tPayment('qr.label'),
+      description: tPayment('qr.description'),
+      icon: '📱',
+    },
+  ];
   const queryClient = useQueryClient();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
@@ -325,14 +340,15 @@ export function Step4ConfirmPrint({
 
       // Handle specific error cases
       if (
-        errorMessage.includes('Insufficient balance') ||
-        errorMessage.includes('không đủ')
+        errorMessage.toLowerCase().includes('insufficient balance') ||
+        errorMessage.toLowerCase().includes('không đủ') ||
+        errorMessage.toLowerCase().includes('not enough')
       ) {
         setError(t('errors.insufficientBalanceForPrint'));
       } else if (
-        errorMessage.includes('not available') ||
-        errorMessage.includes('không khả dụng') ||
-        errorMessage.includes('no longer available')
+        errorMessage.toLowerCase().includes('not available') ||
+        errorMessage.toLowerCase().includes('không khả dụng') ||
+        errorMessage.toLowerCase().includes('no longer available')
       ) {
         setError(t('errors.printerNotAvailable'));
         // Invalidate printer queries to refresh list
@@ -376,10 +392,10 @@ export function Step4ConfirmPrint({
   return (
     <div className="space-y-6">
       <div>
-        <h3 className="text-xl font-semibold text-foreground dark:text-foreground">
+        <h3 className="text-xl font-semibold text-slate-900 dark:text-white">
           {t('title')}
         </h3>
-        <p className="mt-1 text-sm text-muted-foreground dark:text-muted-foreground">
+        <p className="mt-1 text-sm text-slate-600 dark:text-white/70">
           {t('description')}
         </p>
       </div>
@@ -387,21 +403,36 @@ export function Step4ConfirmPrint({
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Left Column - File & Printer */}
         <div className="space-y-4 lg:col-span-2">
-          <div className="dark:bg-background/5 rounded-xl border border-border bg-background p-5 dark:border-border">
-            <div className="flex items-start gap-4">
-              <div className="bg-primary/10 dark:bg-primary/20 flex h-16 w-16 items-center justify-center rounded-lg">
+          <div className="rounded-xl border-2 border-slate-200 bg-white p-5 dark:border-white/10 dark:bg-white/5">
+            <div className="flex items-center gap-4">
+              <div className="flex h-16 w-16 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-500/20">
                 <FileIcon fileName={uploadedFile.file_name} size={64} />
               </div>
               <div className="flex-1">
                 <div className="flex items-center justify-between gap-3">
-                  <p className="font-medium text-foreground dark:text-foreground">
-                    {uploadedFile.file_name}
-                  </p>
+                  <div className="flex-1">
+                    <p className="font-medium text-slate-900 dark:text-white">
+                      {uploadedFile.file_name}
+                    </p>
+                    <div className="mt-1 flex flex-wrap items-center gap-2 text-sm text-slate-600 dark:text-white/70">
+                      <span>
+                        {(uploadedFile.file_size_kb / 1024).toFixed(2)} MB
+                      </span>
+                      {uploadedFile.page_count !== undefined && (
+                        <>
+                          <span>•</span>
+                          <span className="font-medium text-blue-600 dark:text-blue-400">
+                            {uploadedFile.page_count} {t3('pages')}
+                          </span>
+                        </>
+                      )}
+                    </div>
+                  </div>
                   <Button
                     size="sm"
                     onClick={() => setShowPreview(true)}
                     disabled={!uploadedFile.file && !uploadedFile.preview_url}
-                    className="hover:bg-primary/90 dark:hover:bg-primary/90 flex items-center gap-2 bg-primary text-primary-foreground dark:bg-primary"
+                    className="flex items-center gap-2 border-2 border-blue-500 bg-blue-500 text-white hover:bg-blue-600 dark:border-blue-400 dark:bg-blue-500 dark:hover:bg-blue-600"
                   >
                     <svg
                       className="h-4 w-4"
@@ -425,56 +456,43 @@ export function Step4ConfirmPrint({
                     {t('preview')}
                   </Button>
                 </div>
-                <div className="mt-1 flex flex-wrap items-center gap-2 text-sm text-muted-foreground dark:text-muted-foreground">
-                  <span>
-                    {(uploadedFile.file_size_kb / 1024).toFixed(2)} MB
-                  </span>
-                  {uploadedFile.page_count !== undefined && (
-                    <>
-                      <span>•</span>
-                      <span className="font-medium text-primary dark:text-primary">
-                        {uploadedFile.page_count} {t3('pages')}
-                      </span>
-                    </>
-                  )}
-                </div>
               </div>
             </div>
           </div>
 
-          <div className="dark:bg-background/5 rounded-xl border border-border bg-background p-5 dark:border-border">
-            <h4 className="mb-4 font-semibold text-foreground dark:text-foreground">
+          <div className="rounded-xl border-2 border-slate-200 bg-white p-5 dark:border-white/10 dark:bg-white/5">
+            <h4 className="mb-4 font-semibold text-slate-900 dark:text-white">
               {t('selectedPrinter')}
             </h4>
             {selectedPrinter && (
               <div className="space-y-3">
                 <div className="flex items-start justify-between">
-                  <span className="text-sm font-medium text-muted-foreground dark:text-muted-foreground">
+                  <span className="text-sm font-medium text-slate-600 dark:text-white/70">
                     {t('printer.name')}:
                   </span>
-                  <span className="text-right text-sm font-semibold text-foreground dark:text-foreground">
+                  <span className="text-right text-sm font-semibold text-slate-900 dark:text-white">
                     {selectedPrinter.brand_name} {selectedPrinter.model_name}
                   </span>
                 </div>
                 <div className="flex items-start justify-between">
-                  <span className="text-sm font-medium text-muted-foreground dark:text-muted-foreground">
+                  <span className="text-sm font-medium text-slate-600 dark:text-white/70">
                     {t('printer.code')}:
                   </span>
-                  <span className="text-right text-sm font-semibold text-foreground dark:text-foreground">
+                  <span className="text-right text-sm font-semibold text-slate-900 dark:text-white">
                     {selectedPrinter.serial_number}
                   </span>
                 </div>
                 <div className="flex items-start justify-between">
-                  <span className="text-sm font-medium text-muted-foreground dark:text-muted-foreground">
+                  <span className="text-sm font-medium text-slate-600 dark:text-white/70">
                     {t('printer.location')}:
                   </span>
-                  <span className="text-right text-sm font-semibold text-foreground dark:text-foreground">
+                  <span className="text-right text-sm font-semibold text-slate-900 dark:text-white">
                     {selectedPrinter.building_name} -{' '}
                     {selectedPrinter.room_code}
                   </span>
                 </div>
                 <div className="flex items-start justify-between">
-                  <span className="text-sm font-medium text-muted-foreground dark:text-muted-foreground">
+                  <span className="text-sm font-medium text-slate-600 dark:text-white/70">
                     {t('printer.status')}:
                   </span>
                   <div className="flex items-center gap-2">
@@ -494,44 +512,44 @@ export function Step4ConfirmPrint({
 
         {/* Right Column - Configuration */}
         <div className="space-y-4">
-          <div className="dark:bg-background/5 rounded-xl border border-border bg-background p-5 dark:border-border">
-            <h4 className="mb-4 font-semibold text-foreground dark:text-foreground">
+          <div className="rounded-xl border-2 border-slate-200 bg-white p-5 dark:border-white/10 dark:bg-white/5">
+            <h4 className="mb-4 font-semibold text-slate-900 dark:text-white">
               {t('printConfig')}
             </h4>
             <div className="space-y-3 text-sm">
               <div className="flex justify-between">
-                <span className="text-muted-foreground dark:text-muted-foreground">
+                <span className="text-slate-600 dark:text-white/70">
                   {t3('paperSize')}:
                 </span>
-                <span className="font-medium text-foreground dark:text-foreground">
+                <span className="font-medium text-slate-900 dark:text-white">
                   {config.paper_size}
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-muted-foreground dark:text-muted-foreground">
+                <span className="text-slate-600 dark:text-white/70">
                   {t3('orientation')}:
                 </span>
-                <span className="font-medium text-foreground dark:text-foreground">
+                <span className="font-medium text-slate-900 dark:text-white">
                   {config.orientation === 'portrait'
                     ? t3('portrait')
                     : t3('landscape')}
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-muted-foreground dark:text-muted-foreground">
+                <span className="text-slate-600 dark:text-white/70">
                   {t3('printSide')}:
                 </span>
-                <span className="font-medium text-foreground dark:text-foreground">
+                <span className="font-medium text-slate-900 dark:text-white">
                   {config.print_side === 'one-sided'
                     ? t3('oneSided')
                     : t3('doubleSided')}
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-muted-foreground dark:text-muted-foreground">
+                <span className="text-slate-600 dark:text-white/70">
                   {t3('colorMode')}:
                 </span>
-                <span className="font-medium text-foreground dark:text-foreground">
+                <span className="font-medium text-slate-900 dark:text-white">
                   {config.color_mode === 'color'
                     ? t3('color')
                     : config.color_mode === 'grayscale'
@@ -540,10 +558,10 @@ export function Step4ConfirmPrint({
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-muted-foreground dark:text-muted-foreground">
+                <span className="text-slate-600 dark:text-white/70">
                   {t3('numberOfCopies')}:
                 </span>
-                <span className="font-medium text-foreground dark:text-foreground">
+                <span className="font-medium text-slate-900 dark:text-white">
                   {config.number_of_copy}
                 </span>
               </div>
@@ -553,7 +571,7 @@ export function Step4ConfirmPrint({
       </div>
 
       {/* Payment Method Selection */}
-      <div className="rounded-xl border border-slate-200 bg-white p-5 dark:border-white/10 dark:bg-white/5">
+      <div className="rounded-xl border-2 border-slate-200 bg-white p-5 dark:border-white/10 dark:bg-white/5">
         <h4 className="mb-4 font-semibold text-slate-900 dark:text-white">
           {t('paymentMethod')}
         </h4>
@@ -568,7 +586,7 @@ export function Step4ConfirmPrint({
                 }
                 disabled={isDisabled}
                 className={cn(
-                  'group relative overflow-hidden rounded-xl border-2 p-4 text-left transition-all duration-300',
+                  'group relative overflow-hidden rounded-xl border p-4 text-left transition-all duration-300',
                   isDisabled
                     ? 'border-slate-300 bg-slate-200 text-slate-500 dark:border-white/10 dark:bg-white/10 dark:text-white/40'
                     : selectedPaymentMethod === option.id
@@ -640,7 +658,9 @@ export function Step4ConfirmPrint({
               {balanceLoading ? (
                 <span className="inline-block h-5 w-28 animate-pulse rounded bg-slate-200/80 align-middle dark:bg-white/10" />
               ) : (
-                balance.balanceAmount.toLocaleString('vi-VN') +
+                balance.balanceAmount.toLocaleString(
+                  locale === 'vi' ? 'vi-VN' : 'en-US'
+                ) +
                 ' ' +
                 t3('currency')
               )}
@@ -664,7 +684,7 @@ export function Step4ConfirmPrint({
               ) : (
                 (
                   costDetail.subtotalBeforeDiscount || estimatedCost!
-                ).toLocaleString('vi-VN') +
+                ).toLocaleString(locale === 'vi' ? 'vi-VN' : 'en-US') +
                 ' ' +
                 t3('currency')
               )}
@@ -680,7 +700,10 @@ export function Step4ConfirmPrint({
                 :
               </span>
               <span className="text-base font-bold text-green-700 dark:text-green-300">
-                -{(costDetail.discountAmount || 0).toLocaleString('vi-VN')}{' '}
+                -
+                {(costDetail.discountAmount || 0).toLocaleString(
+                  locale === 'vi' ? 'vi-VN' : 'en-US'
+                )}{' '}
                 {t3('currency')}
               </span>
             </div>
@@ -693,7 +716,11 @@ export function Step4ConfirmPrint({
               {!hasCost || isCalculatingCost ? (
                 <span className="inline-block h-6 w-32 animate-pulse rounded bg-slate-200/80 align-middle dark:bg-white/10" />
               ) : (
-                estimatedCost!.toLocaleString('vi-VN') + ' ' + t3('currency')
+                estimatedCost!.toLocaleString(
+                  locale === 'vi' ? 'vi-VN' : 'en-US'
+                ) +
+                ' ' +
+                t3('currency')
               )}
             </span>
           </div>
@@ -705,7 +732,9 @@ export function Step4ConfirmPrint({
               {balanceLoading || !hasCost || isCalculatingCost ? (
                 <span className="inline-block h-5 w-28 animate-pulse rounded bg-slate-200/80 align-middle dark:bg-white/10" />
               ) : (
-                remainingBalanceMoney!.toLocaleString('vi-VN') +
+                remainingBalanceMoney!.toLocaleString(
+                  locale === 'vi' ? 'vi-VN' : 'en-US'
+                ) +
                 ' ' +
                 t3('currency')
               )}
@@ -721,7 +750,9 @@ export function Step4ConfirmPrint({
                   ⚠️{' '}
                   {t('insufficientBalance', {
                     amount:
-                      (estimatedCost - balanceAmount).toLocaleString('vi-VN') +
+                      (estimatedCost - balanceAmount).toLocaleString(
+                        locale === 'vi' ? 'vi-VN' : 'en-US'
+                      ) +
                       ' ' +
                       t3('currency'),
                   })}

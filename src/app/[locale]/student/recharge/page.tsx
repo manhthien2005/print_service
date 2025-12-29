@@ -19,18 +19,12 @@ export default async function StudentRechargePage({
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
-  let t;
-  try {
-    const pagesModule = await import(`@/locales/${locale}/pages.json`);
-    t =
-      pagesModule.default?.student?.recharge ||
-      pagesModule.default?.student?.buyPages;
-  } catch {
-    t = null;
-  }
-  if (!t) {
-    t = { title: 'Recharge', description: 'Recharge money into your account' };
-  }
+  const pagesModule = await import(`@/locales/${locale}/pages.json`);
+  const t = pagesModule.default?.student?.recharge ||
+    pagesModule.default?.student?.buyPages || {
+      title: 'Recharge',
+      description: 'Recharge money into your account',
+    };
 
   return (
     <main

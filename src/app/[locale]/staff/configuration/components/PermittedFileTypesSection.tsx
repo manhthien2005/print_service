@@ -22,10 +22,11 @@ import {
 import { PencilIcon, TrashIcon, PlusIcon } from '@heroicons/react/24/outline';
 import { toast } from '@/components/ui/Toast';
 import { Skeleton } from '@/components/common/Skeleton';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 
 export function PermittedFileTypesSection() {
   const t = useTranslations('staff.configuration.permittedFileTypes');
+  const locale = useLocale();
   const { data, isLoading, error } = usePermittedFileTypes();
   const createMutation = useCreatePermittedFileType();
   const updateMutation = useUpdatePermittedFileType();
@@ -138,7 +139,7 @@ export function PermittedFileTypesSection() {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Loại file được phép</CardTitle>
+          <CardTitle>{t('title')}</CardTitle>
           <CardDescription className="text-red-600">
             {t('createError')}
           </CardDescription>
@@ -222,7 +223,9 @@ export function PermittedFileTypesSection() {
                   {item.updatedAt && (
                     <div className="mt-1 text-xs text-slate-500 dark:text-white/60">
                       {t('updated')}:{' '}
-                      {new Date(item.updatedAt).toLocaleString('vi-VN')}
+                      {new Date(item.updatedAt).toLocaleString(
+                        locale === 'vi' ? 'vi-VN' : 'en-US'
+                      )}
                       {(item.updatedByName || item.updatedByEmail) && (
                         <>
                           {' '}

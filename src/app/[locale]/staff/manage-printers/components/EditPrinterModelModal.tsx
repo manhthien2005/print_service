@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
+import { useTranslations } from 'next-intl';
 import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -45,6 +46,7 @@ export const EditPrinterModelModal: React.FC<EditPrinterModelModalProps> = ({
   pageSizes,
   onSave,
 }) => {
+  const t = useTranslations('staff.managePrinters.modals.editModel');
   const [formData, setFormData] = useState<Partial<PrinterModel>>({
     brandId: '',
     modelName: '',
@@ -58,6 +60,9 @@ export const EditPrinterModelModal: React.FC<EditPrinterModelModalProps> = ({
 
   const [preview2D, setPreview2D] = useState<string | null>(null);
   const [preview3D, setPreview3D] = useState<string | null>(null);
+  // File uploads are handled separately in the parent component
+  // const [file2D, setFile2D] = useState<File | null>(null);
+  // const [file3D, setFile3D] = useState<File | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const fileInput2DRef = useRef<HTMLInputElement>(null);
@@ -79,6 +84,9 @@ export const EditPrinterModelModal: React.FC<EditPrinterModelModalProps> = ({
       // Set preview URLs - use provided URLs or empty for upload placeholder
       setPreview2D(model.imageUrl2D || null);
       setPreview3D(model.imageUrl3D || null);
+      // Clear file objects when model changes (handled in parent)
+      // setFile2D(null);
+      // setFile3D(null);
       setErrors({});
     }
   }, [model]);
@@ -110,7 +118,7 @@ export const EditPrinterModelModal: React.FC<EditPrinterModelModalProps> = ({
       if (!file.type.startsWith('image/')) {
         setErrors(prev => ({
           ...prev,
-          image2D: 'Vui lòng chọn file hình ảnh (JPG, PNG)',
+          image2D: t('errors.invalidImage2D'),
         }));
         return;
       }
@@ -119,17 +127,23 @@ export const EditPrinterModelModal: React.FC<EditPrinterModelModalProps> = ({
       if (file.size > 5 * 1024 * 1024) {
         setErrors(prev => ({
           ...prev,
-          image2D: 'Kích thước file không được vượt quá 5MB',
+          image2D: t('errors.image2DTooLarge'),
         }));
         return;
       }
 
+      // Store the File object for upload (handled in parent)
+      // setFile2D(file);
       // Create preview
       const reader = new FileReader();
       reader.onloadend = () => {
         const result = reader.result as string;
         setPreview2D(result);
-        setFormData(prev => ({ ...prev, imageUrl2D: result }));
+        // Keep the original URL if it exists, otherwise use preview
+        setFormData(prev => ({
+          ...prev,
+          imageUrl2D: prev.imageUrl2D || result,
+        }));
       };
       reader.readAsDataURL(file);
     } else {
@@ -140,7 +154,7 @@ export const EditPrinterModelModal: React.FC<EditPrinterModelModalProps> = ({
       if (!allowed3DFormats.includes(fileExtension || '')) {
         setErrors(prev => ({
           ...prev,
-          image3D: 'Vui lòng chọn file 3D (GLB, USDZ, GLTF)',
+          image3D: t('errors.invalidImage3D'),
         }));
         return;
       }
@@ -149,21 +163,28 @@ export const EditPrinterModelModal: React.FC<EditPrinterModelModalProps> = ({
       if (file.size > 20 * 1024 * 1024) {
         setErrors(prev => ({
           ...prev,
-          image3D: 'Kích thước file không được vượt quá 20MB',
+          image3D: t('errors.image3DTooLarge'),
         }));
         return;
       }
 
-      // Create object URL for 3D model
+      // Store the File object for upload (handled in parent)
+      // setFile3D(file);
+      // Create object URL for 3D model preview
       const objectUrl = URL.createObjectURL(file);
       setPreview3D(objectUrl);
-      setFormData(prev => ({ ...prev, imageUrl3D: objectUrl }));
+      // Keep the original URL if it exists, otherwise use preview
+      setFormData(prev => ({
+        ...prev,
+        imageUrl3D: prev.imageUrl3D || objectUrl,
+      }));
     }
   };
 
   const handleRemoveImage = (type: '2D' | '3D') => {
     if (type === '2D') {
       setPreview2D(null);
+      // setFile2D(null);
       setFormData(prev => ({ ...prev, imageUrl2D: '' }));
       if (fileInput2DRef.current) {
         fileInput2DRef.current.value = '';
@@ -174,6 +195,7 @@ export const EditPrinterModelModal: React.FC<EditPrinterModelModalProps> = ({
         URL.revokeObjectURL(preview3D);
       }
       setPreview3D(null);
+      // setFile3D(null);
       setFormData(prev => ({ ...prev, imageUrl3D: '' }));
       if (fileInput3DRef.current) {
         fileInput3DRef.current.value = '';
@@ -194,13 +216,13 @@ export const EditPrinterModelModal: React.FC<EditPrinterModelModalProps> = ({
     const newErrors: Record<string, string> = {};
 
     if (!formData.brandId) {
-      newErrors.brandId = 'Vui lòng chọn hãng';
+      newErrors.brandId = t('errors.brandRequired');
     }
     if (!formData.modelName?.trim()) {
-      newErrors.modelName = 'Vui lòng nhập tên model';
+      newErrors.modelName = t('errors.modelNameRequired');
     }
     if (!formData.maxPaperSize) {
-      newErrors.maxPaperSize = 'Vui lòng chọn khổ giấy tối đa';
+      newErrors.maxPaperSize = t('errors.paperSizeRequired');
     }
 
     setErrors(newErrors);
@@ -216,12 +238,15 @@ export const EditPrinterModelModal: React.FC<EditPrinterModelModalProps> = ({
 
     setIsLoading(true);
     try {
-      await onSave(formData);
+      // Pass formData only (file2D and file3D are handled separately in the parent)
+      await onSave({
+        ...formData,
+      } as Partial<PrinterModel>);
       onClose();
     } catch (error) {
       console.error('Error saving model:', error);
       setErrors({
-        submit: 'Có lỗi xảy ra khi lưu. Vui lòng thử lại.',
+        submit: t('errors.saveError'),
       });
     } finally {
       setIsLoading(false);
@@ -233,6 +258,12 @@ export const EditPrinterModelModal: React.FC<EditPrinterModelModalProps> = ({
       setErrors({});
       setPreview2D(null);
       setPreview3D(null);
+      // setFile2D(null);
+      // setFile3D(null);
+      // Revoke blob URLs if they exist
+      if (preview3D && preview3D.startsWith('blob:')) {
+        URL.revokeObjectURL(preview3D);
+      }
       onClose();
     }
   };
@@ -241,7 +272,7 @@ export const EditPrinterModelModal: React.FC<EditPrinterModelModalProps> = ({
     <Modal
       isOpen={isOpen}
       onClose={handleClose}
-      title={model ? 'Sửa Model Máy In' : 'Thêm Model Máy In'}
+      title={model ? t('title') : t('addTitle')}
       size="xl"
     >
       <form onSubmit={handleSubmit} className="p-6 pb-6">
@@ -251,7 +282,7 @@ export const EditPrinterModelModal: React.FC<EditPrinterModelModalProps> = ({
             {/* 2D Image */}
             <div className="space-y-2">
               <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                Hình ảnh 2D
+                {t('image2D')}
               </label>
               <div className="relative">
                 {preview2D ? (
@@ -275,7 +306,7 @@ export const EditPrinterModelModal: React.FC<EditPrinterModelModalProps> = ({
                         onClick={() => fileInput2DRef.current?.click()}
                         className="pointer-events-auto border border-slate-300 bg-slate-200 text-slate-900 shadow-lg hover:border-slate-400 hover:bg-slate-300 dark:border-white/20 dark:bg-slate-700 dark:text-white dark:hover:border-white/30 dark:hover:bg-slate-600"
                       >
-                        Thay đổi
+                        {t('change')}
                       </Button>
                       <Button
                         type="button"
@@ -284,7 +315,7 @@ export const EditPrinterModelModal: React.FC<EditPrinterModelModalProps> = ({
                         onClick={() => handleRemoveImage('2D')}
                         className="pointer-events-auto border border-red-400 bg-red-500/20 text-red-700 shadow-lg hover:border-red-500 hover:bg-red-500/30 dark:border-red-500/50 dark:bg-red-500/20 dark:text-red-400 dark:hover:border-red-500 dark:hover:bg-red-500/30"
                       >
-                        Xóa
+                        {t('remove')}
                       </Button>
                     </div>
                   </div>
@@ -308,10 +339,10 @@ export const EditPrinterModelModal: React.FC<EditPrinterModelModalProps> = ({
                       />
                     </svg>
                     <p className="text-sm text-slate-500 dark:text-slate-400">
-                      Click để tải lên hình 2D
+                      {t('clickToUpload2D')}
                     </p>
                     <p className="text-xs text-slate-400 dark:text-slate-500">
-                      PNG, JPG (tối đa 5MB)
+                      {t('fileFormat2D')}
                     </p>
                   </div>
                 )}
@@ -333,7 +364,7 @@ export const EditPrinterModelModal: React.FC<EditPrinterModelModalProps> = ({
             {/* 3D Model */}
             <div className="space-y-2">
               <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                Model 3D
+                {t('model3D')}
               </label>
               <div className="relative">
                 {preview3D ? (
@@ -347,8 +378,7 @@ export const EditPrinterModelModal: React.FC<EditPrinterModelModalProps> = ({
                       onError={() => {
                         setErrors(prev => ({
                           ...prev,
-                          image3D:
-                            'Không thể tải model 3D. Vui lòng kiểm tra file.',
+                          image3D: t('errors.load3DError'),
                         }));
                       }}
                     />
@@ -361,7 +391,7 @@ export const EditPrinterModelModal: React.FC<EditPrinterModelModalProps> = ({
                         onClick={() => fileInput3DRef.current?.click()}
                         className="pointer-events-auto border border-slate-300 bg-slate-200 text-slate-900 shadow-lg hover:border-slate-400 hover:bg-slate-300 dark:border-white/20 dark:bg-slate-700 dark:text-white dark:hover:border-white/30 dark:hover:bg-slate-600"
                       >
-                        Thay đổi
+                        {t('change')}
                       </Button>
                       <Button
                         type="button"
@@ -370,7 +400,7 @@ export const EditPrinterModelModal: React.FC<EditPrinterModelModalProps> = ({
                         onClick={() => handleRemoveImage('3D')}
                         className="pointer-events-auto border border-red-400 bg-red-500/20 text-red-700 shadow-lg hover:border-red-500 hover:bg-red-500/30 dark:border-red-500/50 dark:bg-red-500/20 dark:text-red-400 dark:hover:border-red-500 dark:hover:bg-red-500/30"
                       >
-                        Xóa
+                        {t('remove')}
                       </Button>
                     </div>
                   </div>
@@ -394,10 +424,10 @@ export const EditPrinterModelModal: React.FC<EditPrinterModelModalProps> = ({
                       />
                     </svg>
                     <p className="text-sm text-slate-500 dark:text-slate-400">
-                      Click để tải lên model 3D
+                      {t('clickToUpload3D')}
                     </p>
                     <p className="text-xs text-slate-400 dark:text-slate-500">
-                      GLB, USDZ, GLTF (tối đa 20MB)
+                      {t('fileFormat3D')}
                     </p>
                   </div>
                 )}
@@ -425,7 +455,7 @@ export const EditPrinterModelModal: React.FC<EditPrinterModelModalProps> = ({
                 htmlFor="brandId"
                 className="text-sm font-medium text-slate-700 dark:text-slate-300"
               >
-                Hãng <span className="text-red-500">*</span>
+                {t('brand')} <span className="text-red-500">*</span>
               </label>
               <Select
                 id="brandId"
@@ -434,7 +464,7 @@ export const EditPrinterModelModal: React.FC<EditPrinterModelModalProps> = ({
                 error={!!errors.brandId}
                 className="rounded-lg border-slate-200/50 bg-white/50 text-slate-900 backdrop-blur-sm focus-visible:ring-slate-400 dark:border-white/10 dark:bg-slate-800/30 dark:text-white dark:focus-visible:ring-white/30"
               >
-                <option value="">Chọn hãng</option>
+                <option value="">{t('selectBrand')}</option>
                 {brands.map(brand => (
                   <option key={brand.brandId} value={brand.brandId}>
                     {brand.brandName}
@@ -454,13 +484,13 @@ export const EditPrinterModelModal: React.FC<EditPrinterModelModalProps> = ({
                 htmlFor="modelName"
                 className="text-sm font-medium text-slate-700 dark:text-slate-300"
               >
-                Tên Model <span className="text-red-500">*</span>
+                {t('modelName')} <span className="text-red-500">*</span>
               </label>
               <Input
                 id="modelName"
                 value={formData.modelName || ''}
                 onChange={e => handleInputChange('modelName', e.target.value)}
-                placeholder="VD: LaserJet Pro M404dn"
+                placeholder={t('modelNamePlaceholder')}
                 error={!!errors.modelName}
                 className="rounded-lg border-slate-200/50 bg-white/50 text-slate-900 backdrop-blur-sm placeholder:text-slate-400 focus-visible:ring-slate-400 dark:border-white/10 dark:bg-slate-800/30 dark:text-white dark:placeholder:text-slate-500 dark:focus-visible:ring-white/30"
               />
@@ -478,13 +508,13 @@ export const EditPrinterModelModal: React.FC<EditPrinterModelModalProps> = ({
               htmlFor="description"
               className="text-sm font-medium text-slate-700 dark:text-slate-300"
             >
-              Mô tả
+              {t('description')}
             </label>
             <textarea
               id="description"
               value={formData.description || ''}
               onChange={e => handleInputChange('description', e.target.value)}
-              placeholder="Mô tả về model máy in..."
+              placeholder={t('descriptionPlaceholder')}
               rows={3}
               className={cn(
                 'flex w-full rounded-lg border border-slate-200/50 bg-white/50 px-3 py-2 text-sm text-slate-900 ring-offset-background backdrop-blur-sm placeholder:text-slate-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:border-white/10 dark:bg-slate-800/30 dark:text-white dark:placeholder:text-slate-500 dark:focus-visible:ring-white/30',
@@ -500,7 +530,7 @@ export const EditPrinterModelModal: React.FC<EditPrinterModelModalProps> = ({
               htmlFor="maxPaperSize"
               className="text-sm font-medium text-slate-700 dark:text-slate-300"
             >
-              Khổ giấy tối đa <span className="text-red-500">*</span>
+              {t('maxPaperSize')} <span className="text-red-500">*</span>
             </label>
             <Select
               id="maxPaperSize"
@@ -509,7 +539,7 @@ export const EditPrinterModelModal: React.FC<EditPrinterModelModalProps> = ({
               error={!!errors.maxPaperSize}
               className="rounded-lg border-slate-200/50 bg-white/50 text-slate-900 backdrop-blur-sm focus-visible:ring-blue-500 dark:border-white/10 dark:bg-slate-800/30 dark:text-white"
             >
-              <option value="">Chọn khổ giấy</option>
+              <option value="">{t('selectPaperSize')}</option>
               {pageSizes.map(size => (
                 <option key={size} value={size}>
                   {size}
@@ -526,7 +556,7 @@ export const EditPrinterModelModal: React.FC<EditPrinterModelModalProps> = ({
           {/* Features */}
           <div className="space-y-4">
             <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
-              Tính năng
+              {t('features')}
             </label>
             <div className="flex flex-wrap gap-6">
               <label className="flex cursor-pointer items-center gap-2">
@@ -537,7 +567,7 @@ export const EditPrinterModelModal: React.FC<EditPrinterModelModalProps> = ({
                   }
                 />
                 <span className="text-sm text-slate-700 dark:text-slate-300">
-                  Hỗ trợ in màu
+                  {t('supportsColor')}
                 </span>
               </label>
               <label className="flex cursor-pointer items-center gap-2">
@@ -548,7 +578,7 @@ export const EditPrinterModelModal: React.FC<EditPrinterModelModalProps> = ({
                   }
                 />
                 <span className="text-sm text-slate-700 dark:text-slate-300">
-                  Hỗ trợ in 2 mặt
+                  {t('supportsDuplex')}
                 </span>
               </label>
             </div>
@@ -570,14 +600,14 @@ export const EditPrinterModelModal: React.FC<EditPrinterModelModalProps> = ({
               disabled={isLoading}
               className="border border-slate-300 bg-slate-200 text-slate-900 hover:border-slate-400 hover:bg-slate-300 dark:border-white/20 dark:bg-slate-700 dark:text-white dark:hover:border-white/30 dark:hover:bg-slate-600"
             >
-              Hủy
+              {t('cancel')}
             </Button>
             <Button
               type="submit"
               disabled={isLoading}
               className="border border-blue-700 bg-blue-700/80 text-white hover:border-blue-800 hover:bg-blue-800/90 dark:border-blue-600 dark:bg-blue-600/80 dark:hover:border-blue-700 dark:hover:bg-blue-700/90"
             >
-              {isLoading ? 'Đang lưu...' : model ? 'Lưu thay đổi' : 'Thêm mới'}
+              {isLoading ? t('saving') : model ? t('saveChanges') : t('addNew')}
             </Button>
           </div>
         </div>

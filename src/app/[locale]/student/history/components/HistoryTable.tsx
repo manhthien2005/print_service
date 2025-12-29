@@ -6,6 +6,7 @@ import type {
   SortDirection,
 } from '@/app/[locale]/student/history/types';
 import { HistoryRow } from './HistoryRow';
+import { useTranslations } from 'next-intl';
 
 interface HistoryTableProps {
   items: PrintHistoryItem[];
@@ -79,6 +80,8 @@ export function HistoryTable({
   sortDirection,
   onSort,
 }: HistoryTableProps) {
+  const t = useTranslations('student.history.table');
+
   return (
     <div className="flex flex-col gap-3">
       <div className="hidden grid-cols-12 items-center gap-4 px-1 py-2 text-base font-semibold text-slate-800 dark:text-white md:grid">
@@ -87,7 +90,7 @@ export function HistoryTable({
           onClick={() => onSort('document')}
           className="col-span-3 flex items-center gap-2"
         >
-          <span>Tài liệu</span>
+          <span>{t('columns.document')}</span>
           <SortIcon
             column="document"
             currentColumn={sortColumn}
@@ -99,7 +102,7 @@ export function HistoryTable({
           onClick={() => onSort('printer')}
           className="col-span-2 flex items-center gap-2"
         >
-          <span>Máy in</span>
+          <span>{t('columns.printer')}</span>
           <SortIcon
             column="printer"
             currentColumn={sortColumn}
@@ -111,7 +114,7 @@ export function HistoryTable({
           onClick={() => onSort('mode')}
           className="col-span-2 flex items-center gap-2"
         >
-          <span>Chế độ</span>
+          <span>{t('columns.mode')}</span>
           <SortIcon
             column="mode"
             currentColumn={sortColumn}
@@ -123,7 +126,7 @@ export function HistoryTable({
           onClick={() => onSort('pages')}
           className="col-span-1 flex items-center gap-2"
         >
-          <span>Trang</span>
+          <span>{t('columns.pages')}</span>
           <SortIcon
             column="pages"
             currentColumn={sortColumn}
@@ -135,7 +138,7 @@ export function HistoryTable({
           onClick={() => onSort('time')}
           className="col-span-2 flex items-center gap-2"
         >
-          <span>Thời gian</span>
+          <span>{t('columns.time')}</span>
           <SortIcon
             column="time"
             currentColumn={sortColumn}
@@ -147,7 +150,7 @@ export function HistoryTable({
           onClick={() => onSort('status')}
           className="col-span-2 flex items-center justify-center gap-2 text-center"
         >
-          <span>Trạng thái</span>
+          <span>{t('columns.status')}</span>
           <SortIcon
             column="status"
             currentColumn={sortColumn}
@@ -158,7 +161,7 @@ export function HistoryTable({
 
       {items.length === 0 ? (
         <div className="rounded-xl border border-dashed border-slate-200/70 bg-slate-50/80 px-4 py-10 text-center text-sm text-slate-500 dark:border-white/10 dark:bg-white/5 dark:text-white/60">
-          Không có dữ liệu phù hợp với bộ lọc hiện tại.
+          {t('noData')}
         </div>
       ) : (
         items.map(item => (

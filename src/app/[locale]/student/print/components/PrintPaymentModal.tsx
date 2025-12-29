@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
 import { subscribeStomp } from '@/lib/api/ws';
@@ -45,6 +45,7 @@ export function PrintPaymentModal({
   onFailure,
 }: PrintPaymentModalProps) {
   const t = useTranslations('student.print.printPaymentModal');
+  const locale = useLocale();
   const [status, setStatus] = useState<PaymentState>('pending');
   const [connectionState, setConnectionState] = useState<
     'connecting' | 'connected' | 'error'
@@ -202,7 +203,10 @@ export function PrintPaymentModal({
                 {t('amount')}
               </p>
               <p className="mt-1 text-2xl font-bold text-foreground dark:text-foreground">
-                {payment.amount.toLocaleString('vi-VN')} VNĐ
+                {payment.amount.toLocaleString(
+                  locale === 'vi' ? 'vi-VN' : 'en-US'
+                )}{' '}
+                {t('currency')}
               </p>
             </div>
             <div className="dark:bg-muted/5 rounded-lg border border-border bg-muted p-4 dark:border-border">

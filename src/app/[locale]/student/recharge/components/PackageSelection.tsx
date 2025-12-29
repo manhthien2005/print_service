@@ -6,6 +6,7 @@ import SpotlightCard from '@/components/ui/SpotlightCard';
 import { Button } from '@/components/ui/Button';
 import { cn } from '@/lib/utils/cn';
 import type { DepositBonusPackageResponse } from '@/types/api';
+import { useLocale } from 'next-intl';
 
 interface PackageSelectionProps {
   packages: DepositBonusPackageResponse[];
@@ -21,6 +22,7 @@ interface PackageSelectionProps {
       bonusAmount: string;
       totalReceived: string;
       savings: string;
+      noPackages?: string;
     };
   };
 }
@@ -31,8 +33,9 @@ export function PackageSelection({
   isLoading,
   t,
 }: PackageSelectionProps) {
+  const locale = useLocale();
   const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('vi-VN', {
+    return new Intl.NumberFormat(locale === 'vi' ? 'vi-VN' : 'en-US', {
       style: 'currency',
       currency: 'VND',
     }).format(price);
@@ -73,7 +76,7 @@ export function PackageSelection({
           </p>
         </div>
         <div className="rounded-xl border border-dashed border-slate-200/70 bg-slate-50/80 px-4 py-10 text-center text-sm text-slate-500 dark:border-white/10 dark:bg-white/5 dark:text-white/60">
-          Không có gói nạp tiền nào
+          {t.packages.noPackages}
         </div>
       </div>
     );

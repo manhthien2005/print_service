@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
@@ -57,7 +57,11 @@ import type {
   BrandRequest,
   PrinterModelRequest,
   PrinterRequest,
+  PrinterModelResponse,
+  ApiResponse,
 } from '@/types/api';
+import { AxiosResponse } from 'axios';
+import { mapModelResponse } from '@/lib/utils/mappers/modelMapper';
 import { toast } from '@/components/ui/Toast';
 import { Skeleton, SkeletonTextLoading } from '@/components/common/Skeleton';
 
@@ -83,7 +87,7 @@ interface FilterState {
   activityDateTo: string;
   // Models tab filters
   modelBrand: string; // 'all' | brandId
-  paperSizes: string[]; // Multi-select: ['A4', 'A3', ...]
+  maxPaperSize: string; // 'all' | paperSizeId
   features: string[]; // Multi-select: ['color', 'duplex']
   // Brands tab filters
   countryOfOrigin: string; // 'all' | country
@@ -96,6 +100,120 @@ interface ManagePrintersContentProps {
     title: string;
     description: string;
   };
+}
+
+// Multi-select component for features
+function FeaturesMultiSelect({
+  label,
+  value,
+  onChange,
+  options,
+  placeholder,
+  selectedText,
+}: {
+  label: string;
+  value: string[];
+  onChange: (value: string[]) => void;
+  options: { value: string; label: string }[];
+  placeholder?: string;
+  selectedText?: (count: number) => string;
+}) {
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const toggleOption = (optionValue: string) => {
+    const newValue = value.includes(optionValue)
+      ? value.filter(v => v !== optionValue)
+      : [...value, optionValue];
+    onChange(newValue);
+  };
+
+  const displayText =
+    value.length === 0
+      ? placeholder
+      : value.length === 1
+        ? options.find(opt => opt.value === value[0])?.label || value[0]
+        : selectedText
+          ? selectedText(value.length)
+          : `${value.length} selected`;
+
+  return (
+    <div>
+      <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-white/70">
+        {label}
+      </label>
+      <div className="relative" ref={dropdownRef}>
+        <button
+          type="button"
+          onClick={() => setIsOpen(!isOpen)}
+          className={cn(
+            'flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background transition-all hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+            isOpen && 'ring-2 ring-ring ring-offset-2'
+          )}
+        >
+          <span
+            className={cn(
+              !value.length && 'text-muted-foreground',
+              'truncate text-left'
+            )}
+          >
+            {displayText}
+          </span>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            className={cn(
+              'h-4 w-4 transition-transform',
+              isOpen && 'rotate-180'
+            )}
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M19.5 8.25l-7.5 7.5-7.5-7.5"
+            />
+          </svg>
+        </button>
+        {isOpen && (
+          <div className="absolute z-[100] mt-1 w-full rounded-md border border-slate-200 bg-white shadow-lg dark:border-slate-700 dark:bg-slate-900">
+            <div className="p-2">
+              {options.map(option => (
+                <label
+                  key={option.value}
+                  className="flex cursor-pointer items-center gap-2 rounded-md px-2 py-1.5 hover:bg-slate-100 dark:hover:bg-slate-800"
+                >
+                  <Checkbox
+                    checked={value.includes(option.value)}
+                    onChange={() => toggleOption(option.value)}
+                  />
+                  <span className="text-sm text-slate-700 dark:text-white/70">
+                    {option.label}
+                  </span>
+                </label>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
 }
 
 export default function ManagePrintersContent({
@@ -126,12 +244,26 @@ export default function ManagePrintersContent({
     activityDateTo: '',
     // Models tab
     modelBrand: 'all',
-    paperSizes: [],
+    maxPaperSize: 'all',
     features: [],
     // Brands tab
     countryOfOrigin: 'all',
     brandDateFrom: '',
     brandDateTo: '',
+  });
+
+  // Separate queries for stats (no search/filter to prevent refetch)
+  const brandsStatsQuery = useBrands({
+    page: 0,
+    limit: 1, // Just need totalItems, not the data
+  });
+  const modelsStatsQuery = useModels({
+    page: 0,
+    limit: 1,
+  });
+  const printersStatsQuery = usePrinters({
+    page: 0,
+    limit: 1000, // Get all for stats calculation
   });
 
   // API hooks for Brands tab
@@ -291,16 +423,6 @@ export default function ManagePrintersContent({
     return Array.from(types).sort();
   }, [logsData]);
 
-  const uniquePerformers = useMemo(() => {
-    // Collect both performedBy and userName
-    const performers = new Set<string>();
-    logsData.forEach(log => {
-      if (log.performedBy) performers.add(log.performedBy);
-      if (log.userName) performers.add(log.userName);
-    });
-    return Array.from(performers).sort();
-  }, [logsData]);
-
   const uniqueCountries = useMemo(() => {
     return Array.from(new Set(brandsData.map(b => b.countryOfOrigin))).sort();
   }, [brandsData]);
@@ -428,8 +550,8 @@ export default function ManagePrintersContent({
           return false;
         }
         if (
-          filters.paperSizes.length > 0 &&
-          !filters.paperSizes.includes(model.maxPaperSize)
+          filters.maxPaperSize !== 'all' &&
+          model.maxPaperSize !== filters.maxPaperSize
         ) {
           return false;
         }
@@ -556,34 +678,43 @@ export default function ManagePrintersContent({
           currentPage * itemsPerPage
         );
 
-  // Statistics
+  // Statistics - use separate stats queries to prevent refetch on search/filter
   const stats = useMemo(() => {
+    const statsPrintersData = (printersStatsQuery.data?.data?.data ||
+      []) as unknown as PrinterPhysical[];
     return {
-      totalBrands: brandsPagination?.totalItems || brandsData.length,
-      totalModels: modelsPagination?.totalItems || modelsData.length,
-      totalPrinters: printersPagination?.totalItems || printersData.length,
-      enabledPrinters: (printersData as unknown as PrinterPhysical[]).filter(
-        p => p.isEnabled
+      totalBrands:
+        brandsStatsQuery.data?.data?.pagination?.totalItems ||
+        brandsStatsQuery.data?.data?.data?.length ||
+        0,
+      totalModels:
+        modelsStatsQuery.data?.data?.pagination?.totalItems ||
+        modelsStatsQuery.data?.data?.data?.length ||
+        0,
+      totalPrinters:
+        printersStatsQuery.data?.data?.pagination?.totalItems ||
+        statsPrintersData.length ||
+        0,
+      enabledPrinters: statsPrintersData.filter(p => p.isEnabled).length,
+      disabledPrinters: statsPrintersData.filter(p => !p.isEnabled).length,
+      printersNeedingMaintenance: statsPrintersData.filter(p =>
+        needsMaintenance(p.lastMaintenanceDate)
       ).length,
-      disabledPrinters: (printersData as unknown as PrinterPhysical[]).filter(
-        p => !p.isEnabled
-      ).length,
-      printersNeedingMaintenance: (
-        printersData as unknown as PrinterPhysical[]
-      ).filter(p => needsMaintenance(p.lastMaintenanceDate)).length,
     };
   }, [
-    brandsPagination?.totalItems,
-    brandsData.length,
-    modelsPagination?.totalItems,
-    modelsData.length,
-    printersPagination?.totalItems,
-    printersData,
+    brandsStatsQuery.data?.data?.pagination?.totalItems,
+    brandsStatsQuery.data?.data?.data?.length,
+    modelsStatsQuery.data?.data?.pagination?.totalItems,
+    modelsStatsQuery.data?.data?.data?.length,
+    printersStatsQuery.data?.data?.pagination?.totalItems,
+    printersStatsQuery.data?.data?.data,
   ]);
 
-  // Check if stats are loading
+  // Check if stats are loading - use stats queries instead
   const isLoadingStats =
-    isLoadingBrands || isLoadingModels || isLoadingPrinters;
+    brandsStatsQuery.isLoading ||
+    modelsStatsQuery.isLoading ||
+    printersStatsQuery.isLoading;
 
   // Handle sort
   const handleSort = (column: string) => {
@@ -631,8 +762,34 @@ export default function ManagePrintersContent({
   };
 
   // Handle edit model
-  const handleEditModel = (model: PrinterModel) => {
-    setSelectedModel(model);
+  const handleEditModel = (model: PrinterModel | PrinterModelResponse) => {
+    // Always get the latest model data from modelsData to ensure we have updated image URLs
+    const latestModel =
+      modelsData.find(m => m.modelId === model.modelId) || model;
+    // Convert to PrinterModel format if needed
+    const modelForEdit: PrinterModel = {
+      modelId: latestModel.modelId,
+      brandId: latestModel.brandId,
+      brandName: latestModel.brandName,
+      modelName: latestModel.modelName,
+      description: latestModel.description || '',
+      maxPaperSize:
+        'maxPaperSizeName' in latestModel
+          ? latestModel.maxPaperSizeName
+          : (latestModel as PrinterModel).maxPaperSize,
+      supportsColor: latestModel.supportsColor,
+      supportsDuplex: latestModel.supportsDuplex,
+      imageUrl2D:
+        'image2dUrl' in latestModel
+          ? latestModel.image2dUrl
+          : (latestModel as PrinterModel).imageUrl2D,
+      imageUrl3D:
+        'image3dUrl' in latestModel
+          ? latestModel.image3dUrl
+          : (latestModel as PrinterModel).imageUrl3D,
+      createdAt: latestModel.createdAt,
+    };
+    setSelectedModel(modelForEdit);
     setIsEditModalOpen(true);
   };
 
@@ -652,7 +809,7 @@ export default function ManagePrintersContent({
           ps.pageSizeId === updatedModel.maxPaperSize
       );
       if (!pageSize) {
-        toast.error('Không tìm thấy khổ giấy được chọn');
+        toast.error(t('messages.pageSizeNotFound'));
         return;
       }
 
@@ -669,39 +826,36 @@ export default function ManagePrintersContent({
       const formData = new FormData();
       formData.append('data', JSON.stringify(modelRequest));
 
-      // Add images if provided
-      if (updatedModel.imageUrl2D) {
-        // If it's a File object, append it; otherwise it's already uploaded
-        const image2d = updatedModel.imageUrl2D;
-        if (typeof image2d !== 'string') {
-          const file = image2d as unknown;
-          if (file instanceof File) {
-            formData.append('image2d', file);
-          }
-        }
+      // Add images if provided - check for File objects from the modal
+      if ((updatedModel as any).file2D instanceof File) {
+        formData.append('image2d', (updatedModel as any).file2D);
       }
-      if (updatedModel.imageUrl3D) {
-        const image3d = updatedModel.imageUrl3D;
-        if (typeof image3d !== 'string') {
-          const file = image3d as unknown;
-          if (file instanceof File) {
-            formData.append('image3d', file);
-          }
-        }
+      if ((updatedModel as any).file3D instanceof File) {
+        formData.append('image3d', (updatedModel as any).file3D);
       }
 
       if (selectedModel) {
         // Update existing model
-        await (
+        const response = await (
           updateModelMutation.mutateAsync as unknown as (variables: {
             id: string;
             formData: FormData;
-          }) => Promise<unknown>
+          }) => Promise<AxiosResponse<ApiResponse<PrinterModelResponse>>>
         )({
           id: selectedModel.modelId,
           formData,
         });
-        toast.success('Đã cập nhật model thành công!');
+        toast.success(t('messages.updateModelSuccess'));
+
+        // Refetch models to get updated data including new image URLs
+        await modelsQuery.refetch();
+        await modelsStatsQuery.refetch();
+
+        // Update selectedModel with new data if user wants to edit again
+        if (response?.data?.data) {
+          const updatedModel = mapModelResponse(response.data.data);
+          setSelectedModel(updatedModel);
+        }
       } else {
         // Create new model
         await (
@@ -709,13 +863,17 @@ export default function ManagePrintersContent({
             variables: FormData
           ) => Promise<unknown>
         )(formData);
-        toast.success('Đã thêm model mới thành công!');
+        toast.success(t('messages.addModelSuccess'));
+
+        // Refetch models to get new data
+        await modelsQuery.refetch();
+        await modelsStatsQuery.refetch();
       }
       setIsEditModalOpen(false);
-      setSelectedModel(null);
+      // Don't clear selectedModel here - keep it for potential re-edit
     } catch (error) {
       console.error('Error saving model:', error);
-      toast.error('Có lỗi xảy ra khi lưu. Vui lòng thử lại.');
+      toast.error(t('messages.saveError'));
     }
   };
 
@@ -746,17 +904,17 @@ export default function ManagePrintersContent({
           id: selectedBrand.brandId,
           ...brandRequest,
         });
-        toast.success('Đã cập nhật hãng thành công!');
+        toast.success(t('messages.updateBrandSuccess'));
       } else {
         // Create new brand
         await createBrandMutation.mutateAsync(brandRequest);
-        toast.success('Đã thêm hãng mới thành công!');
+        toast.success(t('messages.addBrandSuccess'));
       }
       setIsBrandModalOpen(false);
       setSelectedBrand(null);
     } catch (error) {
       console.error('Error saving brand:', error);
-      toast.error('Có lỗi xảy ra khi lưu. Vui lòng thử lại.');
+      toast.error(t('messages.saveError'));
     }
   };
 
@@ -787,11 +945,11 @@ export default function ManagePrintersContent({
       );
 
       if (!room) {
-        toast.error('Không tìm thấy phòng được chọn');
+        toast.error(t('messages.roomNotFound'));
         return;
       }
       if (!model) {
-        toast.error('Không tìm thấy model được chọn');
+        toast.error(t('messages.modelNotFound'));
         return;
       }
 
@@ -816,17 +974,17 @@ export default function ManagePrintersContent({
           id: selectedPrinter.printerId,
           ...printerRequest,
         });
-        toast.success('Đã cập nhật máy in thành công!');
+        toast.success(t('messages.updatePrinterSuccess'));
       } else {
         // Create new printer
         await createPrinterMutation.mutateAsync(printerRequest);
-        toast.success('Đã thêm máy in mới thành công!');
+        toast.success(t('messages.addPrinterSuccess'));
       }
       setIsPrinterModalOpen(false);
       setSelectedPrinter(null);
     } catch (error) {
       console.error('Error saving printer:', error);
-      toast.error('Có lỗi xảy ra khi lưu. Vui lòng thử lại.');
+      toast.error(t('messages.saveError'));
     }
   };
 
@@ -848,19 +1006,25 @@ export default function ManagePrintersContent({
     try {
       if (itemToDelete.type === 'brand') {
         await deleteBrandMutation.mutateAsync(itemToDelete.id);
-        toast.success(`Đã xóa hãng "${itemToDelete.name}" thành công!`);
+        toast.success(
+          t('messages.deleteBrandSuccess', { name: itemToDelete.name })
+        );
       } else if (itemToDelete.type === 'model') {
         await deleteModelMutation.mutateAsync(itemToDelete.id);
-        toast.success(`Đã xóa model "${itemToDelete.name}" thành công!`);
+        toast.success(
+          t('messages.deleteModelSuccess', { name: itemToDelete.name })
+        );
       } else if (itemToDelete.type === 'printer') {
         await deletePrinterMutation.mutateAsync(itemToDelete.id);
-        toast.success(`Đã xóa máy in "${itemToDelete.name}" thành công!`);
+        toast.success(
+          t('messages.deletePrinterSuccess', { name: itemToDelete.name })
+        );
       }
       setIsDeleteModalOpen(false);
       setItemToDelete(null);
     } catch (error) {
       console.error('Error deleting item:', error);
-      toast.error('Có lỗi xảy ra khi xóa. Vui lòng thử lại.');
+      toast.error(t('messages.deleteError'));
     } finally {
       setIsDeleting(false);
     }
@@ -876,14 +1040,18 @@ export default function ManagePrintersContent({
           Boolean(id)
         );
         await bulkDeleteBrandsMutation.mutateAsync({ ids });
-        toast.success(`Đã xóa ${ids.length} hãng thành công!`);
+        toast.success(
+          t('messages.bulkDeleteBrandsSuccess', { count: ids.length })
+        );
         setSelectedItems(new Set());
       } else if (activeTab === 'models' && action === 'delete') {
         const ids = Array.from(selectedItems).filter((id): id is string =>
           Boolean(id)
         );
         await bulkDeleteModelsMutation.mutateAsync({ ids });
-        toast.success(`Đã xóa ${ids.length} model thành công!`);
+        toast.success(
+          t('messages.bulkDeleteModelsSuccess', { count: ids.length })
+        );
         setSelectedItems(new Set());
       } else if (activeTab === 'printers') {
         const ids = Array.from(selectedItems).filter((id): id is string =>
@@ -891,25 +1059,27 @@ export default function ManagePrintersContent({
         );
         if (action === 'delete') {
           await bulkDeletePrintersMutation.mutateAsync({ ids });
-          toast.success(`Đã xóa ${ids.length} máy in thành công!`);
+          toast.success(
+            t('messages.bulkDeletePrintersSuccess', { count: ids.length })
+          );
         } else if (action === 'enable' || action === 'disable') {
           await bulkUpdatePrinterStatusMutation.mutateAsync({
             ids: ids,
             isEnabled: action === 'enable',
           });
           toast.success(
-            `Đã cập nhật trạng thái ${ids.length} máy in thành công!`
+            t('messages.bulkUpdateStatusSuccess', { count: ids.length })
           );
         } else {
-          toast.error(`Chức năng "${action}" chưa được hỗ trợ`);
+          toast.error(t('messages.actionNotSupported', { action }));
         }
         setSelectedItems(new Set());
       } else {
-        toast.error(`Chức năng "${action}" sẽ được triển khai`);
+        toast.error(t('messages.actionNotImplemented', { action }));
       }
     } catch (error) {
       console.error('Error in bulk action:', error);
-      toast.error('Có lỗi xảy ra. Vui lòng thử lại.');
+      toast.error(t('messages.error'));
     }
   };
 
@@ -941,10 +1111,10 @@ export default function ManagePrintersContent({
       document.body.removeChild(a);
       window.URL.revokeObjectURL(url);
 
-      toast.success('Đã xuất file Excel thành công!');
+      toast.success(t('messages.exportSuccess'));
     } catch (error) {
       console.error('Error exporting Excel:', error);
-      toast.error('Có lỗi xảy ra khi xuất Excel. Vui lòng thử lại.');
+      toast.error(t('messages.exportError'));
     }
   };
 
@@ -975,11 +1145,11 @@ export default function ManagePrintersContent({
         if (data) {
           const errorMessages = data.errorMessages || [];
           toast.success(
-            `Import thành công: ${data.successRows}/${data.totalRows} dòng. ${
-              errorMessages.length > 0
-                ? `Lỗi: ${errorMessages.length} dòng`
-                : ''
-            }`
+            t('messages.importSuccess', {
+              success: data.successRows,
+              total: data.totalRows,
+              failed: errorMessages.length,
+            })
           );
           if (errorMessages.length > 0) {
             console.error('Import errors:', errorMessages);
@@ -987,7 +1157,7 @@ export default function ManagePrintersContent({
         }
       } catch (error) {
         console.error('Error importing Excel:', error);
-        toast.error('Có lỗi xảy ra khi nhập Excel. Vui lòng thử lại.');
+        toast.error(t('messages.importError'));
       }
     };
     input.click();
@@ -1102,7 +1272,7 @@ export default function ManagePrintersContent({
       activityDateTo: '',
       // Models tab
       modelBrand: 'all',
-      paperSizes: [],
+      maxPaperSize: 'all',
       features: [],
       // Brands tab
       countryOfOrigin: 'all',
@@ -1734,25 +1904,6 @@ export default function ManagePrintersContent({
                 </div>
                 <div>
                   <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-white/70">
-                    {t('filters.performedBy')}
-                  </label>
-                  <Select
-                    value={filters.performedBy}
-                    onChange={e => {
-                      setFilters({ ...filters, performedBy: e.target.value });
-                      setCurrentPage(1);
-                    }}
-                  >
-                    <option value="all">{t('filters.all')}</option>
-                    {uniquePerformers.map(performer => (
-                      <option key={performer} value={performer}>
-                        {performer}
-                      </option>
-                    ))}
-                  </Select>
-                </div>
-                <div>
-                  <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-white/70">
                     {t('filters.fromDate')}
                   </label>
                   <DatePicker
@@ -1762,7 +1913,11 @@ export default function ManagePrintersContent({
                       setCurrentPage(1);
                     }}
                     placeholder={t('filters.selectStartDate')}
-                    max={filters.activityDateTo || undefined}
+                    max={
+                      filters.activityDateTo
+                        ? filters.activityDateTo
+                        : new Date().toISOString().split('T')[0]
+                    }
                   />
                 </div>
                 <div>
@@ -1777,25 +1932,27 @@ export default function ManagePrintersContent({
                     }}
                     placeholder={t('filters.selectEndDate')}
                     min={filters.activityDateFrom || undefined}
+                    max={new Date().toISOString().split('T')[0]}
                   />
                 </div>
-              </div>
-              <div className="mt-4 flex justify-end">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => {
-                    setFilters({
-                      ...filters,
-                      actionType: 'all',
-                      performedBy: 'all',
-                      activityDateFrom: '',
-                      activityDateTo: '',
-                    });
-                  }}
-                >
-                  {t('filters.clearFilters')}
-                </Button>
+                <div className="flex items-end">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setFilters({
+                        ...filters,
+                        actionType: 'all',
+                        performedBy: 'all',
+                        activityDateFrom: '',
+                        activityDateTo: '',
+                      });
+                    }}
+                    className="w-full"
+                  >
+                    {t('filters.clearFilters')}
+                  </Button>
+                </div>
               </div>
             </div>
           )}
@@ -1825,92 +1982,62 @@ export default function ManagePrintersContent({
                 </div>
                 <div>
                   <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-white/70">
-                    {t('filters.paperSize')}
+                    {t('table.maxPaperSize')}
                   </label>
-                  <div className="space-y-2">
+                  <Select
+                    value={filters.maxPaperSize}
+                    onChange={e => {
+                      setFilters({ ...filters, maxPaperSize: e.target.value });
+                      setCurrentPage(1);
+                    }}
+                  >
+                    <option value="all">{t('filters.all')}</option>
                     {pageSizes.map((size, index) => {
                       const sizeName =
                         (size as any).sizeName ||
                         size.pageSizeId ||
                         `Size ${index}`;
                       return (
-                        <label
-                          key={size.pageSizeId || index}
-                          className="flex items-center gap-2"
-                        >
-                          <Checkbox
-                            checked={filters.paperSizes.includes(sizeName)}
-                            onChange={e => {
-                              const newSizes = e.target.checked
-                                ? [...filters.paperSizes, sizeName]
-                                : filters.paperSizes.filter(
-                                    s => s !== sizeName
-                                  );
-                              setFilters({ ...filters, paperSizes: newSizes });
-                              setCurrentPage(1);
-                            }}
-                          />
-                          <span className="text-sm text-slate-700 dark:text-white/70">
-                            {sizeName}
-                          </span>
-                        </label>
+                        <option key={size.pageSizeId || index} value={sizeName}>
+                          {sizeName}
+                        </option>
                       );
                     })}
-                  </div>
+                  </Select>
                 </div>
-                <div>
-                  <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-white/70">
-                    {t('filters.features')}
-                  </label>
-                  <div className="space-y-2">
-                    <label className="flex items-center gap-2">
-                      <Checkbox
-                        checked={filters.features.includes('color')}
-                        onChange={e => {
-                          const newFeatures = e.target.checked
-                            ? [...filters.features, 'color']
-                            : filters.features.filter(f => f !== 'color');
-                          setFilters({ ...filters, features: newFeatures });
-                          setCurrentPage(1);
-                        }}
-                      />
-                      <span className="text-sm text-slate-700 dark:text-white/70">
-                        {t('filters.color')}
-                      </span>
-                    </label>
-                    <label className="flex items-center gap-2">
-                      <Checkbox
-                        checked={filters.features.includes('duplex')}
-                        onChange={e => {
-                          const newFeatures = e.target.checked
-                            ? [...filters.features, 'duplex']
-                            : filters.features.filter(f => f !== 'duplex');
-                          setFilters({ ...filters, features: newFeatures });
-                          setCurrentPage(1);
-                        }}
-                      />
-                      <span className="text-sm text-slate-700 dark:text-white/70">
-                        {t('filters.duplex')}
-                      </span>
-                    </label>
-                  </div>
-                </div>
-              </div>
-              <div className="mt-4 flex justify-end">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => {
-                    setFilters({
-                      ...filters,
-                      modelBrand: 'all',
-                      paperSizes: [],
-                      features: [],
-                    });
+                <FeaturesMultiSelect
+                  label={t('filters.features')}
+                  value={filters.features}
+                  onChange={selectedFeatures => {
+                    setFilters({ ...filters, features: selectedFeatures });
+                    setCurrentPage(1);
                   }}
-                >
-                  {t('filters.clearFilters')}
-                </Button>
+                  options={[
+                    { value: 'color', label: t('filters.color') },
+                    { value: 'duplex', label: t('filters.duplex') },
+                  ]}
+                  placeholder={t('features.selectFeatures')}
+                  selectedText={(count: number) =>
+                    t('features.selectedCount', { count })
+                  }
+                />
+                <div className="flex items-end">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setFilters({
+                        ...filters,
+                        modelBrand: 'all',
+                        maxPaperSize: 'all',
+                        features: [],
+                      });
+                    }}
+                    className="w-full"
+                  >
+                    {t('filters.clearFilters')}
+                  </Button>
+                </div>
               </div>
             </div>
           )}
@@ -1918,7 +2045,7 @@ export default function ManagePrintersContent({
           {/* Advanced Filters for Brands Tab */}
           {showAdvancedFilters && activeTab === 'brands' && (
             <div className="rounded-lg border border-slate-200 bg-slate-50/50 p-4 dark:border-white/10 dark:bg-white/5">
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 <div>
                   <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-white/70">
                     {t('filters.countryOfOrigin')}
@@ -1952,7 +2079,11 @@ export default function ManagePrintersContent({
                       setCurrentPage(1);
                     }}
                     placeholder={t('filters.selectStartDate')}
-                    max={filters.brandDateTo || undefined}
+                    max={
+                      filters.brandDateTo
+                        ? filters.brandDateTo
+                        : new Date().toISOString().split('T')[0]
+                    }
                   />
                 </div>
                 <div>
@@ -1967,24 +2098,26 @@ export default function ManagePrintersContent({
                     }}
                     placeholder={t('filters.selectEndDate')}
                     min={filters.brandDateFrom || undefined}
+                    max={new Date().toISOString().split('T')[0]}
                   />
                 </div>
-              </div>
-              <div className="mt-4 flex justify-end">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => {
-                    setFilters({
-                      ...filters,
-                      countryOfOrigin: 'all',
-                      brandDateFrom: '',
-                      brandDateTo: '',
-                    });
-                  }}
-                >
-                  {t('filters.clearFilters')}
-                </Button>
+                <div className="flex items-end">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setFilters({
+                        ...filters,
+                        countryOfOrigin: 'all',
+                        brandDateFrom: '',
+                        brandDateTo: '',
+                      });
+                    }}
+                    className="w-full"
+                  >
+                    {t('filters.clearFilters')}
+                  </Button>
+                </div>
               </div>
             </div>
           )}

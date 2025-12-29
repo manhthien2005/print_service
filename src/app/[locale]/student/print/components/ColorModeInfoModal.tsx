@@ -1,6 +1,7 @@
 'use client';
 
 import { Modal } from '@/components/ui/Modal';
+import { useTranslations } from 'next-intl';
 
 interface ColorModeInfoModalProps {
   isOpen: boolean;
@@ -11,38 +12,37 @@ export function ColorModeInfoModal({
   isOpen,
   onClose,
 }: ColorModeInfoModalProps) {
+  const t = useTranslations('student.print.colorModeInfoModal');
+
   const colorModes = [
     {
-      mode: 'Màu',
+      mode: t('modes.color.mode'),
       icon: '🎨',
-      description: 'In đầy đủ màu sắc như trong tài liệu gốc',
-      useCase:
-        'Tài liệu có hình ảnh, biểu đồ màu, logo, hoặc nội dung cần màu sắc',
+      description: t('modes.color.description'),
+      useCase: t('modes.color.useCase'),
       color: 'text-purple-600 dark:text-purple-400',
       bg: 'bg-purple-50 dark:bg-purple-500/10',
     },
     {
-      mode: 'Xám',
+      mode: t('modes.grayscale.mode'),
       icon: '⚫',
-      description: 'In với thang độ xám, chuyển đổi màu sắc thành các mức xám',
-      useCase:
-        'Tài liệu có hình ảnh nhưng không cần màu sắc, muốn tiết kiệm chi phí',
+      description: t('modes.grayscale.description'),
+      useCase: t('modes.grayscale.useCase'),
       color: 'text-slate-600 dark:text-slate-400',
       bg: 'bg-slate-50 dark:bg-slate-500/10',
     },
     {
-      mode: 'Đen trắng',
+      mode: t('modes.blackWhite.mode'),
       icon: '⚪',
-      description: 'Chỉ in màu đen và trắng, không có thang độ xám',
-      useCase:
-        'Tài liệu văn bản thuần túy, không có hình ảnh hoặc không cần màu sắc',
+      description: t('modes.blackWhite.description'),
+      useCase: t('modes.blackWhite.useCase'),
       color: 'text-gray-600 dark:text-gray-400',
       bg: 'bg-gray-50 dark:bg-gray-500/10',
     },
   ];
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Chế độ màu" size="md">
+    <Modal isOpen={isOpen} onClose={onClose} title={t('title')} size="md">
       <div className="space-y-4 p-6">
         {colorModes.map((mode, index) => (
           <div
@@ -64,7 +64,7 @@ export function ColorModeInfoModal({
                 <div className="text-xs">
                   <div className="flex items-start gap-2">
                     <span className="min-w-[80px] font-semibold text-slate-700 dark:text-white/80">
-                      Sử dụng khi:
+                      {t('useWhen')}
                     </span>
                     <span className="text-slate-600 dark:text-white/70">
                       {mode.useCase}

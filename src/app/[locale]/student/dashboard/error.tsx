@@ -15,13 +15,11 @@ export default function Error({
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center p-8">
-      <h2 className="mb-4 text-2xl font-bold text-destructive">
-        {t('error') || 'Something went wrong'}
-      </h2>
+      <h2 className="mb-4 text-2xl font-bold text-destructive">{t('error')}</h2>
       <p className="mb-4 text-muted-foreground">
-        {error.message || 'An unexpected error occurred'}
+        {error.message || t('error')}
       </p>
-      <Button onClick={reset}>{t('tryAgain') || 'Try again'}</Button>
+      <Button onClick={reset}>{t('tryAgain')}</Button>
     </div>
   );
 }

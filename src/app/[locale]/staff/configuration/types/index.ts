@@ -13,6 +13,7 @@ export type {
   PermittedFileTypeResponse,
   CreatePermittedFileTypeRequest,
   UpdatePermittedFileTypeRequest,
+  SemesterResponse,
   SemesterBonusResponse,
   CreateSemesterBonusRequest,
   UpdateSemesterBonusRequest,
@@ -33,14 +34,7 @@ export type ConfigurationCategory =
   | 'general'
   | 'notifications';
 
-export const categoryLabels: Record<ConfigurationCategory, string> = {
-  pricing: 'Giá cả',
-  bonuses: 'Gói khuyến mãi',
-  'file-types': 'Loại file',
-  semester: 'Bonus học kỳ',
-  general: 'Cấu hình chung',
-  notifications: 'Thông báo',
-};
+// Note: categoryLabels removed - use translations from staff.configuration.tabs instead
 
 // Legacy type for backward compatibility during migration
 export interface SystemConfigItem {

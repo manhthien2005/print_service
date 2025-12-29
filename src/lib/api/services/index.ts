@@ -9,5 +9,7 @@ export * from './printers';
 export * from './references';
 export * from './student';
 export * from './adminUsers';
+export * from './adminPrintHistory';
+export * from './adminTransactionHistory';
 export * from './systemConfig';
 export * from './staffReports';

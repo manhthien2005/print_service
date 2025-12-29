@@ -7,6 +7,7 @@ import { QRCodeSVG } from 'qrcode.react';
 import { useCurrentDeposit } from '@/lib/api/services/payment';
 import { PAYMENT_CONSTANTS } from '@/app/[locale]/student/recharge/constants';
 import type { DepositResponse } from '@/types/api';
+import { useLocale } from 'next-intl';
 
 interface QRPaymentModalProps {
   isOpen: boolean;
@@ -44,6 +45,7 @@ export function QRPaymentModal({
   onSuccess,
   t,
 }: QRPaymentModalProps) {
+  const locale = useLocale();
   const [remainingTime, setRemainingTime] = useState<number>(0);
   const [isExpired, setIsExpired] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -58,7 +60,7 @@ export function QRPaymentModal({
   });
 
   const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('vi-VN', {
+    return new Intl.NumberFormat(locale === 'vi' ? 'vi-VN' : 'en-US', {
       style: 'currency',
       currency: 'VND',
     }).format(price);

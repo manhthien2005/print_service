@@ -24,6 +24,7 @@ interface ChangePasswordModalProps {
     missingFields?: string;
     mismatch?: string;
     weakPassword?: string;
+    cancel?: string;
   };
 }
 
@@ -42,7 +43,7 @@ export default function ChangePasswordModal({
     { currentPassword: string; newPassword: string }
   >(API_ENDPOINTS.AUTH.CHANGE_PASSWORD, 'post', {
     onSuccess: () => {
-      toast.success(t.success ?? 'Đổi mật khẩu thành công');
+      toast.success(t.success || 'Đổi mật khẩu thành công');
       // Reset form
       setCurrentPassword('');
       setNewPassword('');
@@ -53,7 +54,7 @@ export default function ChangePasswordModal({
       const message =
         err instanceof Error
           ? err.message
-          : (t.error ?? 'Đã xảy ra lỗi khi đổi mật khẩu');
+          : t.error || 'Đã xảy ra lỗi khi đổi mật khẩu';
       toast.error(message);
     },
   });
@@ -72,17 +73,17 @@ export default function ChangePasswordModal({
 
     // Validation
     if (!currentPassword || !newPassword || !confirmPassword) {
-      toast.error(t.missingFields ?? 'Vui lòng điền đầy đủ các trường');
+      toast.error(t.missingFields || 'Vui lòng điền đầy đủ các trường');
       return;
     }
 
     if (newPassword !== confirmPassword) {
-      toast.error(t.mismatch ?? 'Mật khẩu mới và xác nhận không khớp');
+      toast.error(t.mismatch || 'Mật khẩu mới và xác nhận không khớp');
       return;
     }
 
     if (newPassword.length < 6) {
-      toast.error(t.weakPassword ?? 'Mật khẩu phải có ít nhất 6 ký tự');
+      toast.error(t.weakPassword || 'Mật khẩu phải có ít nhất 6 ký tự');
       return;
     }
 
@@ -96,7 +97,7 @@ export default function ChangePasswordModal({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title={t.title ?? 'Đổi mật khẩu'}
+      title={t.title || 'Đổi mật khẩu'}
       size="md"
     >
       <form onSubmit={handleSubmit} className="p-6">
@@ -104,7 +105,7 @@ export default function ChangePasswordModal({
           {/* Current Password */}
           <div className="space-y-2">
             <label className="text-sm font-medium text-slate-900 dark:text-white">
-              {t.currentPassword ?? 'Mật khẩu hiện tại'}
+              {t.currentPassword || 'Mật khẩu hiện tại'}
             </label>
             <Input
               type="password"
@@ -120,7 +121,7 @@ export default function ChangePasswordModal({
           {/* New Password */}
           <div className="space-y-2">
             <label className="text-sm font-medium text-slate-900 dark:text-white">
-              {t.newPassword ?? 'Mật khẩu mới'}
+              {t.newPassword || 'Mật khẩu mới'}
             </label>
             <Input
               type="password"
@@ -136,7 +137,7 @@ export default function ChangePasswordModal({
           {/* Confirm Password */}
           <div className="space-y-2">
             <label className="text-sm font-medium text-slate-900 dark:text-white">
-              {t.confirmPassword ?? 'Xác nhận mật khẩu mới'}
+              {t.confirmPassword || 'Xác nhận mật khẩu mới'}
             </label>
             <Input
               type="password"
@@ -159,7 +160,7 @@ export default function ChangePasswordModal({
             disabled={changePasswordMutation.isPending}
             className="border-slate-300 text-slate-700 hover:bg-slate-100 hover:text-slate-900 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700 dark:hover:text-white"
           >
-            Hủy
+            {t?.cancel || 'Hủy'}
           </Button>
           <Button
             type="submit"
@@ -167,8 +168,8 @@ export default function ChangePasswordModal({
             className="bg-sky-500 text-white hover:bg-sky-600 dark:bg-sky-600 dark:hover:bg-sky-700"
           >
             {changePasswordMutation.isPending
-              ? (t.submitting ?? 'Đang xử lý...')
-              : (t.submit ?? 'Đổi mật khẩu')}
+              ? t.submitting || 'Đang xử lý...'
+              : t.submit || 'Đổi mật khẩu'}
           </Button>
         </div>
       </form>

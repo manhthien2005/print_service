@@ -1,12 +1,12 @@
 'use client';
 
-import { historyStatusFilters } from '@/app/[locale]/student/history/constants';
 import type {
   PrintHistoryItem,
   StatusFilterValue,
 } from '@/app/[locale]/student/history/types';
 import { Select } from '@/components/ui/Select';
 import { DatePicker } from '@/components/ui/DatePicker';
+import { useTranslations } from 'next-intl';
 
 interface HistoryFiltersProps {
   status: StatusFilterValue;
@@ -41,6 +41,8 @@ export function HistoryFilters({
   onFileTypeChange,
   showFilters,
 }: HistoryFiltersProps) {
+  const t = useTranslations('student.history.filters');
+
   if (!showFilters) return null;
 
   return (
@@ -50,22 +52,22 @@ export function HistoryFilters({
         onChange={e => onStatusChange(e.target.value as StatusFilterValue)}
         className="rounded-xl border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 shadow-sm transition hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500/50 dark:border-white/10 dark:bg-white/5 dark:text-white"
       >
-        {historyStatusFilters.map(option => (
-          <option key={option.value} value={option.value}>
-            {option.label}
-          </option>
-        ))}
+        <option value="all">{t('status.all')}</option>
+        <option value="completed">{t('status.completed')}</option>
+        <option value="processing">{t('status.processing')}</option>
+        <option value="queued">{t('status.queued')}</option>
+        <option value="failed">{t('status.failed')}</option>
       </Select>
       <DatePicker
         value={startDate}
         onChange={onStartDateChange}
-        placeholder="Ngày bắt đầu"
+        placeholder={t('dateFrom')}
         className="w-full"
       />
       <DatePicker
         value={endDate}
         onChange={onEndDateChange}
-        placeholder="Ngày kết thúc"
+        placeholder={t('dateTo')}
         className="w-full"
         min={startDate || undefined}
       />
@@ -74,31 +76,31 @@ export function HistoryFilters({
         onChange={e => onColorModeChange(e.target.value as typeof colorMode)}
         className="rounded-xl border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 shadow-sm transition hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500/50 dark:border-white/10 dark:bg-white/5 dark:text-white"
       >
-        <option value="all">Tất cả chế độ màu</option>
-        <option value="color">In màu</option>
-        <option value="grayscale">In xám</option>
-        <option value="black-white">Đen trắng</option>
+        <option value="all">{t('colorMode.all')}</option>
+        <option value="color">{t('colorMode.color')}</option>
+        <option value="grayscale">{t('colorMode.grayscale')}</option>
+        <option value="black-white">{t('colorMode.blackWhite')}</option>
       </Select>
       <Select
         value={duplex}
         onChange={e => onDuplexChange(e.target.value as typeof duplex)}
         className="rounded-xl border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 shadow-sm transition hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500/50 dark:border-white/10 dark:bg-white/5 dark:text-white"
       >
-        <option value="all">Tất cả chế độ mặt</option>
-        <option value="double-sided">In 2 mặt</option>
-        <option value="one-sided">In 1 mặt</option>
+        <option value="all">{t('duplex.all')}</option>
+        <option value="double-sided">{t('duplex.doubleSided')}</option>
+        <option value="one-sided">{t('duplex.oneSided')}</option>
       </Select>
       <Select
         value={fileType}
         onChange={e => onFileTypeChange(e.target.value as typeof fileType)}
         className="rounded-xl border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 shadow-sm transition hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500/50 dark:border-white/10 dark:bg-white/5 dark:text-white"
       >
-        <option value="all">Tất cả định dạng</option>
-        <option value="pdf">PDF</option>
-        <option value="docx">DOCX</option>
-        <option value="pptx">PPTX</option>
-        <option value="xlsx">XLSX</option>
-        <option value="jpg">Ảnh (JPG/PNG)</option>
+        <option value="all">{t('fileType.all')}</option>
+        <option value="pdf">{t('fileType.pdf')}</option>
+        <option value="docx">{t('fileType.docx')}</option>
+        <option value="pptx">{t('fileType.pptx')}</option>
+        <option value="xlsx">{t('fileType.xlsx')}</option>
+        <option value="jpg">{t('fileType.jpg')}</option>
       </Select>
     </div>
   );

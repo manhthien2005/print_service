@@ -124,6 +124,19 @@ export interface UpdatePermittedFileTypeRequest {
   isPermitted?: boolean;
 }
 
+// Semesters
+export interface SemesterResponse {
+  semesterId: string;
+  academicYearId: string;
+  academicYearName: string;
+  termName: string;
+  startDate: string;
+  endDate: string;
+  hasBonus: boolean;
+  bonusAmount: number | null;
+  createdAt: string;
+}
+
 // Semester Bonus
 export interface SemesterBonusResponse {
   bonusId: string;
@@ -133,6 +146,11 @@ export interface SemesterBonusResponse {
   bonusDescription: string;
   isActive: boolean;
   distributionDate: string;
+  isDistributed: boolean;
+  studentsReceived: number;
+  totalEligibleStudents: number;
+  startDate: string;
+  endDate: string;
   totalDistributed: number;
   createdAt: string;
 }
@@ -140,26 +158,23 @@ export interface SemesterBonusResponse {
 export interface CreateSemesterBonusRequest {
   semesterId: string;
   bonusAmount: number;
-  bonusDescription: string;
-  isActive: boolean;
-  distributionDate: string;
+  description: string;
+  distributionDate?: string;
 }
 
 export interface UpdateSemesterBonusRequest {
-  semesterId?: string;
   bonusAmount?: number;
-  bonusDescription?: string;
-  isActive?: boolean;
+  description?: string;
   distributionDate?: string;
 }
 
 export interface DistributeSemesterBonusResponse {
-  bonusId: string;
-  semesterName: string;
-  bonusAmount: number;
   totalEligible: number;
   alreadyReceived: number;
   newlyDistributed: number;
+  failed: number;
+  semesterName: string;
+  bonusAmount: string;
   distributedAt: string;
 }
 
@@ -220,6 +235,7 @@ export const systemConfigKeys = {
     [...systemConfigKeys.all, 'pageDiscountPackages'] as const,
   permittedFileTypes: () =>
     [...systemConfigKeys.all, 'permittedFileTypes'] as const,
+  semesters: () => [...systemConfigKeys.all, 'semesters'] as const,
   semesterBonus: () => [...systemConfigKeys.all, 'semesterBonus'] as const,
   general: () => [...systemConfigKeys.all, 'general'] as const,
   generalByKey: (key: string) => [...systemConfigKeys.general(), key] as const,
@@ -497,6 +513,14 @@ export function useDeletePermittedFileType() {
   });
 }
 
+// Semesters
+export function useSemesters() {
+  return useApiQuery<ApiResponse<SemesterResponse[]>>(
+    systemConfigKeys.semesters(),
+    '/admin/system-config/semesters'
+  );
+}
+
 // Semester Bonus
 export function useSemesterBonus() {
   return useApiQuery<ApiResponse<SemesterBonusResponse[]>>(
@@ -516,6 +540,9 @@ export function useCreateSemesterBonus() {
         queryKey: systemConfigKeys.semesterBonus(),
       });
       queryClient.invalidateQueries({
+        queryKey: systemConfigKeys.semesters(),
+      });
+      queryClient.invalidateQueries({
         queryKey: systemConfigKeys.allConfigs(),
       });
     },
@@ -531,6 +558,9 @@ export function useUpdateSemesterBonus() {
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: systemConfigKeys.semesterBonus(),
+      });
+      queryClient.invalidateQueries({
+        queryKey: systemConfigKeys.semesters(),
       });
       queryClient.invalidateQueries({
         queryKey: systemConfigKeys.allConfigs(),

@@ -8,10 +8,22 @@
         "printersOnline": "Printers online",
         "jobsToday": "Jobs today",
         "pagesMonth": "Pages this month",
+        "revenueToday": "Revenue today",
+        "revenueMonth": "Revenue this month",
+        "activeStudents": "Active students",
         "caption": {
           "total": "Out of {total}",
           "lastJob": "Last job finished 6m ago"
-        }
+        },
+        "jobs": "jobs",
+        "pages": "pages",
+        "kPages": "{k}K pages",
+        "currency": "VND",
+        "thisMonth": "this month",
+        "now": "Now",
+        "printing": "printing",
+        "queued": "queued",
+        "new": "new"
       },
       "weekly": {
         "title": "Weekly activity",
@@ -24,12 +36,17 @@
         "description": "Share of paper sizes used this month"
       },
       "printer": {
-        "title": "Status",
+        "title": "Printer Status",
         "description": "Health and utilization overview",
         "cta": "Manage printers",
         "online": "Online",
         "offline": "Offline",
         "maintenance": "Maintenance",
+        "idle": "Idle",
+        "printing": "Printing",
+        "unplugged": "Unplugged",
+        "error": "Error",
+        "total": "Total",
         "utilization": "Utilization",
         "utilizationLabel": "System utilization",
         "note": ""
@@ -62,6 +79,7 @@
       "alerts": {
         "title": "Alerts",
         "description": "Items to resolve soon",
+        "noActivities": "No recent activities",
         "severity": {
           "info": "Info",
           "warning": "Warning",
@@ -84,16 +102,62 @@
             "action": "Reroute jobs"
           }
         }
+      },
+      "errors": {
+        "loadStatsFailed": "Failed to load statistics",
+        "loadDataFailed": "An error occurred while loading dashboard data",
+        "tryAgain": "Try again"
+      },
+      "time": {
+        "justNow": "Just now",
+        "minutesAgo": "{minutes} minutes ago",
+        "hoursAgo": "{hours} hours ago",
+        "daysAgo": "{days} days ago"
+      },
+      "actions": {
+        "viewDetails": "View details"
+      },
+      "charts": {
+        "ratio": "Ratio",
+        "count": "Count"
+      },
+      "skeleton": {
+        "title": "Dashboard",
+        "printersOnline": "Printers online",
+        "totalCaption": "Out of {total}",
+        "jobsToday": "Jobs today",
+        "lastJobCaption": "Last job",
+        "pagesMonth": "Pages this month",
+        "revenueToday": "Revenue today",
+        "activeStudents": "Active students",
+        "weeklyTitle": "Weekly activity",
+        "weeklyDescription": "Completed jobs and pages",
+        "paperTitle": "Paper size usage",
+        "paperDescription": "Share of paper sizes",
+        "printerTitle": "Status",
+        "printerDescription": "Health and utilization overview",
+        "alertsTitle": "Alerts",
+        "alertsDescription": "Items to resolve soon"
       }
     },
     "student": {
       "sectionLabel": "Student home",
+      "title": "Home",
       "greeting": "Hello, {name}",
+      "greetingPrefix": "Hello, ",
+      "greetings": {
+        "morning": "Good morning, ",
+        "noon": "Good afternoon, ",
+        "afternoon": "Good afternoon, ",
+        "evening": "Good evening, "
+      },
       "subtext": "Check balance, print fast, and track your recent jobs.",
       "ctaPrimary": "Print document",
       "ctaSecondary": "Buy more pages",
+      "defaultUserName": "Student",
       "balance": {
-        "title": "A4 balance",
+        "title": "Balance",
+        "subtitle": "Available balance",
         "resetLabel": "Resets on {date}",
         "badge": "Priority",
         "conversion": "Paper conversion",
@@ -103,17 +167,42 @@
         "jobsThisMonth": "Jobs this month",
         "pagesThisMonth": "Pages printed",
         "successRate": "Success rate",
-        "pending": "Pending jobs"
+        "pending": "Pending jobs",
+        "growthComparison": "compared to last month",
+        "pagesComparison": "pages compared to last month"
       },
       "quickActions": {
         "title": "Quick actions",
-        "description": "Jump into your most used flows"
+        "description": "Jump into your most used flows",
+        "items": {
+          "print": {
+            "title": "Print document",
+            "description": "Upload file and send print command",
+            "badge": "New"
+          },
+          "buy": {
+            "title": "Top up",
+            "description": "Top up your account with wallet or card"
+          },
+          "history": {
+            "title": "Print history",
+            "description": "Track status and costs"
+          },
+          "printers": {
+            "title": "Printers near you",
+            "description": "View online printers by building"
+          }
+        }
       },
       "recent": {
         "title": "Recent prints",
-        "description": "Stay on top of the latest jobs",
+        "description": "Track the latest jobs.",
         "pagesLabel": "{pages} A4 pages",
+        "pages": "pages",
         "viewAll": "View history",
+        "emptyState": "No recent print history",
+        "unknownFile": "Unknown file",
+        "unknownPrinter": "Unknown printer",
         "status": {
           "completed": "Completed",
           "pending": "Pending",
@@ -140,7 +229,23 @@
       },
       "highlights": {
         "title": "Quick notes",
-        "description": "Tips to keep printing smooth"
+        "description": "Keep your printing smooth.",
+        "bonusPackages": {
+          "title": "Print discount packages",
+          "descriptionNoDiscount": "Print from {minPages} pages: no discount",
+          "descriptionWithDiscount": "Print from {minPages} pages: {discountPercent}% off"
+        },
+        "reset": {
+          "title": "Refresh bonus",
+          "description": "The system automatically updates bonuses every month. Check regularly for the best offers."
+        },
+        "support": {
+          "title": "Technical support",
+          "description": "Contact IT helpdesk if you encounter connection errors or paper jams."
+        }
+      },
+      "error": {
+        "loadFailed": "An error occurred while loading data. Please try again later."
       }
     }
   },
@@ -162,7 +267,8 @@
         "title": "Upload Document",
         "description": "Select the file you want to print. Supports PDF, Word, Excel, PowerPoint and images",
         "dragDrop": "Drag and drop file here or click to select",
-        "fileSizeLimit": "Max 50MB • PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, JPG, PNG",
+        "fileSizeLimit": "Max 50MB",
+        "fileSizeLimitWithTypes": "Max 50MB • {types}",
         "saveFile": "Save File",
         "next": "Next",
         "fileSaved": "File saved successfully!",
@@ -174,7 +280,10 @@
           "fileTooLarge": "File too large. Maximum size: {maxSize}MB"
         },
         "toasts": {
-          "uploadSuccess": "File uploaded successfully"
+          "uploadSuccess": "File uploaded successfully",
+          "fileTypeNotSupported": "File type not supported. Allowed file types: {extensions}",
+          "fileTooLarge": "File too large. Maximum size: {maxSize}MB",
+          "uploadFailed": "An error occurred while uploading file. Please try again."
         }
       },
       "step2": {
@@ -300,6 +409,7 @@
         "paymentExpired": "Payment has expired. Please try again.",
         "paymentFailed": "Payment failed.",
         "amount": "Amount",
+        "currency": "VND",
         "expiresAt": "Expires at",
         "instructions": "Scan the QR code with SePay app to pay",
         "scanQR": "Scan QR code to pay",
@@ -334,6 +444,9 @@
         "progress": "Progress",
         "pages": "pages",
         "loading": "Loading print job information...",
+        "elapsedTime": "Elapsed time",
+        "minutes": "minutes",
+        "seconds": "seconds",
         "status": {
           "queued": "Queued",
           "printing": "Printing",
@@ -350,6 +463,7 @@
         "cancelButton": "Cancel Print Job",
         "viewHistory": "View Print History",
         "printer": {
+          "name": "Printer",
           "location": "Location",
           "status": "Status"
         },
@@ -376,6 +490,20 @@
         "bulkPrint": "Bulk Print",
         "bulkDelete": "Bulk Delete",
         "deselect": "Deselect",
+        "deselectAll": "Deselect all",
+        "upload": "Upload",
+        "uploadMultiple": "Upload Multiple Files",
+        "uploading": "Uploading...",
+        "uploadFiles": "Upload {count} files",
+        "dragDropUpload": "Drag and drop files here to upload or click to select",
+        "fileSizeLimit": "Max 50MB per file",
+        "fileSizeLimitWithTypes": "Max 50MB per file • {types}",
+        "selectedFilesList": "Selected files list ({count})",
+        "removeAll": "Remove all",
+        "cancel": "Cancel",
+        "download": "Download",
+        "downloadSelected": "Download ({count})",
+        "view": "View",
         "table": {
           "fileName": "File Name",
           "pages": "Pages",
@@ -399,12 +527,224 @@
           "message": "Do you want to reprint file \"{fileName}\"? You will be taken to the printer selection step.",
           "cancel": "Cancel",
           "confirm": "Reprint"
+        },
+        "toasts": {
+          "deleteSuccess": "File deleted successfully",
+          "deleteFailed": "An error occurred while deleting file.",
+          "fileNotFound": "File path not found",
+          "openFileFailed": "An error occurred while opening file",
+          "downloadSuccess": "File downloaded successfully",
+          "downloadFailed": "An error occurred while downloading file",
+          "bulkDownloadSuccess": "Downloaded {count} files",
+          "uploadFailed": "An error occurred while uploading file",
+          "fileNotSupported": "File {fileName} is not supported",
+          "fileTooLarge": "File {fileName} is too large (max {maxSize}MB)",
+          "uploadSuccess": "Successfully uploaded {count} files",
+          "uploadPartialSuccess": "{errorCount} files failed to upload"
+        },
+        "errors": {
+          "loadFailed": "An error occurred while loading file list. Please try again."
+        },
+        "fileTypeFilters": {
+          "all": "All file types",
+          "pdf": "PDF",
+          "docx": "Word (DOCX)",
+          "xlsx": "Excel (XLSX)",
+          "pptx": "PowerPoint (PPTX)"
+        },
+        "dateRangeFilters": {
+          "all": "All time",
+          "today": "Today",
+          "week": "This week",
+          "month": "This month",
+          "3months": "Last 3 months"
+        }
+      },
+      "paperSizeComparisonModal": {
+        "title": "Compare Paper Sizes",
+        "sizeDetails": "Size Details",
+        "paperSize": "Paper Size",
+        "width": "Width (mm)",
+        "height": "Height (mm)",
+        "area": "Area (cm²)"
+      },
+      "colorModeInfoModal": {
+        "title": "Color Mode",
+        "useWhen": "Use when:",
+        "modes": {
+          "color": {
+            "mode": "Color",
+            "description": "Print full color as in the original document",
+            "useCase": "Documents with images, color charts, logos, or content that requires color"
+          },
+          "grayscale": {
+            "mode": "Grayscale",
+            "description": "Print with grayscale, converting colors to shades of gray",
+            "useCase": "Documents with images but don't need color, want to save costs"
+          },
+          "blackWhite": {
+            "mode": "Black & White",
+            "description": "Print only black and white, no grayscale",
+            "useCase": "Plain text documents, no images or don't need color"
+          }
+        }
+      },
+      "paymentOptions": {
+        "balance": {
+          "label": "Use Balance",
+          "description": "Pay with your current account balance"
+        },
+        "qr": {
+          "label": "QR Payment (SePay)",
+          "description": "Scan QR code to pay directly via SePay"
         }
       }
     },
     "history": {
       "title": "Print History",
-      "description": "View your printing history"
+      "description": "View your printing history",
+      "summary": {
+        "jobsThisMonth": {
+          "title": "Jobs this month",
+          "value": "{count} jobs",
+          "caption": "Including both color and black & white printing",
+          "trendIncrease": "Increased {percent}% compared to last month",
+          "trendDecrease": "Decreased {percent}% compared to last month"
+        },
+        "pagesLast30Days": {
+          "title": "Pages printed",
+          "value": "{count} pages",
+          "caption": "Calculated within the last 30 days"
+        },
+        "successRate": {
+          "title": "Success rate",
+          "value": "{percent}%",
+          "caption": "Including completed and pending",
+          "stable": "Stable",
+          "needsImprovement": "Connection needs improvement"
+        }
+      },
+      "table": {
+        "title": "Recent print history",
+        "description": "Search, filter and sort history",
+        "searchPlaceholder": "Search by document name, printer...",
+        "advancedFilters": "Advanced Filters",
+        "columns": {
+          "document": "Document",
+          "printer": "Printer",
+          "mode": "Mode",
+          "pages": "Pages",
+          "time": "Time",
+          "status": "Status"
+        },
+        "noData": "No data matches the current filters.",
+        "error": "An error occurred while loading data. Please try again later."
+      },
+      "filters": {
+        "status": {
+          "all": "All statuses",
+          "completed": "Completed",
+          "processing": "Processing",
+          "queued": "Queued",
+          "failed": "Failed"
+        },
+        "dateFrom": "From Date",
+        "dateTo": "To Date",
+        "colorMode": {
+          "all": "All color modes",
+          "color": "Color",
+          "grayscale": "Grayscale",
+          "blackWhite": "Black & White"
+        },
+        "duplex": {
+          "all": "All print sides",
+          "doubleSided": "Double-sided",
+          "oneSided": "One-sided"
+        },
+        "fileType": {
+          "all": "All formats",
+          "pdf": "PDF",
+          "docx": "DOCX",
+          "pptx": "PPTX",
+          "xlsx": "XLSX",
+          "jpg": "Image (JPG/PNG)"
+        }
+      },
+      "row": {
+        "copies": "{count} copies",
+        "completedAt": "Completed: {date}",
+        "colorMode": {
+          "color": "Color",
+          "grayscale": "Grayscale",
+          "blackWhite": "Black & White"
+        },
+        "duplex": {
+          "doubleSided": "2-sided",
+          "oneSided": "1-sided"
+        },
+        "pages": "{count} pages"
+      },
+      "status": {
+        "completed": "Completed",
+        "processing": "Processing",
+        "queued": "Queued",
+        "failed": "Failed"
+      },
+      "printerStatus": {
+        "online": "Online",
+        "maintenance": "Maintenance",
+        "offline": "Offline",
+        "unknown": "Unknown"
+      },
+      "detailModal": {
+        "title": "Print History Details",
+        "viewFile": "View Print File",
+        "viewLocation": "View Location",
+        "sections": {
+          "printer": {
+            "title": "Printer",
+            "location": "Location: {location}"
+          },
+          "printConfig": {
+            "title": "Print Configuration",
+            "paperSize": "Paper Size",
+            "orientation": "Orientation",
+            "orientationPortrait": "Portrait",
+            "orientationLandscape": "Landscape",
+            "colorMode": "Color Mode",
+            "colorModeColor": "Color",
+            "colorModeGrayscale": "Grayscale",
+            "colorModeBlackWhite": "Black & White",
+            "printSide": "Print Side",
+            "printSideDouble": "2-sided",
+            "printSideOne": "1-sided",
+            "copies": "Copies",
+            "totalPages": "Total Pages"
+          },
+          "time": {
+            "title": "Time",
+            "submitted": "Submitted: {date}",
+            "completed": "Completed: {date}",
+            "estimatedCompletion": "Estimated completion: {date}"
+          },
+          "cost": {
+            "title": "Cost",
+            "subtotal": "Subtotal",
+            "discount": "Discount",
+            "payment": "Payment",
+            "paymentMethod": "Payment Method"
+          }
+        },
+        "progress": {
+          "loading": "Loading print progress...",
+          "error": "Could not retrieve print progress. Please try again later.",
+          "title": "Print Progress",
+          "progress": "{printed} / {total} pages • {percent}%",
+          "queuePosition": "Position in queue: {position}",
+          "jobsAhead": "({count} jobs ahead)",
+          "estimatedCompletion": "Estimated completion: {date}"
+        }
+      }
     },
     "buyPages": {
       "title": "Recharge Money",
@@ -412,7 +752,71 @@
     },
     "recharge": {
       "title": "Recharge Money",
-      "description": "Recharge money into your account"
+      "description": "Recharge money into your account",
+      "packages": {
+        "title": "Select Recharge Package",
+        "description": "Choose a recharge package that suits your needs",
+        "popular": "Popular",
+        "selectPackage": "Select Package",
+        "depositAmount": "Deposit Amount",
+        "bonusAmount": "Bonus",
+        "totalReceived": "Total Received",
+        "savings": "Savings",
+        "packageName": "Package Name",
+        "noPackages": "No recharge packages available"
+      },
+      "custom": {
+        "title": "Custom Amount Recharge",
+        "description": "Enter the amount you want to recharge",
+        "amountLabel": "Amount (VND)",
+        "amountPlaceholder": "Enter amount",
+        "depositAmount": "Deposit Amount",
+        "pay": "Recharge",
+        "creating": "Creating..."
+      },
+      "qrModal": {
+        "title": "QR Code Payment",
+        "packageInfo": "Selected Package Info",
+        "amount": "Amount",
+        "expiresIn": "Expires In",
+        "cancelOrder": "Cancel Order",
+        "expired": "Expired",
+        "reused": "Reused",
+        "newOrder": "New Order",
+        "scanQR": "Scan QR code to pay",
+        "transferContent": "Transfer Content",
+        "copyContent": "Copy Content",
+        "copied": "Copied",
+        "instructions": "Payment Instructions",
+        "step1": "Open your banking app on your phone",
+        "step2": "Scan the QR code or transfer with content: {content}",
+        "step3": "Enter the exact amount: {amount}",
+        "step4": "Confirm payment and wait for system update"
+      },
+      "errors": {
+        "createFailed": "Failed to create deposit",
+        "cancelFailed": "Failed to cancel deposit",
+        "minAmount": "Minimum amount is 10,000 VND",
+        "mustBeMultipleOf1000": "Amount must be a multiple of 1,000 VND"
+      },
+      "cancelModal": {
+        "title": "Confirm Cancel Deposit",
+        "reason": "Cancellation Reason (Optional)",
+        "reasonPlaceholder": "Enter cancellation reason...",
+        "confirm": "Confirm Cancel",
+        "cancel": "Cancel",
+        "cancelling": "Cancelling..."
+      },
+      "successModal": {
+        "title": "Recharge Successful",
+        "message": "You have successfully recharged!",
+        "amount": "Amount Recharged",
+        "close": "Close",
+        "rechargeMore": "Recharge More"
+      },
+      "messages": {
+        "cancelSuccess": "Deposit order cancelled"
+      }
     },
     "topUp": {
       "title": "Top Up",
@@ -574,7 +978,16 @@
       "logOutSuccess": "Logged out successfully",
       "badges": {
         "student": "Student",
-        "active": "Active"
+        "active": "Active",
+        "graduated": "Graduated",
+        "suspended": "Suspended",
+        "withdrawn": "Withdrawn"
+      },
+      "error": {
+        "title": "Unable to load information",
+        "message": "An error occurred while loading profile information",
+        "retry": "Retry",
+        "notFound": "Profile information not found"
       },
       "balance": {
         "title": "BALANCE",
@@ -590,6 +1003,7 @@
       "academicDetails": {
         "title": "ACADEMIC DETAILS",
         "studentId": "Student ID",
+        "class": "Class",
         "faculty": "Faculty",
         "major": "Major",
         "academicYear": "Academic Year"
@@ -599,6 +1013,7 @@
         "currentPassword": "Current Password",
         "newPassword": "New Password",
         "confirmPassword": "Confirm New Password",
+        "cancel": "Cancel",
         "submit": "Change Password",
         "submitting": "Processing...",
         "success": "Password changed successfully",
@@ -610,7 +1025,25 @@
       "editProfileModal": {
         "title": "Edit Profile",
         "email": "Email",
+        "emailCannotChange": "Email cannot be changed",
         "phone": "Phone Number",
+        "phoneRequired": "Phone number is required",
+        "phoneInvalid": "Invalid phone number",
+        "phoneMaxLength": "Maximum 15 characters, numbers only (10-15 digits)",
+        "address": "Address",
+        "addressMaxLength": "Address cannot exceed 500 characters",
+        "addressMaxLengthInfo": "Maximum 500 characters ({count}/500)",
+        "profilePicture": "Profile Picture",
+        "clickToSelect": "Click to select profile picture",
+        "clickToChange": "Click to change picture",
+        "clickToSelectOther": "Click to select another picture",
+        "fileFormatInfo": "JPG, JPEG, PNG, GIF, WEBP (max 5MB)",
+        "cancel": "Cancel",
+        "submit": "Save Changes",
+        "submitting": "Processing...",
+        "success": "Profile updated successfully",
+        "error": "Failed to update profile",
+        "noChanges": "No changes to save",
         "otpCode": "OTP Code",
         "sendOtp": "Send OTP",
         "sendingOtp": "Sending...",
@@ -618,10 +1051,6 @@
         "verifyOtp": "Verify",
         "verifyingOtp": "Verifying...",
         "otpVerified": "OTP verified successfully",
-        "submit": "Save Changes",
-        "submitting": "Processing...",
-        "success": "Profile updated successfully",
-        "error": "Failed to update profile",
         "invalidOtp": "Invalid OTP code",
         "emailChanged": "Email has changed. Please verify with OTP code."
       }
@@ -645,7 +1074,11 @@
         "englishDescription": "Use English as the interface language.",
         "vietnameseTitle": "Vietnamese",
         "vietnameseDescription": "Use Vietnamese as the interface language.",
-        "activeLabel": "Active"
+        "activeLabel": "Active",
+        "englishName": "English",
+        "vietnameseName": "Vietnamese",
+        "usFlagAlt": "US Flag",
+        "vietnamFlagAlt": "Vietnam Flag"
       },
       "dockPosition": {
         "title": "App Dock Position",
@@ -668,7 +1101,11 @@
         "next": "Next",
         "previous": "Previous",
         "autoPlay": "Auto Play",
-        "autoPlayDescription": "Automatically play music when entering the page"
+        "autoPlayDescription": "Automatically play music when entering the page",
+        "loading": "Loading music player...",
+        "loop": "Loop",
+        "loopOn": "Turn on loop",
+        "loopOff": "Turn off loop"
       }
     }
   },
@@ -789,7 +1226,150 @@
         "deletePrinter": "Delete Printer",
         "confirmDeleteBrand": "Are you sure you want to delete this brand?",
         "confirmDeleteModel": "Are you sure you want to delete this model?",
-        "confirmDeletePrinter": "Are you sure you want to delete this printer?"
+        "confirmDeletePrinter": "Are you sure you want to delete this printer?",
+        "cannotUndo": "This action cannot be undone.",
+        "deleting": "Deleting...",
+        "delete": "Delete",
+        "cancel": "Cancel"
+      },
+      "modals": {
+        "editModel": {
+          "title": "Edit Printer Model",
+          "addTitle": "Add Printer Model",
+          "image2D": "2D Image",
+          "model3D": "3D Model",
+          "brand": "Brand",
+          "modelName": "Model Name",
+          "description": "Description",
+          "maxPaperSize": "Max Paper Size",
+          "features": "Features",
+          "supportsColor": "Color Printing",
+          "supportsDuplex": "Duplex Printing",
+          "change": "Change",
+          "remove": "Remove",
+          "clickToUpload2D": "Click to upload 2D image",
+          "clickToUpload3D": "Click to upload 3D model",
+          "fileFormat2D": "PNG, JPG (max 5MB)",
+          "fileFormat3D": "GLB, USDZ, GLTF (max 20MB)",
+          "selectBrand": "Select brand",
+          "selectPaperSize": "Select paper size",
+          "modelNamePlaceholder": "e.g., LaserJet Pro M404dn",
+          "descriptionPlaceholder": "Description about printer model...",
+          "errors": {
+            "brandRequired": "Please select a brand",
+            "modelNameRequired": "Please enter model name",
+            "paperSizeRequired": "Please select max paper size",
+            "invalidImage2D": "Please select an image file (JPG, PNG)",
+            "image2DTooLarge": "File size must not exceed 5MB",
+            "invalidImage3D": "Please select a 3D file (GLB, USDZ, GLTF)",
+            "image3DTooLarge": "File size must not exceed 20MB",
+            "load3DError": "Cannot load 3D model. Please check the file.",
+            "saveError": "An error occurred while saving. Please try again."
+          },
+          "cancel": "Cancel",
+          "saving": "Saving...",
+          "saveChanges": "Save changes",
+          "addNew": "Add new"
+        },
+        "editBrand": {
+          "title": "Edit Printer Brand",
+          "addTitle": "Add Printer Brand",
+          "brandName": "Brand Name",
+          "country": "Country",
+          "website": "Website",
+          "selectCountry": "Select country",
+          "brandNamePlaceholder": "e.g., HP, Canon, Epson",
+          "websitePlaceholder": "https://www.example.com",
+          "websiteOptional": "(Optional) Brand website URL",
+          "errors": {
+            "brandNameRequired": "Please enter brand name",
+            "countryRequired": "Please select a country",
+            "invalidUrl": "Invalid URL",
+            "saveError": "An error occurred while saving. Please try again."
+          },
+          "cancel": "Cancel",
+          "saving": "Saving...",
+          "saveChanges": "Save changes",
+          "addBrand": "Add brand"
+        },
+        "addBrand": {
+          "title": "Add New Printer Brand",
+          "brandName": "Brand Name",
+          "countryOfOrigin": "Country of Origin",
+          "website": "Website",
+          "selectCountry": "Select country",
+          "brandNamePlaceholder": "e.g., HP, Canon, Epson",
+          "websitePlaceholder": "https://www.example.com",
+          "websiteOptional": "(Optional) Brand website URL",
+          "errors": {
+            "brandNameRequired": "Please enter brand name",
+            "countryRequired": "Please select country of origin",
+            "invalidUrl": "Invalid URL. Example: https://www.example.com",
+            "saveError": "An error occurred while saving. Please try again."
+          },
+          "cancel": "Cancel",
+          "saving": "Saving...",
+          "addNew": "Add new"
+        },
+        "editPrinter": {
+          "title": "Edit Physical Printer",
+          "addTitle": "Add Physical Printer",
+          "brand": "Brand",
+          "model": "Model",
+          "serialNumber": "Serial Number",
+          "room": "Room",
+          "status": "Status",
+          "installedDate": "Installation Date",
+          "lastMaintenanceDate": "Last Maintenance Date",
+          "enablePrinter": "Enable printer",
+          "selectBrand": "Select brand",
+          "selectModel": "Select model",
+          "selectRoom": "Select room",
+          "serialNumberPlaceholder": "e.g., SN123456789",
+          "errors": {
+            "brandRequired": "Please select a brand",
+            "modelRequired": "Please select a model",
+            "serialRequired": "Please enter serial number",
+            "roomRequired": "Please select a room",
+            "installedDateRequired": "Please select installation date",
+            "saveError": "An error occurred while saving. Please try again."
+          },
+          "cancel": "Cancel",
+          "saving": "Saving...",
+          "saveChanges": "Save changes",
+          "addNew": "Add new"
+        }
+      },
+      "messages": {
+        "pageSizeNotFound": "Page size not found",
+        "roomNotFound": "Room not found",
+        "modelNotFound": "Model not found",
+        "updateModelSuccess": "Model updated successfully!",
+        "addModelSuccess": "New model added successfully!",
+        "updateBrandSuccess": "Brand updated successfully!",
+        "addBrandSuccess": "New brand added successfully!",
+        "updatePrinterSuccess": "Printer updated successfully!",
+        "addPrinterSuccess": "New printer added successfully!",
+        "deleteBrandSuccess": "Brand \"{name}\" deleted successfully!",
+        "deleteModelSuccess": "Model \"{name}\" deleted successfully!",
+        "deletePrinterSuccess": "Printer \"{name}\" deleted successfully!",
+        "bulkDeleteBrandsSuccess": "Deleted {count} brands successfully!",
+        "bulkDeleteModelsSuccess": "Deleted {count} models successfully!",
+        "bulkDeletePrintersSuccess": "Deleted {count} printers successfully!",
+        "bulkUpdateStatusSuccess": "Updated status of {count} printers successfully!",
+        "exportSuccess": "Excel file exported successfully!",
+        "importSuccess": "Import successful: {success}/{total} rows. {failed} error rows.",
+        "saveError": "An error occurred while saving. Please try again.",
+        "deleteError": "An error occurred while deleting. Please try again.",
+        "exportError": "An error occurred while exporting Excel. Please try again.",
+        "importError": "An error occurred while importing Excel. Please try again.",
+        "error": "An error occurred. Please try again.",
+        "actionNotSupported": "Action \"{action}\" is not supported",
+        "actionNotImplemented": "Action \"{action}\" will be implemented"
+      },
+      "features": {
+        "selectFeatures": "Select features...",
+        "selectedCount": "Selected {count} features"
       }
     },
     "manageStudents": {
@@ -883,6 +1463,353 @@
       },
       "bulkAction": {
         "alert": "Performed \"{action}\" for {count} selected students"
+      },
+      "actions": {
+        "edit": "Edit",
+        "delete": "Delete",
+        "view": "View",
+        "close": "Close"
+      },
+      "errors": {
+        "loadUserFailed": "Failed to load user information",
+        "deleteUserSuccess": "User deleted successfully",
+        "deleteUserFailed": "An error occurred while deleting user. Please try again.",
+        "updateUserSuccess": "User information updated successfully",
+        "updateUserFailed": "An error occurred while updating information. Please try again.",
+        "resetPasswordSuccess": "Password reset successfully",
+        "resetPasswordFailed": "An error occurred while resetting password. Please try again.",
+        "createUserSuccess": "User created successfully",
+        "createUserFailed": "An error occurred while creating user. Please try again.",
+        "invalidUserId": "Invalid user ID",
+        "loadBalanceFailed": "Failed to load balance information",
+        "loadBalanceHistoryFailed": "Failed to load balance history. Please try again later.",
+        "loadPrintStatsFailed": "Failed to load print statistics. Please try again later.",
+        "noUserSelected": "No user information. Please select a user to view balance information.",
+        "noUserForHistory": "No user information. Please select a user to view balance history.",
+        "noUserForStats": "No user information. Please select a user to view print statistics."
+      },
+      "loading": {
+        "userInfo": "Loading user information...",
+        "balanceInfo": "Loading balance information...",
+        "balanceHistory": "Loading balance history...",
+        "printStats": "Loading print statistics...",
+        "saving": "Saving...",
+        "creating": "Creating...",
+        "processing": "Processing..."
+      },
+      "deleteModal": {
+        "title": "Confirm Delete User",
+        "message": "Are you sure you want to delete this user?"
+      },
+      "addUserModal": {
+        "title": "Add New User",
+        "userTypeLabel": "User Type",
+        "userTypeStudent": "Student",
+        "userTypeStaff": "Staff",
+        "emailLabel": "Email",
+        "fullNameLabel": "Full Name",
+        "passwordLabel": "Password",
+        "passwordHint": "Password must be at least 6 characters",
+        "studentCodeLabel": "Student Code",
+        "enrollmentDateLabel": "Enrollment Date",
+        "enrollmentDatePlaceholder": "Select enrollment date",
+        "classIdLabel": "Class",
+        "classIdPlaceholder": "Class UUID",
+        "classIdHint": "(Optional) Enter class UUID",
+        "phoneNumberLabel": "Phone Number",
+        "dateOfBirthLabel": "Date of Birth",
+        "dateOfBirthPlaceholder": "Select date of birth",
+        "genderLabel": "Gender",
+        "genderPlaceholder": "Select gender",
+        "genderMale": "Male",
+        "genderFemale": "Female",
+        "genderOther": "Other",
+        "citizenIdLabel": "ID Card",
+        "addressLabel": "Address",
+        "cancelButton": "Cancel",
+        "submitButton": "Create User",
+        "validation": {
+          "emailRequired": "Please enter email",
+          "emailInvalid": "Invalid email",
+          "fullNameRequired": "Please enter full name",
+          "passwordRequired": "Please enter password",
+          "passwordMinLength": "Password must be at least 6 characters",
+          "userTypeRequired": "Please select user type",
+          "studentCodeRequired": "Please enter student code"
+        }
+      },
+      "editUserModal": {
+        "title": "Edit User Information",
+        "loadingUserInfo": "Loading user information...",
+        "accountInfoTitle": "Account Information (Cannot be edited)",
+        "locked": "Locked",
+        "typeLabel": "Type",
+        "typeStudent": "Student",
+        "typeStaff": "Staff",
+        "fullNameLabel": "Full Name",
+        "studentCodeLabel": "Student Code",
+        "studentStatusLabel": "Student Status",
+        "studentStatusPlaceholder": "Select status",
+        "studentStatusActive": "Active",
+        "studentStatusGraduated": "Graduated",
+        "studentStatusSuspended": "Suspended",
+        "studentStatusWithdrawn": "Withdrawn",
+        "enrollmentDateLabel": "Enrollment Date",
+        "enrollmentDatePlaceholder": "Select enrollment date",
+        "classIdLabel": "Class",
+        "classIdPlaceholder": "Class UUID",
+        "phoneNumberLabel": "Phone Number",
+        "dateOfBirthLabel": "Date of Birth",
+        "dateOfBirthPlaceholder": "Select date of birth",
+        "genderLabel": "Gender",
+        "genderPlaceholder": "Select gender",
+        "genderMale": "Male",
+        "genderFemale": "Female",
+        "genderOther": "Other",
+        "citizenIdLabel": "ID Card",
+        "addressLabel": "Address",
+        "cancelButton": "Cancel",
+        "saveButton": "Save Changes",
+        "closeButton": "Close",
+        "validation": {
+          "fullNameMaxLength": "Full name cannot exceed 100 characters",
+          "passwordMinLength": "Password must be at least 8 characters",
+          "passwordMaxLength": "Password cannot exceed 100 characters"
+        }
+      },
+      "userHistoryModal": {
+        "title": "History - {userName}",
+        "tabs": {
+          "balanceManagement": "Balance Management",
+          "balanceHistory": "Balance History",
+          "printStats": "Print Statistics"
+        },
+        "sourceTypes": {
+          "DEPOSIT": "Deposit",
+          "PAYMENT": "Payment",
+          "REFUND": "Refund",
+          "ADJUSTMENT": "Adjustment",
+          "SEMESTER_BONUS": "Semester Bonus"
+        },
+        "balanceAfter": "Balance After",
+        "page": "Page",
+        "previous": "Previous",
+        "next": "Next",
+        "noTransactionHistory": "No transaction history",
+        "noPrintStats": "No print statistics data",
+        "printStats": {
+          "totalJobs": "Total Print Jobs",
+          "totalPages": "Total Pages Printed",
+          "totalCost": "Total Cost",
+          "byStatus": "By Status",
+          "byType": "By Print Type",
+          "success": "Success",
+          "failed": "Failed",
+          "cancelled": "Cancelled",
+          "pending": "Pending",
+          "color": "Color",
+          "blackWhite": "Black & White",
+          "duplex": "Duplex"
+        }
+      },
+      "balanceWidget": {
+        "loading": "Loading balance information...",
+        "loadFailed": "Failed to load balance information",
+        "lastUpdated": "Last Updated"
+      }
+    },
+    "managePrintHistory": {
+      "title": "Print History Management",
+      "description": "View and analyze print history across the entire system",
+      "stats": {
+        "totalJobs": "Total Print Jobs",
+        "completedJobs": "Completed",
+        "failedJobs": "Failed",
+        "cancelledJobs": "Cancelled",
+        "pendingPaymentJobs": "Pending Payment",
+        "queuedJobs": "Queued",
+        "printingJobs": "Printing",
+        "totalPages": "Total Pages",
+        "completedPages": "Pages Printed",
+        "colorPages": "Color Pages",
+        "blackWhitePages": "Black & White Pages",
+        "totalRevenue": "Total Revenue",
+        "totalDiscount": "Total Discount",
+        "netRevenue": "Net Revenue",
+        "uniqueStudents": "Unique Students",
+        "successRate": "Success Rate"
+      },
+      "table": {
+        "title": "Print History",
+        "subtitle": "Search, filter and sort print history",
+        "searchPlaceholder": "Search by student code, name...",
+        "advancedFilters": "Advanced Filters",
+        "jobId": "Job ID",
+        "createdAt": "Created At",
+        "student": "Student",
+        "printer": "Printer",
+        "file": "File",
+        "pages": "Pages",
+        "price": "Price",
+        "status": "Status",
+        "paymentMethod": "Payment Method",
+        "actions": "Actions",
+        "viewDetail": "View Detail",
+        "noData": "No data matches the current filters."
+      },
+      "filters": {
+        "allStatuses": "All Statuses",
+        "allFileTypes": "All File Types",
+        "allPaymentMethods": "All Payment Methods",
+        "allPrinters": "All Printers",
+        "status": "Status",
+        "fileType": "File Type",
+        "paymentMethod": "Payment Method",
+        "student": "Student",
+        "printer": "Printer",
+        "dateFrom": "From Date",
+        "dateTo": "To Date",
+        "clearFilters": "Clear Filters"
+      },
+      "status": {
+        "queued": "Queued",
+        "printing": "Printing",
+        "completed": "Completed",
+        "failed": "Failed",
+        "cancelled": "Cancelled",
+        "pending_payment": "Pending Payment"
+      },
+      "paymentMethod": {
+        "balance": "Balance",
+        "qr": "QR Code"
+      },
+      "modal": {
+        "detail": {
+          "title": "Print Job Details",
+          "jobInfo": "Job Information",
+          "jobId": "Job ID",
+          "createdAt": "Created At",
+          "startTime": "Start Time",
+          "endTime": "End Time",
+          "printStatus": "Status",
+          "studentInfo": "Student Information",
+          "studentCode": "Student Code",
+          "studentName": "Full Name",
+          "studentEmail": "Email",
+          "printerInfo": "Printer Information",
+          "printerCode": "Printer Code",
+          "printerName": "Printer Name",
+          "location": "Location",
+          "fileInfo": "File Information",
+          "fileName": "File Name",
+          "fileType": "File Type",
+          "printConfig": "Print Configuration",
+          "pageSize": "Page Size",
+          "colorMode": "Color Mode",
+          "orientation": "Orientation",
+          "printSide": "Print Side",
+          "numberOfCopy": "Number of Copies",
+          "pricing": "Pricing",
+          "subtotal": "Subtotal",
+          "discount": "Discount",
+          "totalPrice": "Total Price",
+          "discountPackage": "Discount Package",
+          "payment": "Payment",
+          "paymentMethod": "Payment Method",
+          "close": "Close"
+        }
+      },
+      "errors": {
+        "loadHistoryFailed": "Failed to load print history. Please try again later.",
+        "loadStatsFailed": "Failed to load statistics. Please try again later."
+      }
+    },
+    "manageTransactions": {
+      "title": "Transaction History Management",
+      "description": "View and analyze wallet transaction history across the entire system",
+      "stats": {
+        "totalTransactions": "Total Transactions",
+        "incomingTransactions": "Incoming Transactions",
+        "outgoingTransactions": "Outgoing Transactions",
+        "totalInflow": "Total Inflow",
+        "totalOutflow": "Total Outflow",
+        "netFlow": "Net Flow",
+        "depositTransactions": "Deposit Transactions",
+        "semesterBonusTransactions": "Semester Bonus Transactions",
+        "paymentTransactions": "Payment Transactions",
+        "refundTransactions": "Refund Transactions",
+        "totalDeposits": "Total Deposits",
+        "totalSemesterBonus": "Total Semester Bonus",
+        "totalPayments": "Total Payments",
+        "totalRefunds": "Total Refunds",
+        "uniqueStudents": "Unique Students"
+      },
+      "table": {
+        "title": "Transaction History",
+        "subtitle": "Search, filter and sort transaction history",
+        "searchPlaceholder": "Search by student code, name...",
+        "advancedFilters": "Advanced Filters",
+        "createdAt": "Time",
+        "student": "Student",
+        "sourceType": "Source Type",
+        "direction": "Direction",
+        "amount": "Amount",
+        "description": "Description",
+        "actions": "Actions",
+        "viewDetail": "View Detail",
+        "noData": "No data matches the current filters."
+      },
+      "filters": {
+        "student": "Student (UUID)",
+        "dateFrom": "From Date",
+        "dateTo": "To Date",
+        "allDirections": "All Directions",
+        "directionIn": "In",
+        "directionOut": "Out",
+        "allSourceTypes": "All Source Types",
+        "sourceTypeDeposit": "Deposit",
+        "sourceTypeSemesterBonus": "Semester Bonus",
+        "sourceTypePayment": "Payment",
+        "sourceTypeRefund": "Refund",
+        "clearFilters": "Clear Filters"
+      },
+      "sourceTypes": {
+        "DEPOSIT": "Deposit",
+        "SEMESTER_BONUS": "Semester Bonus",
+        "PAYMENT": "Payment",
+        "REFUND": "Refund"
+      },
+      "directions": {
+        "IN": "In",
+        "OUT": "Out"
+      },
+      "modal": {
+        "detail": {
+          "title": "Transaction Details",
+          "transactionInfo": "Transaction Information",
+          "ledgerId": "Transaction ID",
+          "createdAt": "Time",
+          "amount": "Amount",
+          "direction": "Direction",
+          "sourceType": "Source Type",
+          "description": "Description",
+          "studentInfo": "Student Information",
+          "studentCode": "Student Code",
+          "studentName": "Full Name",
+          "studentEmail": "Email",
+          "sourceInfo": "Source Information",
+          "sourceId": "Source ID",
+          "sourceTable": "Source Table",
+          "additionalInfo": "Additional Information",
+          "paymentMethod": "Payment Method",
+          "paymentReference": "Payment Reference",
+          "depositCode": "Deposit Code",
+          "printJobId": "Print Job ID"
+        }
+      },
+      "errors": {
+        "loadHistoryFailed": "Failed to load transaction history. Please try again later.",
+        "loadStatsFailed": "Failed to load statistics. Please try again later."
       }
     },
     "pageAllocation": {
@@ -1008,13 +1935,214 @@
         }
       }
     },
-    "systemLogs": {
-      "title": "System Logs",
-      "description": "View system activity and logs"
-    },
     "reports": {
       "title": "Reports",
-      "description": "View and generate system reports"
+      "description": "View and generate system reports",
+      "summary": {
+        "totalPrintJobs": "Total Print Jobs",
+        "totalPagesPrinted": "Total Pages Printed",
+        "totalRevenue": "Total Revenue",
+        "averageJobsPerDay": "Avg Jobs/Day",
+        "successRate": "Success Rate",
+        "caption": {
+          "inSelectedPeriod": "In selected time period",
+          "includingColorAndBW": "Including color and black & white",
+          "fromPagePurchases": "From page purchases",
+          "dailyAverage": "Daily average",
+          "completedOverTotal": "Completed / Total"
+        },
+        "trend": {
+          "stable": "Stable"
+        }
+      },
+      "filters": {
+        "title": "Time Filters",
+        "dateRanges": {
+          "7days": "Last 7 days",
+          "30days": "Last 30 days",
+          "90days": "Last 90 days",
+          "custom": "Custom"
+        },
+        "fromDate": "From date",
+        "toDate": "To date",
+        "reset": "Reset"
+      },
+      "charts": {
+        "dailyJobTrends": {
+          "title": "Daily Print Job Trends",
+          "description": "Print job analysis by status",
+          "legend": {
+            "completed": "Completed",
+            "failed": "Failed",
+            "cancelled": "Cancelled"
+          }
+        },
+        "dailyPageAnalytics": {
+          "title": "Daily Page Analytics",
+          "description": "Color and black & white page analysis",
+          "legend": {
+            "colorPages": "Color Pages",
+            "bwPages": "Black & White Pages"
+          },
+          "tooltip": {
+            "total": "Total",
+            "pages": "pages",
+            "color": "Color",
+            "bw": "B&W"
+          }
+        },
+        "topActivePrinters": {
+          "title": "Top Active Printers",
+          "description": "Top 5 printers with most jobs in the time period",
+          "legend": {
+            "jobCount": "Job Count",
+            "pageCount": "Page Count"
+          },
+          "tooltip": {
+            "location": "Location",
+            "serial": "Serial"
+          }
+        },
+        "monthlyRevenueTrends": {
+          "title": "Monthly Revenue Trends",
+          "description": "Print revenue and deposits by month",
+          "legend": {
+            "printRevenue": "Print Revenue",
+            "depositAmount": "Deposits"
+          },
+          "tooltip": {
+            "totalJobs": "Total Jobs",
+            "totalPages": "Total Pages"
+          }
+        },
+        "printStatusDistribution": {
+          "title": "Print Status Distribution",
+          "description": "Print job status ratios",
+          "labels": {
+            "completed": "Completed",
+            "failed": "Failed",
+            "queued": "Queued"
+          },
+          "tooltip": {
+            "quantity": "Quantity"
+          }
+        },
+        "colorModeDistribution": {
+          "title": "Color Mode Distribution",
+          "description": "Print mode usage ratios",
+          "labels": {
+            "blackWhite": "Black & White",
+            "color": "Color",
+            "grayscale": "Grayscale"
+          },
+          "noData": "Color mode distribution data not available"
+        },
+        "paperSizeDistribution": {
+          "title": "Paper Size Distribution",
+          "description": "Usage of different paper sizes",
+          "legend": {
+            "count": "Count"
+          },
+          "noData": "Paper size distribution data not available"
+        },
+        "noData": "No data available"
+      },
+      "management": {
+        "title": "Report Management",
+        "tabs": {
+          "generate": "Generate Report",
+          "reports": "Generated Reports"
+        },
+        "generate": {
+          "title": "Generate New Report",
+          "monthly": "Generate Monthly Report",
+          "yearly": "Generate Yearly Report",
+          "description": "Reports will be generated and saved to the system. You can view generated reports in the \"Generated Reports\" tab."
+        }
+      },
+      "list": {
+        "title": "Generated Reports",
+        "filter": {
+          "all": "All",
+          "monthly": "Monthly Reports",
+          "yearly": "Yearly Reports"
+        },
+        "columns": {
+          "type": "Type",
+          "period": "Period",
+          "createdAt": "Created At",
+          "createdBy": "Created By",
+          "actions": "Actions"
+        },
+        "type": {
+          "monthly": "Month",
+          "yearly": "Year"
+        },
+        "period": {
+          "month": "Month {month}/{year}",
+          "year": "Year {year}"
+        },
+        "viewDetail": "View Details",
+        "pagination": {
+          "previous": "Previous",
+          "next": "Next",
+          "page": "Page {page}"
+        },
+        "empty": "No reports have been generated yet",
+        "loading": "Loading reports list...",
+        "error": "An error occurred while loading reports list"
+      },
+      "generateModal": {
+        "monthly": {
+          "title": "Generate Monthly Report"
+        },
+        "yearly": {
+          "title": "Generate Yearly Report"
+        },
+        "year": "Year",
+        "month": "Month",
+        "months": {
+          "1": "January",
+          "2": "February",
+          "3": "March",
+          "4": "April",
+          "5": "May",
+          "6": "June",
+          "7": "July",
+          "8": "August",
+          "9": "September",
+          "10": "October",
+          "11": "November",
+          "12": "December"
+        },
+        "cancel": "Cancel",
+        "submit": "Generate Report",
+        "submitting": "Generating...",
+        "success": {
+          "monthly": "Monthly report for {month}/{year} generated successfully",
+          "yearly": "Yearly report for {year} generated successfully"
+        },
+        "error": "An error occurred while generating report"
+      },
+      "detailModal": {
+        "title": "Report Details",
+        "titleWithPeriod": "Report Details - {period}",
+        "info": {
+          "title": "Report Information",
+          "type": "Type",
+          "period": "Period",
+          "fromDate": "From Date",
+          "toDate": "To Date",
+          "createdAt": "Created At",
+          "createdBy": "Created By"
+        },
+        "type": {
+          "monthly": "Monthly Report",
+          "yearly": "Yearly Report"
+        },
+        "loading": "Loading report data...",
+        "error": "An error occurred while loading report data"
+      }
     },
     "configuration": {
       "title": "Configuration",
@@ -1045,7 +2173,8 @@
         "saving": "Saving...",
         "cancel": "Cancel",
         "saveSuccess": "Page size price updated successfully",
-        "saveError": "An error occurred while updating"
+        "saveError": "An error occurred while updating",
+        "currency": "VND"
       },
       "colorModePrices": {
         "title": "Color Mode Price Multipliers",
@@ -1065,7 +2194,12 @@
         "saving": "Saving...",
         "cancel": "Cancel",
         "saveSuccess": "Price multiplier updated successfully",
-        "saveError": "An error occurred while updating"
+        "saveError": "An error occurred while updating",
+        "colorModeNames": {
+          "blackWhite": "Black & White",
+          "color": "Color",
+          "grayscale": "Grayscale"
+        }
       },
       "depositBonus": {
         "title": "Deposit Bonus Packages",
@@ -1097,7 +2231,8 @@
         "createError": "An error occurred while creating bonus package",
         "updateError": "An error occurred while updating",
         "deleteError": "An error occurred while deleting",
-        "deleteConfirm": "Are you sure you want to delete this bonus package?"
+        "deleteConfirm": "Are you sure you want to delete this bonus package?",
+        "currency": "VND"
       },
       "pageDiscount": {
         "title": "Page Discount Packages",
@@ -1193,7 +2328,31 @@
         "createSuccess": "Semester bonus created successfully",
         "updateSuccess": "Semester bonus updated successfully",
         "createError": "An error occurred while creating semester bonus",
-        "updateError": "An error occurred while updating"
+        "updateError": "An error occurred while updating",
+        "status": {
+          "distributed": "Distributed",
+          "notDistributed": "Not distributed - Date {date}",
+          "distributedCount": "Distributed: {received}/{total} students"
+        },
+        "distributeButton": {
+          "redistribute": "Redistribute (if new students)",
+          "distribute": "Distribute manually"
+        },
+        "selectSemester": "Select semester",
+        "loadingSemesters": "Loading semester list...",
+        "errorLoadingSemesters": "Error loading semester list",
+        "allSemestersHaveBonus": "All semesters already have bonus. Cannot create more.",
+        "optional": "(Optional)",
+        "distributionDateHint": {
+          "distributed": "Cannot change distribution date because bonus has already been distributed",
+          "notDistributed": "Leave empty to automatically use semester start date"
+        },
+        "distributeToast": {
+          "successWithFailed": "Successfully distributed to {newlyDistributed} students. {failed} students failed. Check logs.",
+          "noNewStudents": "No new students. {alreadyReceived} students already received.",
+          "success": "Distributed {amount} VND to {count} students!"
+        },
+        "currency": "VND"
       },
       "generalConfig": {
         "title": "General System Configuration",
@@ -1258,7 +2417,11 @@
         "englishDescription": "Use English as the interface language.",
         "vietnameseTitle": "Vietnamese",
         "vietnameseDescription": "Use Vietnamese as the interface language.",
-        "activeLabel": "Active"
+        "activeLabel": "Active",
+        "englishName": "English",
+        "vietnameseName": "Vietnamese",
+        "usFlagAlt": "US Flag",
+        "vietnamFlagAlt": "Vietnam Flag"
       },
       "dockPosition": {
         "title": "App Dock Position",
@@ -1281,7 +2444,11 @@
         "next": "Next",
         "previous": "Previous",
         "autoPlay": "Auto Play",
-        "autoPlayDescription": "Automatically play music when entering the page"
+        "autoPlayDescription": "Automatically play music when entering the page",
+        "loading": "Loading music player...",
+        "loop": "Loop",
+        "loopOn": "Turn on loop",
+        "loopOff": "Turn off loop"
       }
     }
   }

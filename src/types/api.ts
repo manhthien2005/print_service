@@ -283,6 +283,35 @@ export interface PrinterQueueResponse {
   estimatedWaitTimeMinutes: number;
 }
 
+export interface PixelCoordinate {
+  grid: [number, number];
+  pixel: [number, number];
+}
+
+export interface PrinterFloorDiagramPrinter {
+  printer_id: string; // UUID as string
+  serial_number: string;
+  room_name: string;
+  room_code: string;
+  floor_number: number;
+  building_code: string;
+  building_name: string;
+  status: string; // 'idle', 'printing', 'maintained', 'unplugged'
+  is_enabled: boolean;
+  pixel_coordinate: PixelCoordinate | null;
+}
+
+export interface PrinterFloorDiagramFloor {
+  floor_id: string; // UUID as string
+  floor_number: number;
+  diagram_url: string | null;
+}
+
+export interface PrinterFloorDiagramResponse {
+  printer: PrinterFloorDiagramPrinter;
+  floor: PrinterFloorDiagramFloor;
+}
+
 // Print Configuration
 export interface ColorModeResponse {
   colorModeId: string; // UUID as string
@@ -905,6 +934,10 @@ export interface StaffDashboardOverviewResponse {
   printerStatus: PrinterStatusResponse;
   paperSizeUsage: PaperSizeUsageItem[];
   recentActivities: RecentActivity[];
+  // New analytics fields (7 days)
+  dailyJobTrends?: DailyJobTrend[];
+  dailyPageAnalytics?: DailyPageAnalytics[];
+  topActivePrinters?: TopActivePrinter[];
 }
 
 export interface PrintJobStats {
@@ -956,6 +989,44 @@ export interface SystemReportData {
   printerStats: PrinterStats;
 }
 
+// New Analytics Types
+export interface DailyJobTrend {
+  date: string; // YYYY-MM-DD
+  jobCount: number;
+  completedJobs: number;
+  failedJobs: number;
+  cancelledJobs: number;
+}
+
+export interface DailyPageAnalytics {
+  date: string; // YYYY-MM-DD
+  totalPages: number;
+  colorPages: number;
+  bwPages: number;
+  colorPagePercentage: number;
+  bwPagePercentage: number;
+}
+
+export interface TopActivePrinter {
+  rank: number;
+  printerId: string; // UUID
+  serialNumber: string;
+  modelName: string;
+  location: string; // "Building Code - Room Name"
+  jobCount: number;
+  pageCount: number;
+  status: string;
+}
+
+export interface MonthlyRevenueTrend {
+  month: string; // "2025-01"
+  monthName: string; // "Jan 2025"
+  printRevenue: number;
+  depositAmount: number;
+  totalJobs: number;
+  totalPages: number;
+}
+
 export interface SystemReportResponse {
   reportId: string; // UUID
   reportType: 'MONTHLY' | 'YEARLY';
@@ -968,6 +1039,11 @@ export interface SystemReportResponse {
   revenueStats: RevenueStats;
   userStats: UserStats;
   printerStats: PrinterStats;
+  // New analytics fields
+  dailyJobTrends?: DailyJobTrend[];
+  dailyPageAnalytics?: DailyPageAnalytics[];
+  topActivePrinters?: TopActivePrinter[];
+  monthlyRevenueTrends?: MonthlyRevenueTrend[];
 }
 
 export interface CustomReportResponse {
@@ -975,7 +1051,12 @@ export interface CustomReportResponse {
   revenueStats: RevenueStats;
   userStats: UserStats;
   printerStats: PrinterStats;
-  // Additional fields that might be available
+  // New analytics fields
+  dailyJobTrends?: DailyJobTrend[];
+  dailyPageAnalytics?: DailyPageAnalytics[];
+  topActivePrinters?: TopActivePrinter[];
+  monthlyRevenueTrends?: MonthlyRevenueTrend[];
+  // Legacy fields (kept for backward compatibility)
   printJobsByDate?: Array<{
     date: string;
     completed: number;

@@ -2,6 +2,7 @@
 
 import { cn } from '@/lib/utils/cn';
 import { Skeleton } from '@/components/common/Skeleton';
+import { useTranslations } from 'next-intl';
 
 interface SummaryCardProps {
   title: string;
@@ -18,6 +19,8 @@ export function SummaryCard({
   trend,
   isLoading,
 }: SummaryCardProps) {
+  const t = useTranslations('student.history.summary.successRate');
+
   return (
     <div className="relative rounded-2xl border border-slate-200/70 bg-white/80 p-5 shadow-[0_10px_40px_rgba(15,23,42,0.08)] backdrop-blur dark:border-white/10 dark:bg-white/5 dark:shadow-[0_20px_60px_rgba(0,0,0,0.35)]">
       <div className="text-sm font-semibold text-slate-500 dark:text-white/60">
@@ -35,7 +38,7 @@ export function SummaryCard({
           {caption}
         </div>
       )}
-      {trend && title !== 'Tỷ lệ thành công' && !isLoading && (
+      {trend && title !== t('title') && !isLoading && (
         <div
           className={cn(
             'mt-3 inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold',
@@ -86,7 +89,7 @@ export function SummaryCard({
           {trend.label}
         </div>
       )}
-      {trend && title === 'Tỷ lệ thành công' && !isLoading && (
+      {trend && title === t('title') && !isLoading && (
         <div className="absolute right-4 top-4 inline-flex items-center gap-2 rounded-full bg-green-500/10 px-3 py-1 text-xs font-semibold text-green-600 dark:bg-green-500/15 dark:text-green-300">
           <svg
             className="h-4 w-4"
@@ -101,7 +104,7 @@ export function SummaryCard({
               d="M9 12l2 2 4-4M12 21c4.97 0 9-3.582 9-8s-4.03-8-9-8-9 3.582-9 8 4.03 8 9 8z"
             />
           </svg>
-          Ổn định
+          {t('stable')}
         </div>
       )}
     </div>

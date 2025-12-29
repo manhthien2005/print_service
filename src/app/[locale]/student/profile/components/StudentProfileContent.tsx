@@ -44,19 +44,18 @@ export default function StudentProfileContent({
         <Card className="border-destructive/30 bg-destructive/10 dark:border-destructive/30 dark:bg-destructive/20 p-8">
           <div className="text-center">
             <h3 className="mb-2 text-lg font-semibold text-destructive dark:text-destructive">
-              {t.error?.title ?? 'Không thể tải thông tin'}
+              {t.error?.title || 'Không thể tải thông tin'}
             </h3>
             <p className="mb-4 text-destructive dark:text-destructive">
               {error instanceof Error
                 ? error.message
-                : (t.error?.message ??
-                  'Đã xảy ra lỗi khi tải thông tin profile')}
+                : t.error?.message || 'Đã xảy ra lỗi khi tải thông tin profile'}
             </p>
             <Button
               onClick={() => refetch()}
               className="hover:bg-destructive/90 dark:hover:bg-destructive/90 bg-destructive text-destructive-foreground dark:bg-destructive"
             >
-              {t.error?.retry ?? 'Thử lại'}
+              {t.error?.retry || 'Thử lại'}
             </Button>
           </div>
         </Card>
@@ -72,7 +71,7 @@ export default function StudentProfileContent({
         <Card className="dark:bg-background/5 border-border bg-muted p-8 dark:border-border">
           <div className="text-center">
             <p className="text-muted-foreground dark:text-muted-foreground">
-              {t.error?.notFound ?? 'Không tìm thấy thông tin profile'}
+              {t.error?.notFound || 'Không tìm thấy thông tin profile'}
             </p>
           </div>
         </Card>
@@ -96,10 +95,10 @@ export default function StudentProfileContent({
 
   // Map status to display text
   const statusMap: Record<string, string> = {
-    active: t.badges?.active ?? 'Active',
-    graduated: t.badges?.graduated ?? 'Graduated',
-    suspended: t.badges?.suspended ?? 'Suspended',
-    withdrawn: t.badges?.withdrawn ?? 'Withdrawn',
+    active: t.badges?.active || 'Active',
+    graduated: t.badges?.graduated || 'Graduated',
+    suspended: t.badges?.suspended || 'Suspended',
+    withdrawn: t.badges?.withdrawn || 'Withdrawn',
   };
   const displayStatus = profileData.status
     ? statusMap[profileData.status] || profileData.status
@@ -180,7 +179,7 @@ export default function StudentProfileContent({
                     d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
                   />
                 </svg>
-                {t.editProfile ?? 'Edit Profile'}
+                {t.editProfile || 'Edit Profile'}
               </Button>
 
               <Button
@@ -202,7 +201,7 @@ export default function StudentProfileContent({
                     d="M13.5 10.5V6.75a4.5 4.5 0 119 0v3.75M3.75 21.75h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H3.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"
                   />
                 </svg>
-                {t.changePassword ?? 'Change Password'}
+                {t.changePassword || 'Change Password'}
               </Button>
             </div>
           </div>
@@ -219,7 +218,7 @@ export default function StudentProfileContent({
             <div className="flex items-center justify-between">
               <div className="space-y-2">
                 <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-600 dark:text-white/70">
-                  {t.balance?.title ?? 'SỐ DƯ'}
+                  {t.balance?.title || 'SỐ DƯ'}
                 </h3>
                 <div className="space-y-1">
                   <div className="text-5xl font-bold text-slate-900 dark:text-white">
@@ -231,7 +230,7 @@ export default function StudentProfileContent({
                     <span className="ml-1">₫</span>
                   </div>
                   <p className="text-sm text-slate-600 dark:text-white/70">
-                    {t.balance?.subtitle ?? 'Số dư khả dụng'}
+                    {t.balance?.subtitle || 'Số dư khả dụng'}
                   </p>
                 </div>
               </div>
@@ -251,7 +250,7 @@ export default function StudentProfileContent({
                       d="M12 4.5v15m7.5-7.5h-15"
                     />
                   </svg>
-                  {t.balance?.topUp ?? 'Nạp tiền'}
+                  {t.balance?.topUp || 'Nạp tiền'}
                 </Button>
               </Link>
             </div>
@@ -264,7 +263,7 @@ export default function StudentProfileContent({
           <Card className="border-slate-200/70 bg-white/80 shadow-lg backdrop-blur dark:border-white/10 dark:bg-white/5">
             <div className="p-6">
               <h3 className="mb-6 text-sm font-semibold uppercase tracking-wide text-slate-600 dark:text-white/70">
-                {t.contactInfo?.title ?? 'CONTACT INFO'}
+                {t.contactInfo?.title || 'CONTACT INFO'}
               </h3>
               <div className="space-y-5">
                 {/* University Email */}
@@ -290,7 +289,7 @@ export default function StudentProfileContent({
                       {profileData.email}
                     </div>
                     <div className="mt-1 text-sm text-slate-600 dark:text-white/70">
-                      {t.contactInfo?.universityEmail ?? 'University Email'}
+                      {t.contactInfo?.universityEmail || 'University Email'}
                     </div>
                   </div>
                 </div>
@@ -318,7 +317,7 @@ export default function StudentProfileContent({
                       {displayPhone}
                     </div>
                     <div className="mt-1 text-sm text-slate-600 dark:text-white/70">
-                      {t.contactInfo?.mobileNumber ?? 'Mobile Number'}
+                      {t.contactInfo?.mobileNumber || 'Mobile Number'}
                     </div>
                   </div>
                 </div>
@@ -346,7 +345,7 @@ export default function StudentProfileContent({
                       {formattedDateOfBirth}
                     </div>
                     <div className="mt-1 text-sm text-slate-600 dark:text-white/70">
-                      {t.contactInfo?.dateOfBirth ?? 'Date of Birth'}
+                      {t.contactInfo?.dateOfBirth || 'Date of Birth'}
                     </div>
                   </div>
                 </div>
@@ -358,7 +357,7 @@ export default function StudentProfileContent({
           <Card className="border-slate-200/70 bg-white/80 shadow-lg backdrop-blur dark:border-white/10 dark:bg-white/5">
             <div className="p-6">
               <h3 className="mb-6 text-sm font-semibold uppercase tracking-wide text-slate-600 dark:text-white/70">
-                {t.academicDetails?.title ?? 'ACADEMIC DETAILS'}
+                {t.academicDetails?.title || 'ACADEMIC DETAILS'}
               </h3>
               <div className="space-y-5">
                 {/* Student ID */}
@@ -384,7 +383,7 @@ export default function StudentProfileContent({
                       {displayStudentCode}
                     </div>
                     <div className="mt-1 text-sm text-slate-600 dark:text-white/70">
-                      {t.academicDetails?.studentId ?? 'Student ID'}
+                      {t.academicDetails?.studentId || 'Student ID'}
                     </div>
                   </div>
                 </div>
@@ -413,7 +412,7 @@ export default function StudentProfileContent({
                         {displayClass}
                       </div>
                       <div className="mt-1 text-sm text-slate-600 dark:text-white/70">
-                        {t.academicDetails?.class ?? 'Class'}
+                        {t.academicDetails?.class || 'Class'}
                       </div>
                     </div>
                   </div>
@@ -442,7 +441,7 @@ export default function StudentProfileContent({
                       {displayFaculty}
                     </div>
                     <div className="mt-1 text-sm text-slate-600 dark:text-white/70">
-                      {t.academicDetails?.faculty ?? 'Faculty'}
+                      {t.academicDetails?.faculty || 'Faculty'}
                     </div>
                   </div>
                 </div>
@@ -470,7 +469,7 @@ export default function StudentProfileContent({
                       {displayMajor}
                     </div>
                     <div className="mt-1 text-sm text-slate-600 dark:text-white/70">
-                      {t.academicDetails?.major ?? 'Major'}
+                      {t.academicDetails?.major || 'Major'}
                     </div>
                   </div>
                 </div>

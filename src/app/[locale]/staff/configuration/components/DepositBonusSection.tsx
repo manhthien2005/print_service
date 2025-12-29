@@ -22,10 +22,11 @@ import {
 import { PencilIcon, TrashIcon, PlusIcon } from '@heroicons/react/24/outline';
 import { toast } from '@/components/ui/Toast';
 import { Skeleton } from '@/components/common/Skeleton';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 
 export function DepositBonusSection() {
   const t = useTranslations('staff.configuration.depositBonus');
+  const locale = useLocale();
   const { data, isLoading, error } = useDepositBonusPackages();
   const createMutation = useCreateDepositBonusPackage();
   const updateMutation = useUpdateDepositBonusPackage();
@@ -141,7 +142,7 @@ export function DepositBonusSection() {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Gói bonus nạp tiền</CardTitle>
+          <CardTitle>{t('title')}</CardTitle>
           <CardDescription className="text-red-600">
             {t('createError')}
           </CardDescription>
@@ -192,7 +193,10 @@ export function DepositBonusSection() {
                     <div className="mt-2 flex gap-4 text-sm">
                       <span className="text-slate-600 dark:text-white/70">
                         {t('depositLevel')}:{' '}
-                        {item.amountCap.toLocaleString('vi-VN')} VND
+                        {item.amountCap.toLocaleString(
+                          locale === 'vi' ? 'vi-VN' : 'en-US'
+                        )}{' '}
+                        {t('currency')}
                       </span>
                       <span className="text-slate-600 dark:text-white/70">
                         {t('bonus')}: {(item.bonusPercentage * 100).toFixed(1)}%

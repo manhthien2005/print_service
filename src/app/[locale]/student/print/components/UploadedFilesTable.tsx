@@ -1,18 +1,14 @@
 'use client';
 
 import React, { useEffect, useMemo, useState, useRef } from 'react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { Button } from '@/components/ui/Button';
 import { Select } from '@/components/ui/Select';
 import { DatePicker } from '@/components/ui/DatePicker';
 import { Pagination } from '@/components/ui/Pagination';
 import { Modal } from '@/components/ui/Modal';
 import { Tooltip } from '@/components/ui/Tooltip';
-import {
-  UploadedFileItem,
-  fileTypeFilters,
-  dateRangeFilters,
-} from '@/app/[locale]/student/print/types';
+import { UploadedFileItem } from '@/app/[locale]/student/print/types';
 import { FileIcon } from './FileIcon';
 import { UploadedFilesTableSkeleton } from './UploadedFilesTableSkeleton';
 import {
@@ -39,15 +35,18 @@ type SortColumn =
   | null;
 type SortDirection = 'asc' | 'desc' | null;
 
-function formatDate(value?: string) {
+function formatDate(value?: string, locale: string = 'vi') {
   if (!value) return '--';
-  return new Date(value).toLocaleDateString('vi-VN', {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
+  return new Date(value).toLocaleDateString(
+    locale === 'vi' ? 'vi-VN' : 'en-US',
+    {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+    }
+  );
 }
 
 // Removed getFileTypeFromMime - not used anymore as API handles file type filtering
@@ -58,6 +57,7 @@ interface UploadedFilesTableProps {
 
 export function UploadedFilesTable({ onStartPrint }: UploadedFilesTableProps) {
   const t = useTranslations('student.print.uploadedFiles');
+  const locale = useLocale();
   const [search, setSearch] = useState('');
   const [fileType, setFileType] = useState<FileTypeFilterValue>('all');
   const [dateRange, setDateRange] = useState<DateRangeFilterValue>('all');
@@ -87,6 +87,19 @@ export function UploadedFilesTable({ onStartPrint }: UploadedFilesTableProps) {
   const uploadFileMutation = useUploadFile();
   const queryClient = useQueryClient();
   const { data: permittedFileTypesData } = usePermittedFileTypes();
+
+  // Generate supported file types list for display
+  const supportedFileTypesList = useMemo(() => {
+    const permittedFileTypes = permittedFileTypesData?.data?.data || [];
+    return permittedFileTypes
+      .map((t: any) => {
+        const ext =
+          t.fileExtension || (t.extension ? t.extension.replace('.', '') : '');
+        return ext ? ext.toUpperCase() : null;
+      })
+      .filter(Boolean)
+      .join(', ');
+  }, [permittedFileTypesData]);
 
   // Load files from API
   const {
@@ -227,7 +240,7 @@ export function UploadedFilesTable({ onStartPrint }: UploadedFilesTableProps) {
 
     try {
       await deleteFileMutation.mutateAsync(fileToDelete.id);
-      toast.success('Xóa file thành công');
+      toast.success(t('toasts.deleteSuccess'));
       setDeleteModalOpen(false);
       setFileToDelete(null);
     } catch (err: unknown) {
@@ -239,7 +252,7 @@ export function UploadedFilesTable({ onStartPrint }: UploadedFilesTableProps) {
           }
         )?.response?.data?.message ||
         (err as { message?: string })?.message ||
-        'Có lỗi xảy ra khi xóa file.';
+        t('toasts.deleteFailed');
       toast.error(errorMessage);
     }
   };
@@ -273,7 +286,7 @@ export function UploadedFilesTable({ onStartPrint }: UploadedFilesTableProps) {
   const handleViewFile = (file: UploadedFileItem) => {
     const fileUrl = (file as any).file_url;
     if (!fileUrl) {
-      toast.error('Không tìm thấy đường dẫn file');
+      toast.error(t('toasts.fileNotFound'));
       return;
     }
 
@@ -281,7 +294,7 @@ export function UploadedFilesTable({ onStartPrint }: UploadedFilesTableProps) {
       // Open file in a new browser tab for viewing
       window.open(fileUrl, '_blank', 'noopener,noreferrer');
     } catch (err: unknown) {
-      toast.error('Có lỗi xảy ra khi mở file');
+      toast.error(t('toasts.openFileFailed'));
       console.error('Open file error:', err);
     }
   };
@@ -289,7 +302,7 @@ export function UploadedFilesTable({ onStartPrint }: UploadedFilesTableProps) {
   const handleDownloadFile = async (file: UploadedFileItem) => {
     const fileUrl = (file as any).file_url;
     if (!fileUrl) {
-      toast.error('Không tìm thấy đường dẫn file');
+      toast.error(t('toasts.fileNotFound'));
       return;
     }
 
@@ -303,9 +316,9 @@ export function UploadedFilesTable({ onStartPrint }: UploadedFilesTableProps) {
       link.click();
       document.body.removeChild(link);
 
-      toast.success('Đã tải xuống file');
+      toast.success(t('toasts.downloadSuccess'));
     } catch (err: unknown) {
-      toast.error('Có lỗi xảy ra khi tải xuống file');
+      toast.error(t('toasts.downloadFailed'));
       console.error('Download error:', err);
     }
   };
@@ -337,10 +350,12 @@ export function UploadedFilesTable({ onStartPrint }: UploadedFilesTableProps) {
         await new Promise(resolve => setTimeout(resolve, 300));
       }
 
-      toast.success(`Đã tải xuống ${selectedFiles.size} file`);
+      toast.success(
+        t('toasts.bulkDownloadSuccess', { count: selectedFiles.size })
+      );
       setSelectedFiles(new Set());
     } catch (err: unknown) {
-      toast.error('Có lỗi xảy ra khi tải xuống file');
+      toast.error(t('toasts.downloadFailed'));
       console.error('Download error:', err);
     }
   };
@@ -421,14 +436,16 @@ export function UploadedFilesTable({ onStartPrint }: UploadedFilesTableProps) {
       );
 
       if (!isValidType) {
-        toast.error(`File ${file.name} không được hỗ trợ`);
+        toast.error(t('toasts.fileNotSupported', { fileName: file.name }));
         errorCount++;
         continue;
       }
 
       const fileSizeMB = file.size / (1024 * 1024);
       if (fileSizeMB > maxSizeMB) {
-        toast.error(`File ${file.name} quá lớn (tối đa ${maxSizeMB}MB)`);
+        toast.error(
+          t('toasts.fileTooLarge', { fileName: file.name, maxSize: maxSizeMB })
+        );
         errorCount++;
         continue;
       }
@@ -454,7 +471,7 @@ export function UploadedFilesTable({ onStartPrint }: UploadedFilesTableProps) {
             }
           )?.response?.data?.message ||
           (err as { message?: string })?.message ||
-          'Có lỗi xảy ra khi upload file';
+          t('toasts.uploadFailed');
         toast.error(`${file.name}: ${errorMessage}`);
       } finally {
         setUploadingFiles(prev => {
@@ -472,10 +489,10 @@ export function UploadedFilesTable({ onStartPrint }: UploadedFilesTableProps) {
 
     // Show summary
     if (successCount > 0) {
-      toast.success(`Đã tải lên thành công ${successCount} file`);
+      toast.success(t('toasts.uploadSuccess', { count: successCount }));
     }
     if (errorCount > 0) {
-      toast.error(`Có ${errorCount} file tải lên thất bại`);
+      toast.error(t('toasts.uploadPartialSuccess', { errorCount }));
     }
 
     // Close modal and reset
@@ -532,7 +549,7 @@ export function UploadedFilesTable({ onStartPrint }: UploadedFilesTableProps) {
                 d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3 3V4"
               />
             </svg>
-            Tải lên
+            {t('upload')}
           </Button>
           <div className="flex items-center rounded-full border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm transition focus-within:ring-2 focus-within:ring-blue-500/50 dark:border-white/10 dark:bg-white/5">
             <svg
@@ -589,7 +606,13 @@ export function UploadedFilesTable({ onStartPrint }: UploadedFilesTableProps) {
             onChange={e => setFileType(e.target.value as FileTypeFilterValue)}
             className="focus:ring-primary/50 dark:bg-background/5 rounded-xl border-border bg-background px-3 py-2 text-sm text-foreground shadow-sm transition hover:border-primary focus:outline-none focus:ring-2 dark:border-border dark:text-foreground"
           >
-            {fileTypeFilters.map(filter => (
+            {[
+              { value: 'all', label: t('fileTypeFilters.all') },
+              { value: 'pdf', label: t('fileTypeFilters.pdf') },
+              { value: 'docx', label: t('fileTypeFilters.docx') },
+              { value: 'xlsx', label: t('fileTypeFilters.xlsx') },
+              { value: 'pptx', label: t('fileTypeFilters.pptx') },
+            ].map(filter => (
               <option key={filter.value} value={filter.value}>
                 {filter.label}
               </option>
@@ -600,7 +623,13 @@ export function UploadedFilesTable({ onStartPrint }: UploadedFilesTableProps) {
             onChange={e => setDateRange(e.target.value as DateRangeFilterValue)}
             className="focus:ring-primary/50 dark:bg-background/5 rounded-xl border-border bg-background px-3 py-2 text-sm text-foreground shadow-sm transition hover:border-primary focus:outline-none focus:ring-2 dark:border-border dark:text-foreground"
           >
-            {dateRangeFilters.map(filter => (
+            {[
+              { value: 'all', label: t('dateRangeFilters.all') },
+              { value: 'today', label: t('dateRangeFilters.today') },
+              { value: 'week', label: t('dateRangeFilters.week') },
+              { value: 'month', label: t('dateRangeFilters.month') },
+              { value: '3months', label: t('dateRangeFilters.3months') },
+            ].map(filter => (
               <option key={filter.value} value={filter.value}>
                 {filter.label}
               </option>
@@ -631,7 +660,7 @@ export function UploadedFilesTable({ onStartPrint }: UploadedFilesTableProps) {
           <p className="text-sm text-destructive dark:text-destructive">
             {(error as any)?.response?.data?.message ||
               (error as any)?.message ||
-              'Có lỗi xảy ra khi tải danh sách file. Vui lòng thử lại.'}
+              t('errors.loadFailed')}
           </p>
         </div>
       )}
@@ -641,7 +670,7 @@ export function UploadedFilesTable({ onStartPrint }: UploadedFilesTableProps) {
         <div className="border-primary/30 bg-primary/10 dark:border-primary/30 dark:bg-primary/10 flex items-center justify-between rounded-lg border px-4 py-3">
           <div className="flex items-center gap-3">
             <span className="text-sm font-semibold text-primary dark:text-primary">
-              Đã chọn {selectedFiles.size} file
+              {t('selectedCount', { count: selectedFiles.size })}
             </span>
           </div>
           <div className="flex items-center gap-2">
@@ -651,7 +680,7 @@ export function UploadedFilesTable({ onStartPrint }: UploadedFilesTableProps) {
               onClick={handleDeselectAll}
               className="dark:bg-background/5 dark:hover:bg-background/10 h-7 border-input bg-background text-xs text-foreground hover:bg-muted dark:border-input dark:text-foreground"
             >
-              Bỏ chọn tất cả
+              {t('deselectAll')}
             </Button>
             <Button
               variant="outline"
@@ -672,7 +701,7 @@ export function UploadedFilesTable({ onStartPrint }: UploadedFilesTableProps) {
                   d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
                 />
               </svg>
-              Tải xuống ({selectedFiles.size})
+              {t('downloadSelected', { count: selectedFiles.size })}
             </Button>
           </div>
         </div>
@@ -770,10 +799,10 @@ export function UploadedFilesTable({ onStartPrint }: UploadedFilesTableProps) {
                       {item.page_count || '--'}
                     </td>
                     <td className="px-4 py-3 text-slate-600 dark:text-white/70">
-                      {formatDate(item.uploaded_at)}
+                      {formatDate(item.uploaded_at, locale)}
                     </td>
                     <td className="px-4 py-3 text-slate-600 dark:text-white/70">
-                      {formatDate(item.last_printed_at)}
+                      {formatDate(item.last_printed_at, locale)}
                     </td>
                     <td className="px-4 py-3 text-center">
                       <span className="inline-flex items-center justify-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-semibold text-blue-700 ring-1 ring-inset ring-blue-200 dark:bg-blue-500/10 dark:text-blue-200 dark:ring-blue-500/30">
@@ -805,7 +834,7 @@ export function UploadedFilesTable({ onStartPrint }: UploadedFilesTableProps) {
                             </svg>
                           </Button>
                         </Tooltip>
-                        <Tooltip content={t('table.view')}>
+                        <Tooltip content={t('view')}>
                           <Button
                             variant="ghost"
                             size="sm"
@@ -827,7 +856,7 @@ export function UploadedFilesTable({ onStartPrint }: UploadedFilesTableProps) {
                             </svg>
                           </Button>
                         </Tooltip>
-                        <Tooltip content="Tải xuống">
+                        <Tooltip content={t('download')}>
                           <Button
                             variant="ghost"
                             size="sm"
@@ -936,7 +965,7 @@ export function UploadedFilesTable({ onStartPrint }: UploadedFilesTableProps) {
       <Modal
         isOpen={uploadModalOpen}
         onClose={handleCloseUploadModal}
-        title="Tải lên nhiều file"
+        title={t('uploadMultiple')}
         size="lg"
       >
         <div className="px-6 py-4">
@@ -991,11 +1020,14 @@ export function UploadedFilesTable({ onStartPrint }: UploadedFilesTableProps) {
                 </svg>
               </div>
               <p className="mb-2 text-lg font-semibold text-slate-900 transition-colors group-hover:text-blue-600 dark:text-white dark:group-hover:text-blue-400">
-                Kéo thả file vào đây để tải lên hoặc click để chọn
+                {t('dragDropUpload')}
               </p>
               <p className="text-sm text-slate-500 dark:text-white/60">
-                Tối đa 50MB mỗi file • PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX,
-                JPG, PNG
+                {supportedFileTypesList
+                  ? t('fileSizeLimitWithTypes', {
+                      types: supportedFileTypesList,
+                    })
+                  : t('fileSizeLimit')}
               </p>
             </div>
           </div>
@@ -1005,7 +1037,9 @@ export function UploadedFilesTable({ onStartPrint }: UploadedFilesTableProps) {
             <div className="mb-6">
               <div className="mb-3 flex items-center justify-between">
                 <div className="text-sm font-medium text-slate-700 dark:text-white/90">
-                  Danh sách file đã chọn ({selectedFilesToUpload.length})
+                  {t('selectedFilesList', {
+                    count: selectedFilesToUpload.length,
+                  })}
                 </div>
                 {uploadingFiles.size === 0 && (
                   <Button
@@ -1014,7 +1048,7 @@ export function UploadedFilesTable({ onStartPrint }: UploadedFilesTableProps) {
                     onClick={() => setSelectedFilesToUpload([])}
                     className="text-xs text-red-600 hover:text-red-700 dark:text-red-400"
                   >
-                    Xóa tất cả
+                    {t('removeAll')}
                   </Button>
                 )}
               </div>
@@ -1087,7 +1121,7 @@ export function UploadedFilesTable({ onStartPrint }: UploadedFilesTableProps) {
               disabled={uploadingFiles.size > 0}
               className="rounded-lg border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 dark:border-white/10 dark:text-white dark:hover:bg-white/10"
             >
-              Hủy
+              {t('cancel')}
             </Button>
             <Button
               variant="default"
@@ -1118,10 +1152,10 @@ export function UploadedFilesTable({ onStartPrint }: UploadedFilesTableProps) {
                       d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                     />
                   </svg>
-                  Đang tải lên...
+                  {t('uploading')}
                 </>
               ) : (
-                `Tải lên ${selectedFilesToUpload.length} file`
+                t('uploadFiles', { count: selectedFilesToUpload.length })
               )}
             </Button>
           </div>
