@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { cn } from '@/lib/utils/cn';
 
 interface DatePickerProps {
@@ -30,6 +31,38 @@ export function DatePicker({
   );
   const [currentMonth, setCurrentMonth] = useState(selectedDate || new Date());
   const datePickerRef = useRef<HTMLDivElement>(null);
+  const [dropdownPosition, setDropdownPosition] = useState<{
+    top: number;
+    left: number;
+    width: number;
+  } | null>(null);
+
+  // Calculate dropdown position
+  useEffect(() => {
+    if (isOpen && datePickerRef.current) {
+      const updatePosition = () => {
+        if (datePickerRef.current) {
+          const rect = datePickerRef.current.getBoundingClientRect();
+          setDropdownPosition({
+            top: rect.bottom + 6, // 6px spacing
+            left: rect.left,
+            width: rect.width,
+          });
+        }
+      };
+
+      updatePosition();
+      window.addEventListener('scroll', updatePosition, true);
+      window.addEventListener('resize', updatePosition);
+
+      return () => {
+        window.removeEventListener('scroll', updatePosition, true);
+        window.removeEventListener('resize', updatePosition);
+      };
+    } else {
+      setDropdownPosition(null);
+    }
+  }, [isOpen]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -41,9 +74,12 @@ export function DatePicker({
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () =>
+        document.removeEventListener('mousedown', handleClickOutside);
+    }
+  }, [isOpen]);
 
   useEffect(() => {
     if (value) {
@@ -188,100 +224,111 @@ export function DatePicker({
           />
         </svg>
       </button>
-      {isOpen && (
-        <div className="absolute z-[100] mt-1 rounded-lg border-0 bg-white p-4 shadow-2xl ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700">
-          {/* Calendar Header */}
-          <div className="mb-4 flex items-center justify-between">
-            <button
-              type="button"
-              onClick={() => navigateMonth('prev')}
-              className="rounded-md p-1 hover:bg-accent hover:text-accent-foreground"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                className="h-4 w-4"
+      {isOpen &&
+        dropdownPosition &&
+        typeof window !== 'undefined' &&
+        createPortal(
+          <div
+            className="fixed z-[10000] rounded-lg border-0 bg-white p-4 shadow-2xl ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700"
+            style={{
+              top: `${dropdownPosition.top}px`,
+              left: `${dropdownPosition.left}px`,
+              width: `${dropdownPosition.width}px`,
+            }}
+          >
+            {/* Calendar Header */}
+            <div className="mb-4 flex items-center justify-between">
+              <button
+                type="button"
+                onClick={() => navigateMonth('prev')}
+                className="rounded-md p-1 hover:bg-accent hover:text-accent-foreground"
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M15.75 19.5L8.25 12l7.5-7.5"
-                />
-              </svg>
-            </button>
-            <div className="font-semibold">
-              {months[currentMonth.getMonth()]} {currentMonth.getFullYear()}
-            </div>
-            <button
-              type="button"
-              onClick={() => navigateMonth('next')}
-              className="rounded-md p-1 hover:bg-accent hover:text-accent-foreground"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                className="h-4 w-4"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M8.25 4.5l7.5 7.5-7.5 7.5"
-                />
-              </svg>
-            </button>
-          </div>
-
-          {/* Week Days */}
-          <div className="mb-2 grid grid-cols-7 gap-1">
-            {weekDays.map(day => (
-              <div
-                key={day}
-                className="p-2 text-center text-xs font-medium text-slate-500 dark:text-slate-400"
-              >
-                {day}
-              </div>
-            ))}
-          </div>
-
-          {/* Calendar Days */}
-          <div className="grid grid-cols-7 gap-1">
-            {days.map((date, index) => {
-              if (!date) {
-                return <div key={`empty-${index}`} className="p-2" />;
-              }
-
-              const dayDisabled = isDisabled(date);
-              const dayIsToday = isToday(date);
-              const dayIsSelected = isSelected(date);
-
-              return (
-                <button
-                  key={date.toISOString()}
-                  type="button"
-                  onClick={() => !dayDisabled && handleDateSelect(date)}
-                  disabled={dayDisabled}
-                  className={cn(
-                    'rounded-md p-2 text-sm transition-colors hover:bg-accent hover:text-accent-foreground focus:outline-none disabled:cursor-not-allowed disabled:opacity-30',
-                    dayIsToday &&
-                      !dayIsSelected &&
-                      'font-semibold text-blue-600 dark:text-blue-400',
-                    dayIsSelected &&
-                      'hover:bg-primary/90 bg-primary font-semibold text-primary-foreground'
-                  )}
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  className="h-4 w-4"
                 >
-                  {date.getDate()}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      )}
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M15.75 19.5L8.25 12l7.5-7.5"
+                  />
+                </svg>
+              </button>
+              <div className="font-semibold">
+                {months[currentMonth.getMonth()]} {currentMonth.getFullYear()}
+              </div>
+              <button
+                type="button"
+                onClick={() => navigateMonth('next')}
+                className="rounded-md p-1 hover:bg-accent hover:text-accent-foreground"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  className="h-4 w-4"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M8.25 4.5l7.5 7.5-7.5 7.5"
+                  />
+                </svg>
+              </button>
+            </div>
+
+            {/* Week Days */}
+            <div className="mb-2 grid grid-cols-7 gap-1">
+              {weekDays.map(day => (
+                <div
+                  key={day}
+                  className="p-2 text-center text-xs font-medium text-slate-500 dark:text-slate-400"
+                >
+                  {day}
+                </div>
+              ))}
+            </div>
+
+            {/* Calendar Days */}
+            <div className="grid grid-cols-7 gap-1">
+              {days.map((date, index) => {
+                if (!date) {
+                  return <div key={`empty-${index}`} className="p-2" />;
+                }
+
+                const dayDisabled = isDisabled(date);
+                const dayIsToday = isToday(date);
+                const dayIsSelected = isSelected(date);
+
+                return (
+                  <button
+                    key={date.toISOString()}
+                    type="button"
+                    onClick={() => !dayDisabled && handleDateSelect(date)}
+                    disabled={dayDisabled}
+                    className={cn(
+                      'rounded-md p-2 text-sm transition-colors hover:bg-accent hover:text-accent-foreground focus:outline-none disabled:cursor-not-allowed disabled:opacity-30',
+                      dayIsToday &&
+                        !dayIsSelected &&
+                        'font-semibold text-blue-600 dark:text-blue-400',
+                      dayIsSelected &&
+                        'hover:bg-primary/90 bg-primary font-semibold text-primary-foreground'
+                    )}
+                  >
+                    {date.getDate()}
+                  </button>
+                );
+              })}
+            </div>
+          </div>,
+          document.body
+        )}
     </div>
   );
 }

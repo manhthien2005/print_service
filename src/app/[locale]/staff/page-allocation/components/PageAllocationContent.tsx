@@ -41,10 +41,13 @@ interface PageAllocationContentProps {
       threshold: string;
       status: string;
       lastUpdated: string;
+      updatedBy: string;
       actions: string;
       lowStock: string;
       normal: string;
       noData: string;
+      by: string;
+      unknown: string;
     };
     actions: {
       addPages: string;
@@ -161,7 +164,7 @@ export default function PageAllocationContent({
   const handleInitialize = async () => {
     try {
       await initializeMutation.mutateAsync();
-      toast.success(t('actions.initialize') + ' thành công');
+      toast.success(t('actions.initializeSuccess'));
       refetch();
     } catch (error) {
       const errorMessage =

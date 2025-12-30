@@ -103,7 +103,8 @@ export function ManagePrintHistoryContent() {
   const historyItems: AdminPrintHistoryItem[] =
     historyResponse?.data?.data || [];
   const historyData = historyResponse?.data;
-  const stats = statsResponse?.data?.data;
+  // Stats API returns data directly (not wrapped in ApiResponse)
+  const stats = statsResponse?.data;
 
   // Reset to page 1 when filters change
   useEffect(() => {

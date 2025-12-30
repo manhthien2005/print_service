@@ -8,32 +8,40 @@ import { apiClient } from '../client';
  */
 export interface AdminUserListItem {
   userId: string;
-  studentCode?: string;
-  fullName: string;
   email: string;
+  fullName: string;
+  phoneNumber?: string;
+  userType: 'student' | 'staff';
+  accountStatus: 'active' | 'inactive' | 'suspended';
+  isActive: boolean;
+  // Student specific fields
+  studentId?: string;
+  studentCode?: string;
+  className?: string;
+  majorName?: string;
+  studentStatus?: 'active' | 'graduated' | 'suspended' | 'withdrawn';
+  balance?: number; // Account balance
+  createdAt: string; // ISO LocalDateTime string
+  lastLoginAt?: string; // ISO LocalDateTime string
+  // Additional fields for compatibility
   facultyName?: string;
   departmentName?: string;
-  majorName?: string;
-  className?: string;
   yearLevel?: number;
-  accountStatus: 'active' | 'inactive' | 'suspended';
-  studentStatus?: 'active' | 'graduated' | 'suspended' | 'withdrawn';
   enrollmentDate?: string;
-  userType: 'student' | 'staff';
 }
 
 export interface AdminUserListFilters {
   search?: string;
+  userType?: 'student' | 'staff';
   accountStatus?: 'active' | 'inactive' | 'suspended' | 'all';
   studentStatus?: 'active' | 'graduated' | 'suspended' | 'withdrawn' | 'all';
-  faculty?: string;
-  yearLevel?: string;
-  enrollmentDateFrom?: string;
-  enrollmentDateTo?: string;
+  classId?: string; // UUID as string
   sortBy?: string;
   sortDirection?: 'asc' | 'desc';
   page?: number;
   limit?: number;
+  // Note: faculty, yearLevel, enrollmentDateFrom/To are not supported by BE
+  // These filters should be handled client-side if needed
 }
 
 export interface BulkAccountStatusRequest {
@@ -75,7 +83,7 @@ export interface CreateUserRequest {
   enrollmentDate?: string;
   phoneNumber?: string;
   dateOfBirth?: string;
-  gender?: 'male' | 'female' | 'other';
+  gender?: 'male' | 'female'; // BE only accepts 'male' or 'female'
   citizenId?: string;
   address?: string;
 }
@@ -242,6 +250,41 @@ export interface AdminResetPasswordResponse {
 }
 
 /**
+ * Response types for User List with Global Stats
+ */
+export interface UserGlobalStatsResponse {
+  totalUsers: number;
+  activeUsers: number;
+  suspendedUsers: number;
+  activeStudents: number;
+  graduatedStudents: number;
+  withdrawnStudents: number;
+}
+
+export interface PaginationMetadata {
+  currentPage: number;
+  pageSize: number;
+  totalElements: number;
+  totalPages: number;
+  hasNext: boolean;
+  hasPrevious: boolean;
+}
+
+export interface UserListWithStatsResponse {
+  globalStats: UserGlobalStatsResponse;
+  users: AdminUserListItem[];
+  pagination: PaginationMetadata;
+}
+
+/**
+ * Update Account Status Request/Response
+ */
+export interface UpdateAccountStatusRequest {
+  accountStatus: 'active' | 'inactive' | 'suspended';
+  reason?: string;
+}
+
+/**
  * Query key factory for admin users
  */
 export const adminUserKeys = {
@@ -258,20 +301,17 @@ export const adminUserKeys = {
 
 /**
  * Hook to fetch users with filters
+ * Returns UserListWithStatsResponse which includes global stats and paginated users
  */
 export function useAdminUsers(filters?: AdminUserListFilters) {
   const queryParams = new URLSearchParams();
   if (filters?.search) queryParams.append('search', filters.search);
+  if (filters?.userType) queryParams.append('userType', filters.userType);
   if (filters?.accountStatus && filters.accountStatus !== 'all')
     queryParams.append('accountStatus', filters.accountStatus);
   if (filters?.studentStatus && filters.studentStatus !== 'all')
     queryParams.append('studentStatus', filters.studentStatus);
-  if (filters?.faculty) queryParams.append('faculty', filters.faculty);
-  if (filters?.yearLevel) queryParams.append('yearLevel', filters.yearLevel);
-  if (filters?.enrollmentDateFrom)
-    queryParams.append('enrollmentDateFrom', filters.enrollmentDateFrom);
-  if (filters?.enrollmentDateTo)
-    queryParams.append('enrollmentDateTo', filters.enrollmentDateTo);
+  if (filters?.classId) queryParams.append('classId', filters.classId);
   if (filters?.sortBy) queryParams.append('sortBy', filters.sortBy);
   if (filters?.sortDirection)
     queryParams.append('sortDirection', filters.sortDirection);
@@ -280,9 +320,12 @@ export function useAdminUsers(filters?: AdminUserListFilters) {
   if (filters?.limit !== undefined)
     queryParams.append('limit', filters.limit.toString());
 
+  // Note: faculty, yearLevel, enrollmentDateFrom/To are not supported by BE
+  // These should be filtered client-side if needed
+
   const url = `/admin/users${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
 
-  return useApiQuery<PaginatedApiResponse<AdminUserListItem>>(
+  return useApiQuery<ApiResponse<UserListWithStatsResponse>>(
     adminUserKeys.list(filters || {}),
     url
   );
@@ -503,6 +546,30 @@ export function useResetPassword() {
       );
     },
     onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: adminUserKeys.detail(variables.userId),
+      });
+    },
+  });
+}
+
+/**
+ * Hook to update account status for a single user
+ */
+export function useUpdateAccountStatus() {
+  const queryClient = useQueryClient();
+  return useApiMutation<
+    ApiResponse<AdminUserDetailResponse>,
+    { userId: string; data: UpdateAccountStatusRequest }
+  >('/admin/users', 'put', {
+    mutationFn: ({ userId, data }) => {
+      return apiClient.put<ApiResponse<AdminUserDetailResponse>>(
+        `/admin/users/${userId}/account-status`,
+        data
+      );
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: adminUserKeys.all });
       queryClient.invalidateQueries({
         queryKey: adminUserKeys.detail(variables.userId),
       });

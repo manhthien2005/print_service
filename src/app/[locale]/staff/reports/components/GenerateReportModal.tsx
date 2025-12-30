@@ -103,7 +103,7 @@ export function GenerateReportModal({
               required
             >
               {years.map(y => (
-                <option key={y} value={y}>
+                <option key={y} value={y.toString()}>
                   {y}
                 </option>
               ))}
@@ -126,7 +126,7 @@ export function GenerateReportModal({
                 required
               >
                 {months.map(m => (
-                  <option key={m.value} value={m.value}>
+                  <option key={m.value} value={m.value.toString()}>
                     {m.label}
                   </option>
                 ))}
@@ -137,13 +137,18 @@ export function GenerateReportModal({
           <div className="flex justify-end gap-3 pt-4">
             <Button
               type="button"
-              variant="outline"
+              variant="destructive"
               onClick={onClose}
               disabled={isLoading}
+              className="border border-red-400 bg-red-500/20 text-red-700 hover:border-red-500 hover:bg-red-500/30 dark:border-red-500/50 dark:bg-red-500/20 dark:text-red-400 dark:hover:border-red-500 dark:hover:bg-red-500/30"
             >
               {t('generateModal.cancel')}
             </Button>
-            <Button type="submit" disabled={isLoading}>
+            <Button
+              type="submit"
+              disabled={isLoading}
+              className="border border-blue-700 bg-blue-700/80 text-white hover:border-blue-800 hover:bg-blue-800/90 dark:border-blue-600 dark:bg-blue-600/80 dark:hover:border-blue-700 dark:hover:bg-blue-700/90"
+            >
               {isLoading
                 ? t('generateModal.submitting')
                 : t('generateModal.submit')}

@@ -14,6 +14,7 @@
     "filter": "Filter",
     "reset": "Reset",
     "tryAgain": "Try again",
+    "unexpectedError": "An unexpected error occurred",
     "notifications": {
       "title": "Notifications",
       "markAllRead": "Mark all as read",

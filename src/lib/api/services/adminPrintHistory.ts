@@ -1,5 +1,4 @@
 import { useApiQuery } from '@/lib/hooks';
-import type { ApiResponse } from '@/types/api';
 
 /**
  * Types for Admin Print History Management
@@ -169,7 +168,8 @@ export function useAdminPrintHistoryStats(
     queryParams.toString() ? `?${queryParams.toString()}` : ''
   }`;
 
-  return useApiQuery<ApiResponse<AdminPrintHistoryStats>>(
+  // API returns AdminPrintHistoryStats directly (not wrapped in ApiResponse)
+  return useApiQuery<AdminPrintHistoryStats>(
     adminPrintHistoryKeys.stats(filters),
     url
   );

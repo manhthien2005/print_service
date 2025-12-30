@@ -25,6 +25,7 @@ export default function UpdateAllocationModal({
   const t = useTranslations('staff.pageAllocation.modals.update');
   const tValidation = useTranslations('staff.pageAllocation.validation');
   const tCommon = useTranslations('common');
+  const tErrors = useTranslations('staff.pageAllocation.errors');
   const updateMutation = useUpdateAllocation();
 
   const schema = createUpdateAllocationSchema((key: string) =>
@@ -79,7 +80,7 @@ export default function UpdateAllocationModal({
       onClose();
     } catch (error) {
       const errorMessage =
-        error instanceof Error ? error.message : t('errors.generic');
+        error instanceof Error ? error.message : tErrors('generic');
       toast.error(errorMessage);
     }
   };
@@ -94,7 +95,7 @@ export default function UpdateAllocationModal({
           <div className="space-y-2">
             <label
               htmlFor="quantity"
-              className="text-sm font-medium text-foreground dark:text-foreground"
+              className="text-sm font-medium text-slate-900 dark:text-white"
             >
               {t('quantity')} <span className="text-destructive">*</span>
             </label>
@@ -118,7 +119,7 @@ export default function UpdateAllocationModal({
           <div className="space-y-2">
             <label
               htmlFor="threshold"
-              className="text-sm font-medium text-foreground dark:text-foreground"
+              className="text-sm font-medium text-slate-900 dark:text-white"
             >
               {t('threshold')}
             </label>
@@ -142,7 +143,7 @@ export default function UpdateAllocationModal({
           <div className="space-y-2">
             <label
               htmlFor="note"
-              className="text-sm font-medium text-foreground dark:text-foreground"
+              className="text-sm font-medium text-slate-900 dark:text-white"
             >
               {t('note')}
             </label>
@@ -151,21 +152,26 @@ export default function UpdateAllocationModal({
               rows={3}
               placeholder={t('notePlaceholder')}
               {...register('note')}
-              className="focus:ring-primary/20 dark:bg-background/5 w-full rounded-lg border border-input bg-background px-4 py-2 text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 dark:border-input dark:text-foreground dark:placeholder:text-muted-foreground dark:focus:border-primary"
+              className="focus:ring-primary/20 dark:bg-background/5 w-full rounded-lg border border-input bg-background px-4 py-2 text-slate-900 placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 dark:border-input dark:text-white dark:placeholder:text-muted-foreground dark:focus:border-primary"
             />
           </div>
 
           {/* Actions */}
-          <div className="flex justify-end gap-3 pt-4">
+          <div className="flex justify-end gap-3 border-t border-slate-200/50 pt-4 dark:border-white/10">
             <Button
               type="button"
               variant="outline"
               onClick={onClose}
               disabled={isSubmitting}
+              className="border border-slate-300 bg-slate-200 text-slate-900 hover:border-slate-400 hover:bg-slate-300 dark:border-white/20 dark:bg-slate-700 dark:text-white dark:hover:border-white/30 dark:hover:bg-slate-600"
             >
               {tCommon('cancel')}
             </Button>
-            <Button type="submit" variant="default" disabled={isSubmitting}>
+            <Button
+              type="submit"
+              disabled={isSubmitting}
+              className="border border-blue-700 bg-blue-700/80 text-white hover:border-blue-800 hover:bg-blue-800/90 dark:border-blue-600 dark:bg-blue-600/80 dark:hover:border-blue-700 dark:hover:bg-blue-700/90"
+            >
               {isSubmitting ? t('submitting') : t('submit')}
             </Button>
           </div>

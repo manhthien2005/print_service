@@ -142,6 +142,8 @@ export const PrintWizard = forwardRef<PrintWizardRef, PrintWizardProps>(
     useImperativeHandle(ref, () => ({
       startPrintWithFile: (file: UploadedFileItem) => {
         // Convert UploadedFileItem to MockUploadedFile format
+        // file_url is added in UploadedFilesTable from API response
+        const fileWithUrl = file as UploadedFileItem & { file_url?: string };
         setUploadedFile({
           file: null, // File object not available from stored file
           file_name: file.file_name,
@@ -149,6 +151,7 @@ export const PrintWizard = forwardRef<PrintWizardRef, PrintWizardProps>(
           file_size_kb: file.file_size_kb,
           page_count: file.page_count,
           uploaded_file_id: file.id, // Use file ID as uploaded_file_id
+          preview_url: fileWithUrl.file_url, // Use fileUrl from API for preview
         });
         const newStep = 2; // Jump to step 2 (Choose Printer)
         setCurrentStep(newStep);

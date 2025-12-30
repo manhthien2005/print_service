@@ -115,7 +115,7 @@ export function Step1UploadDocument({
         file_name: uploadedFileData.fileName,
         file_type: uploadedFileData.fileType,
         file_size_kb: uploadedFileData.fileSizeKb,
-        preview_url: undefined, // Don't use preview, always show FileIcon
+        preview_url: uploadedFileData.fileUrl, // Use fileUrl from API for preview
         page_count: uploadedFileData.pageCount,
         uploaded_file_id: uploadedFileData.uploadedFileId, // Store uploadedFileId
       });

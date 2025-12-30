@@ -39,6 +39,7 @@ import {
   usePrinters,
   useCreatePrinter,
   useUpdatePrinter,
+  useUpdatePrinterStatus,
   useDeletePrinter,
   useBulkUpdatePrinterStatus,
   useBulkDeletePrinters,
@@ -336,6 +337,7 @@ export default function ManagePrintersContent({
   });
   const createPrinterMutation = useCreatePrinter();
   const updatePrinterMutation = useUpdatePrinter();
+  const updatePrinterStatusMutation = useUpdatePrinterStatus();
   const deletePrinterMutation = useDeletePrinter();
   const bulkUpdatePrinterStatusMutation = useBulkUpdatePrinterStatus();
   const bulkDeletePrintersMutation = useBulkDeletePrinters();
@@ -985,6 +987,27 @@ export default function ManagePrintersContent({
     } catch (error) {
       console.error('Error saving printer:', error);
       toast.error(t('messages.saveError'));
+    }
+  };
+
+  // Handle toggle printer status (enable/disable)
+  const handleTogglePrinterStatus = async (
+    printer: PrinterPhysical,
+    newStatus: boolean
+  ) => {
+    try {
+      await updatePrinterStatusMutation.mutateAsync({
+        id: printer.printerId,
+        isEnabled: newStatus,
+      });
+      toast.success(
+        newStatus
+          ? t('messages.enablePrinterSuccess', { name: printer.serialNumber })
+          : t('messages.disablePrinterSuccess', { name: printer.serialNumber })
+      );
+    } catch (error) {
+      console.error('Error toggling printer status:', error);
+      toast.error(t('messages.updateStatusError'));
     }
   };
 
@@ -2843,6 +2866,13 @@ export default function ManagePrintersContent({
                                     ? 'text-red-600 hover:bg-red-50 hover:text-red-700 dark:text-red-400 dark:hover:bg-red-900/20'
                                     : 'text-green-600 hover:bg-green-50 hover:text-green-700 dark:text-green-400 dark:hover:bg-green-900/20'
                                 )}
+                                onClick={() =>
+                                  handleTogglePrinterStatus(
+                                    printer,
+                                    !printer.isEnabled
+                                  )
+                                }
+                                disabled={updatePrinterStatusMutation.isPending}
                               >
                                 {printer.isEnabled ? (
                                   <svg

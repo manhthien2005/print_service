@@ -11,6 +11,18 @@ export const STATUS_STYLES = {
     className: 'bg-rose-500/10 text-rose-600 dark:text-rose-200',
     dot: 'bg-rose-400',
   },
+  cancelled: {
+    className: 'bg-slate-500/10 text-slate-600 dark:text-slate-300',
+    dot: 'bg-slate-400',
+  },
+  queued: {
+    className: 'bg-blue-500/10 text-blue-600 dark:text-blue-200',
+    dot: 'bg-blue-400',
+  },
+  printing: {
+    className: 'bg-purple-500/10 text-purple-600 dark:text-purple-200',
+    dot: 'bg-purple-400',
+  },
 };
 
 // Quick actions for dashboard

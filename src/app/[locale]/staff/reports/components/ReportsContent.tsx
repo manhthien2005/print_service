@@ -31,7 +31,6 @@ import { useTranslations } from 'next-intl';
 import {
   useCustomReport,
   usePaperUsage,
-  useDashboardOverview,
 } from '@/lib/api/services/staffReports';
 import ReportsContentSkeleton from './ReportsContentSkeleton';
 import { ReportManagement } from './ReportManagement';
@@ -39,6 +38,8 @@ import { DailyJobTrendsChart } from './charts/DailyJobTrendsChart';
 import { DailyPageAnalyticsChart } from './charts/DailyPageAnalyticsChart';
 import { TopActivePrintersChart } from './charts/TopActivePrintersChart';
 import { MonthlyRevenueTrendsChart } from './charts/MonthlyRevenueTrendsChart';
+import { RevenueBreakdownChart } from './charts/RevenueBreakdownChart';
+import { PaperSizeDistributionChart } from './charts/PaperSizeDistributionChart';
 
 type ChartTooltipProps = TooltipProps<number, string> & {
   payload?: Array<{
@@ -176,34 +177,47 @@ export function ReportsContent() {
       date.setDate(date.getDate() - 90);
       from = date.toISOString().split('T')[0];
     } else {
-      // custom
-      from = startDate || to;
-      const toDate = endDate || to;
-      return { from, to: toDate };
+      // custom - only use custom dates if both are provided
+      if (startDate && endDate) {
+        from = startDate;
+        return { from, to: endDate };
+      }
+      // If custom is selected but dates not set, use default (30 days)
+      const date = new Date(today);
+      date.setDate(date.getDate() - 30);
+      from = date.toISOString().split('T')[0];
     }
 
     return { from, to };
   }, [dateRange, startDate, endDate]);
 
-  // Use dashboard for 7 days, custom report for other ranges
-  const useDashboard = dateRange === '7days';
-  const { data: dashboardData, isLoading: isLoadingDashboard } =
-    useDashboardOverview();
+  // Always use custom report API for all date ranges
+  // For custom range, only pass dates when both are provided
+  // useCustomReport has enabled: Boolean(from && to) so it won't fetch if dates are empty
+  const customFrom =
+    dateRange === 'custom'
+      ? startDate && endDate
+        ? dateRangeParams.from
+        : ''
+      : dateRangeParams.from;
+  const customTo =
+    dateRange === 'custom'
+      ? startDate && endDate
+        ? dateRangeParams.to
+        : ''
+      : dateRangeParams.to;
   const { data: customReportData, isLoading: isLoadingCustomReport } =
-    useCustomReport(dateRangeParams.from, dateRangeParams.to);
+    useCustomReport(customFrom, customTo);
   const { data: paperUsageData } = usePaperUsage(
     dateRangeParams.from,
     dateRangeParams.to
   );
 
-  const isLoadingReport = useDashboard
-    ? isLoadingDashboard
-    : isLoadingCustomReport;
+  const isLoadingReport = isLoadingCustomReport;
 
-  // Extract data from API responses
-  const reportData = useDashboard
-    ? dashboardData?.data?.data
-    : customReportData?.data?.data;
+  // Extract data from custom report API response
+  // Custom report response structure: ApiResponse<CustomReportResponse>
+  const reportData = customReportData?.data?.data;
   const paperUsage = paperUsageData?.data?.data || [];
 
   // Map API data to chart formats
@@ -216,6 +230,40 @@ export function ReportsContent() {
           totalRevenue: 0,
           averageJobsPerDay: 0,
           successRate: 0,
+          completionRate: 0,
+          jobGrowthRate: 0,
+          revenueGrowthRate: 0,
+        },
+        revenue: {
+          totalRevenue: 0,
+          printRevenue: 0,
+          depositAmount: 0,
+          bonusGiven: 0,
+          refundAmount: 0,
+          avgDepositAmount: 0,
+          avgJobCost: 0,
+          revenueGrowthRate: 0,
+        },
+        printJob: {
+          completionRate: 0,
+          duplexPages: 0,
+          a4Pages: 0,
+          a3Pages: 0,
+          jobGrowthRate: 0,
+        },
+        user: {
+          totalActiveStudents: 0,
+          newRegistrations: 0,
+          activeUsers: 0,
+          usageRate: 0,
+        },
+        printer: {
+          totalPrinters: 0,
+          activePrinters: 0,
+          maintenanceEvents: 0,
+          avgUtilizationRate: 0,
+          paperJamEvents: 0,
+          outOfPaperEvents: 0,
         },
         dailyJobTrends: [],
         dailyPageAnalytics: [],
@@ -237,88 +285,76 @@ export function ReportsContent() {
       )
     );
 
-    let totalJobs = 0;
-    let completedJobs = 0;
-    let failedJobs = 0;
-    let cancelledJobs = 0;
-    let totalPages = 0;
-    let totalRevenue = 0;
-    let bwPages = 0;
-    let colorPages = 0;
+    // Handle Custom Report response (has nested printJobStats/revenueStats)
+    const printJobStats = (reportData as any).printJobStats || {};
+    const revenueStats = (reportData as any).revenueStats || {};
+    // Note: userStats and printerStats are available but not currently displayed in UI
+    // userStats: { totalActiveStudents, newRegistrations, activeUsers, usageRate }
+    // printerStats: { totalPrinters, activePrinters, maintenanceEvents, avgUtilizationRate, paperJamEvents, outOfPaperEvents }
+    const userStats = (reportData as any).userStats || {};
+    const printerStats = (reportData as any).printerStats || {};
 
-    // Handle Dashboard response (different structure)
-    if (useDashboard) {
-      // Dashboard has direct fields, not nested in printJobStats/revenueStats
-      totalJobs = (reportData as any).jobsThisMonth || 0;
-      completedJobs = (reportData as any).completedJobsToday || 0;
-      totalPages = (reportData as any).totalPagesThisMonth || 0;
-      totalRevenue = (reportData as any).revenueThisMonth || 0;
+    // Extract print job statistics
+    const totalJobs = printJobStats.totalJobs || 0;
+    const completedJobs = printJobStats.completedJobs || 0;
+    const failedJobs = printJobStats.failedJobs || 0;
+    const cancelledJobs = printJobStats.cancelledJobs || 0;
+    const totalPages = printJobStats.totalPages || 0;
+    const bwPages = printJobStats.bwPages || 0;
+    const colorPages = printJobStats.colorPages || 0;
+    const completionRate = printJobStats.completionRate || 0;
+    const duplexPages = printJobStats.duplexPages || 0;
+    const a4Pages = printJobStats.a4Pages || 0;
+    const a3Pages = printJobStats.a3Pages || 0;
+    const jobGrowthRate = printJobStats.jobGrowthRate || 0;
 
-      // Calculate failed/cancelled from dailyJobTrends if available
-      const dailyJobTrends = (reportData as any).dailyJobTrends || [];
-      if (dailyJobTrends.length > 0) {
-        failedJobs = dailyJobTrends.reduce(
-          (sum: number, item: any) => sum + (item.failedJobs || 0),
-          0
-        );
-        cancelledJobs = dailyJobTrends.reduce(
-          (sum: number, item: any) => sum + (item.cancelledJobs || 0),
-          0
-        );
-        // Recalculate completedJobs from trends if available
-        const completedFromTrends = dailyJobTrends.reduce(
-          (sum: number, item: any) => sum + (item.completedJobs || 0),
-          0
-        );
-        if (completedFromTrends > 0) {
-          completedJobs = completedFromTrends;
-        }
-        // Recalculate totalJobs from trends
-        const totalFromTrends = dailyJobTrends.reduce(
-          (sum: number, item: any) => sum + (item.jobCount || 0),
-          0
-        );
-        if (totalFromTrends > 0) {
-          totalJobs = totalFromTrends;
-        }
-      }
+    // Extract revenue statistics
+    const totalRevenue = revenueStats.totalRevenue || 0;
+    const printRevenue = revenueStats.printRevenue || 0;
+    const depositAmount = revenueStats.depositAmount || 0;
+    const bonusGiven = revenueStats.bonusGiven || 0;
+    const refundAmount = revenueStats.refundAmount || 0;
+    const avgDepositAmount = revenueStats.avgDepositAmount || 0;
+    const avgJobCost = revenueStats.avgJobCost || 0;
+    const revenueGrowthRate = revenueStats.revenueGrowthRate || 0;
 
-      // Calculate color/BW pages from dailyPageAnalytics if available
-      const dailyPageAnalytics = (reportData as any).dailyPageAnalytics || [];
-      if (dailyPageAnalytics.length > 0) {
-        colorPages = dailyPageAnalytics.reduce(
-          (sum: number, item: any) => sum + (item.colorPages || 0),
-          0
-        );
-        bwPages = dailyPageAnalytics.reduce(
-          (sum: number, item: any) => sum + (item.bwPages || 0),
-          0
-        );
-      }
-    } else {
-      // Handle Custom Report response (has nested printJobStats/revenueStats)
-      const printJobStats = (reportData as any).printJobStats || {};
-      const revenueStats = (reportData as any).revenueStats || {};
+    // Extract user statistics
+    const totalActiveStudents = userStats.totalActiveStudents || 0;
+    const newRegistrations = userStats.newRegistrations || 0;
+    const activeUsers = userStats.activeUsers || 0;
+    const usageRate = userStats.usageRate || 0;
 
-      totalJobs = printJobStats.totalJobs || 0;
-      completedJobs = printJobStats.completedJobs || 0;
-      failedJobs = printJobStats.failedJobs || 0;
-      cancelledJobs = printJobStats.cancelledJobs || 0;
-      totalPages = printJobStats.totalPages || 0;
-      totalRevenue = revenueStats.totalRevenue || 0;
-      bwPages = printJobStats.bwPages || 0;
-      colorPages = printJobStats.colorPages || 0;
-    }
+    // Extract printer statistics
+    const totalPrinters = printerStats.totalPrinters || 0;
+    const activePrinters = printerStats.activePrinters || 0;
+    const maintenanceEvents = printerStats.maintenanceEvents || 0;
+    const avgUtilizationRate = printerStats.avgUtilizationRate || 0;
+    const paperJamEvents = printerStats.paperJamEvents || 0;
+    const outOfPaperEvents = printerStats.outOfPaperEvents || 0;
+
+    // Get analytics fields from custom report response
+    const dailyJobTrends = Array.isArray((reportData as any).dailyJobTrends)
+      ? (reportData as any).dailyJobTrends
+      : [];
+    const dailyPageAnalytics = Array.isArray(
+      (reportData as any).dailyPageAnalytics
+    )
+      ? (reportData as any).dailyPageAnalytics
+      : [];
+    const topActivePrinters = Array.isArray(
+      (reportData as any).topActivePrinters
+    )
+      ? (reportData as any).topActivePrinters
+      : [];
+    const monthlyRevenueTrends = Array.isArray(
+      (reportData as any).monthlyRevenueTrends
+    )
+      ? (reportData as any).monthlyRevenueTrends
+      : [];
 
     // Calculate summary metrics
     const averageJobsPerDay = Math.round(totalJobs / daysDiff);
     const successRate = totalJobs > 0 ? completedJobs / totalJobs : 0;
-
-    // Get analytics fields (available in both response types)
-    const dailyJobTrends = (reportData as any).dailyJobTrends || [];
-    const dailyPageAnalytics = (reportData as any).dailyPageAnalytics || [];
-    const topActivePrinters = (reportData as any).topActivePrinters || [];
-    const monthlyRevenueTrends = (reportData as any).monthlyRevenueTrends || [];
 
     // Print status distribution
     const printStatusDistribution = [
@@ -375,6 +411,40 @@ export function ReportsContent() {
         totalRevenue,
         averageJobsPerDay,
         successRate,
+        completionRate,
+        jobGrowthRate,
+        revenueGrowthRate,
+      },
+      revenue: {
+        totalRevenue,
+        printRevenue,
+        depositAmount,
+        bonusGiven,
+        refundAmount,
+        avgDepositAmount,
+        avgJobCost,
+        revenueGrowthRate,
+      },
+      printJob: {
+        completionRate,
+        duplexPages,
+        a4Pages,
+        a3Pages,
+        jobGrowthRate,
+      },
+      user: {
+        totalActiveStudents,
+        newRegistrations,
+        activeUsers,
+        usageRate,
+      },
+      printer: {
+        totalPrinters,
+        activePrinters,
+        maintenanceEvents,
+        avgUtilizationRate,
+        paperJamEvents,
+        outOfPaperEvents,
       },
       dailyJobTrends,
       dailyPageAnalytics,
@@ -384,7 +454,7 @@ export function ReportsContent() {
       colorModeDistribution,
       paperSizeDistribution,
     };
-  }, [reportData, paperUsage, dateRangeParams, useDashboard, t]);
+  }, [reportData, paperUsage, dateRangeParams, t]);
 
   if (isLoadingReport) {
     return <ReportsContentSkeleton />;
@@ -428,6 +498,32 @@ export function ReportsContent() {
         />
       </div>
 
+      {/* Additional Summary Cards - User & Printer Stats */}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <SummaryCard
+          title={t('summary.totalActiveStudents')}
+          useCountUp
+          countUpValue={mappedData.user?.totalActiveStudents ?? 0}
+          caption={t('summary.caption.activeStudents')}
+        />
+        <SummaryCard
+          title={t('summary.newRegistrations')}
+          useCountUp
+          countUpValue={mappedData.user?.newRegistrations ?? 0}
+          caption={t('summary.caption.newRegistrations')}
+        />
+        <SummaryCard
+          title={t('summary.activePrinters')}
+          value={`${mappedData.printer?.activePrinters ?? 0}/${mappedData.printer?.totalPrinters ?? 0}`}
+          caption={t('summary.caption.activePrinters')}
+        />
+        <SummaryCard
+          title={t('summary.avgUtilizationRate')}
+          value={`${Math.round((mappedData.printer?.avgUtilizationRate ?? 0) * 100)}%`}
+          caption={t('summary.caption.avgUtilizationRate')}
+        />
+      </div>
+
       {/* Filters and Report Management */}
       <div className="space-y-4">
         <Card className="border-slate-200/70 bg-white/80 shadow-[0_10px_40px_rgba(15,23,42,0.08)] backdrop-blur dark:border-white/10 dark:bg-white/5 dark:shadow-[0_20px_60px_rgba(0,0,0,0.35)]">
@@ -449,7 +545,7 @@ export function ReportsContent() {
                 <option value="custom">{t('filters.dateRanges.custom')}</option>
               </Select>
               {dateRange === 'custom' && (
-                <>
+                <div className="flex items-center gap-4">
                   <DatePicker
                     value={startDate}
                     onChange={setStartDate}
@@ -463,7 +559,7 @@ export function ReportsContent() {
                     className="w-48"
                     min={startDate || undefined}
                   />
-                </>
+                </div>
               )}
               <Button
                 variant="outline"
@@ -667,6 +763,49 @@ export function ReportsContent() {
                 {t('charts.paperSizeDistribution.noData')}
               </div>
             )}
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* New Charts - Revenue, Paper Size, and Printer Events */}
+      <div className="grid gap-6 lg:grid-cols-2">
+        {/* Revenue Breakdown Chart */}
+        <Card className="border-slate-200/70 bg-white/80 shadow-[0_10px_40px_rgba(15,23,42,0.08)] backdrop-blur dark:border-white/10 dark:bg-white/5 dark:shadow-[0_20px_60px_rgba(0,0,0,0.35)]">
+          <CardHeader>
+            <CardTitle className="text-lg font-semibold text-slate-900 dark:text-white">
+              {t('charts.revenueBreakdown.title')}
+            </CardTitle>
+            <CardDescription>
+              {t('charts.revenueBreakdown.description')}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <RevenueBreakdownChart
+              printRevenue={mappedData.revenue?.printRevenue ?? 0}
+              depositAmount={mappedData.revenue?.depositAmount ?? 0}
+              bonusGiven={mappedData.revenue?.bonusGiven ?? 0}
+              refundAmount={mappedData.revenue?.refundAmount ?? 0}
+            />
+          </CardContent>
+        </Card>
+
+        {/* Paper Format Distribution Chart (A4/A3/Duplex) */}
+        <Card className="border-slate-200/70 bg-white/80 shadow-[0_10px_40px_rgba(15,23,42,0.08)] backdrop-blur dark:border-white/10 dark:bg-white/5 dark:shadow-[0_20px_60px_rgba(0,0,0,0.35)]">
+          <CardHeader>
+            <CardTitle className="text-lg font-semibold text-slate-900 dark:text-white">
+              {t('charts.paperFormatDistribution.title')}
+            </CardTitle>
+            <CardDescription>
+              {t('charts.paperFormatDistribution.description')}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <PaperSizeDistributionChart
+              a4Pages={mappedData.printJob?.a4Pages ?? 0}
+              a3Pages={mappedData.printJob?.a3Pages ?? 0}
+              duplexPages={mappedData.printJob?.duplexPages ?? 0}
+              totalPages={mappedData.summary.totalPagesPrinted}
+            />
           </CardContent>
         </Card>
       </div>

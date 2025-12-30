@@ -249,6 +249,9 @@
       }
     }
   },
+  "Balance": {
+    "defaultUserName": "Student"
+  },
   "student": {
     "printers": {
       "title": "Printers Info",
@@ -830,7 +833,8 @@
         "bonusAmount": "Bonus",
         "totalReceived": "Total Received",
         "savings": "Savings",
-        "packageName": "Package Name"
+        "packageName": "Package Name",
+        "noPackages": "No top-up packages available"
       },
       "custom": {
         "title": "Custom Amount Top-Up",
@@ -838,7 +842,8 @@
         "amountLabel": "Amount (VND)",
         "amountPlaceholder": "Enter amount",
         "depositAmount": "Deposit Amount",
-        "pay": "Top Up"
+        "pay": "Top Up",
+        "creating": "Creating..."
       },
       "qrModal": {
         "title": "QR Code Payment",
@@ -879,6 +884,9 @@
         "amount": "Amount Topped Up",
         "close": "Close",
         "rechargeMore": "Top Up More"
+      },
+      "messages": {
+        "cancelSuccess": "Deposit order cancelled"
       },
       "history": {
         "title": "Deposit History",
@@ -1350,6 +1358,9 @@
         "addBrandSuccess": "New brand added successfully!",
         "updatePrinterSuccess": "Printer updated successfully!",
         "addPrinterSuccess": "New printer added successfully!",
+        "enablePrinterSuccess": "Printer \"{name}\" enabled successfully!",
+        "disablePrinterSuccess": "Printer \"{name}\" disabled successfully!",
+        "updateStatusError": "An error occurred while updating status. Please try again.",
         "deleteBrandSuccess": "Brand \"{name}\" deleted successfully!",
         "deleteModelSuccess": "Model \"{name}\" deleted successfully!",
         "deletePrinterSuccess": "Printer \"{name}\" deleted successfully!",
@@ -1376,10 +1387,14 @@
       "title": "Manage Users",
       "description": "View and manage user accounts",
       "stats": {
+        "totalUsers": "Total Users",
         "totalStudents": "Total Students",
-        "activeStudents": "Active",
+        "activeUsers": "Active Users",
+        "activeStudents": "Active Students",
+        "suspendedUsers": "Suspended Users",
         "suspendedStudents": "Suspended",
         "graduatedStudents": "Graduated",
+        "withdrawnStudents": "Withdrawn",
         "fromFaculties": "From {count} faculties",
         "studentsStudying": "Students studying",
         "needsAttention": "Needs attention",
@@ -1397,6 +1412,9 @@
         "faculty": "Faculty / Department",
         "majorClass": "Major / Class",
         "year": "Year",
+        "accountType": "Account Type",
+        "accountTypeStudent": "Student",
+        "accountTypeStaff": "Staff",
         "status": "Status",
         "enrollmentDate": "Enrollment Date",
         "actions": "Actions",
@@ -1437,6 +1455,8 @@
           "personalInfo": "Personal Information",
           "academicInfo": "Academic Information",
           "email": "Email",
+          "phoneNumber": "Phone Number",
+          "currentBalance": "Balance",
           "enrollmentDate": "Enrollment Date",
           "expectedGraduate": "Expected Graduation",
           "faculty": "Faculty",
@@ -1459,6 +1479,108 @@
           "cancel": "Cancel",
           "confirm": "Confirm",
           "processing": "Processing..."
+        },
+        "edit": {
+          "tabs": {
+            "personal": "Personal Information",
+            "account": "Account"
+          },
+          "account": {
+            "balance": {
+              "title": "Balance Management",
+              "current": "Current Balance",
+              "credit": "Credit",
+              "debit": "Debit",
+              "noData": "No balance information"
+            },
+            "printStats": {
+              "title": "Print Statistics",
+              "totalJobs": "Total Print Jobs",
+              "totalPages": "Total Pages Printed",
+              "totalAmount": "Total Amount Spent",
+              "completed": "Completed Jobs",
+              "failed": "Failed Jobs",
+              "thisMonth": "This Month",
+              "lastPrint": "Last Print",
+              "mostUsedPrinter": "Most Used Printer",
+              "jobs": "jobs",
+              "pages": "pages",
+              "noData": "No print statistics"
+            },
+            "resetPassword": {
+              "title": "Reset Password",
+              "newPasswordLabel": "New Password",
+              "optional": "Leave empty to generate random password",
+              "newPasswordPlaceholder": "Enter new password (optional)",
+              "hint": "If left empty, system will generate a random password and display it for you",
+              "sendEmail": "Send email notification to user",
+              "temporaryPassword": "Temporary Password",
+              "temporaryPasswordHint": "Please save this password and provide it to the user",
+              "submit": "Reset Password",
+              "processing": "Processing..."
+            }
+          }
+        },
+        "balance": {
+          "currentBalance": "Current Balance",
+          "creditButton": "Credit",
+          "debitButton": "Debit",
+          "totalDeposited": "Total Deposited",
+          "totalSpent": "Total Spent",
+          "totalBonus": "Total Bonus",
+          "totalRefunded": "Total Refunded",
+          "totalAdjustment": "Total Adjustment"
+        },
+        "creditBalance": {
+          "title": "Credit balance for {userName}",
+          "currentBalance": "Current Balance",
+          "amountLabel": "Amount",
+          "amountPlaceholder": "Enter amount to credit",
+          "reasonLabel": "Reason",
+          "reasonPlaceholder": "Enter reason for crediting...",
+          "referenceCodeLabel": "Reference Code",
+          "referenceCodePlaceholder": "Reference code (optional)",
+          "referenceCodeHint": "Reference code to link with external system",
+          "characters": "characters",
+          "cancelButton": "Cancel",
+          "confirmButton": "Confirm Credit",
+          "processingButton": "Processing...",
+          "successMessage": "Balance credited successfully",
+          "errorMessage": "An error occurred while crediting balance",
+          "validation": {
+            "amountRequired": "Please enter amount",
+            "amountMin": "Amount must be greater than 0",
+            "reasonRequired": "Please enter reason",
+            "reasonMaxLength": "Reason cannot exceed 500 characters",
+            "referenceCodeMaxLength": "Reference code cannot exceed 100 characters"
+          }
+        },
+        "debitBalance": {
+          "title": "Debit balance for {userName}",
+          "currentBalance": "Current Balance",
+          "balanceAfter": "Balance After Debit",
+          "insufficientBalance": "Insufficient balance",
+          "amountLabel": "Amount",
+          "amountPlaceholder": "Enter amount to debit",
+          "reasonLabel": "Reason",
+          "reasonPlaceholder": "Enter reason for debiting...",
+          "referenceCodeLabel": "Reference Code",
+          "referenceCodePlaceholder": "Reference code (optional)",
+          "referenceCodeHint": "Reference code to link with external system",
+          "characters": "characters",
+          "cancelButton": "Cancel",
+          "confirmButton": "Confirm Debit",
+          "processingButton": "Processing...",
+          "successMessage": "Balance debited successfully",
+          "errorMessage": "An error occurred while debiting balance",
+          "validation": {
+            "amountRequired": "Please enter amount",
+            "amountMin": "Amount must be greater than 0",
+            "amountExceedsBalance": "Amount exceeds current balance",
+            "reasonRequired": "Please enter reason",
+            "reasonMaxLength": "Reason cannot exceed 500 characters",
+            "referenceCodeMaxLength": "Reference code cannot exceed 100 characters"
+          }
         }
       },
       "bulkAction": {
@@ -1514,8 +1636,8 @@
         "enrollmentDateLabel": "Enrollment Date",
         "enrollmentDatePlaceholder": "Select enrollment date",
         "classIdLabel": "Class",
-        "classIdPlaceholder": "Class UUID",
-        "classIdHint": "(Optional) Enter class UUID",
+        "classIdPlaceholder": "Select class",
+        "classIdHint": "(Optional) Select class for student",
         "phoneNumberLabel": "Phone Number",
         "dateOfBirthLabel": "Date of Birth",
         "dateOfBirthPlaceholder": "Select date of birth",
@@ -1535,7 +1657,9 @@
           "passwordRequired": "Please enter password",
           "passwordMinLength": "Password must be at least 6 characters",
           "userTypeRequired": "Please select user type",
-          "studentCodeRequired": "Please enter student code"
+          "studentCodeRequired": "Please enter student code",
+          "phoneNumberNumericOnly": "Phone number must contain only numbers",
+          "phoneNumberMaxLength": "Phone number cannot exceed {max} characters"
         }
       },
       "editUserModal": {
@@ -1557,7 +1681,7 @@
         "enrollmentDateLabel": "Enrollment Date",
         "enrollmentDatePlaceholder": "Select enrollment date",
         "classIdLabel": "Class",
-        "classIdPlaceholder": "Class UUID",
+        "classIdPlaceholder": "Select class",
         "phoneNumberLabel": "Phone Number",
         "dateOfBirthLabel": "Date of Birth",
         "dateOfBirthPlaceholder": "Select date of birth",
@@ -1574,7 +1698,9 @@
         "validation": {
           "fullNameMaxLength": "Full name cannot exceed 100 characters",
           "passwordMinLength": "Password must be at least 8 characters",
-          "passwordMaxLength": "Password cannot exceed 100 characters"
+          "passwordMaxLength": "Password cannot exceed 100 characters",
+          "phoneNumberNumericOnly": "Phone number must contain only numbers",
+          "phoneNumberMaxLength": "Phone number cannot exceed {max} characters"
         }
       },
       "userHistoryModal": {
@@ -1609,7 +1735,26 @@
           "pending": "Pending",
           "color": "Color",
           "blackWhite": "Black & White",
-          "duplex": "Duplex"
+          "duplex": "Duplex",
+          "thisMonth": "This Month Statistics",
+          "jobsThisMonth": "Print Jobs",
+          "pagesThisMonth": "Pages",
+          "costThisMonth": "Cost",
+          "lastPrint": "Last Print",
+          "mostUsedPrinter": "Most Used Printer"
+        },
+        "errors": {
+          "noUserSelected": "No user information. Please select a user to view balance information.",
+          "noUserForHistory": "No user information. Please select a user to view balance history.",
+          "noUserForStats": "No user information. Please select a user to view print statistics.",
+          "loadBalanceFailed": "Failed to load balance information",
+          "loadBalanceHistoryFailed": "Failed to load balance history. Please try again later.",
+          "loadPrintStatsFailed": "Failed to load print statistics. Please try again later."
+        },
+        "loading": {
+          "balanceInfo": "Loading balance information...",
+          "balanceHistory": "Loading balance history...",
+          "printStats": "Loading print statistics..."
         }
       },
       "balanceWidget": {
@@ -1830,16 +1975,20 @@
         "threshold": "Low Stock Threshold",
         "status": "Status",
         "lastUpdated": "Last Updated",
+        "updatedBy": "Updated By",
         "actions": "Actions",
         "lowStock": "Low Stock",
         "normal": "Normal",
-        "noData": "No data"
+        "noData": "No data",
+        "by": "by",
+        "unknown": "Unknown"
       },
       "actions": {
         "addPages": "Add Pages",
         "update": "Update",
         "checkAvailability": "Check Availability",
         "initialize": "Initialize Allocations",
+        "initializeSuccess": "Allocations initialized successfully",
         "viewLowStock": "View Low Stock",
         "refresh": "Refresh",
         "retry": "Retry"
@@ -1944,12 +2093,20 @@
         "totalRevenue": "Total Revenue",
         "averageJobsPerDay": "Avg Jobs/Day",
         "successRate": "Success Rate",
+        "totalActiveStudents": "Total Active Students",
+        "newRegistrations": "New Registrations",
+        "activePrinters": "Active Printers",
+        "avgUtilizationRate": "Avg Utilization Rate",
         "caption": {
           "inSelectedPeriod": "In selected time period",
           "includingColorAndBW": "Including color and black & white",
           "fromPagePurchases": "From page purchases",
           "dailyAverage": "Daily average",
-          "completedOverTotal": "Completed / Total"
+          "completedOverTotal": "Completed / Total",
+          "activeStudents": "Active students",
+          "newRegistrations": "New registrations in period",
+          "activePrinters": "Active printers",
+          "avgUtilizationRate": "Average utilization rate"
         },
         "trend": {
           "stable": "Stable"
@@ -2044,6 +2201,47 @@
             "count": "Count"
           },
           "noData": "Paper size distribution data not available"
+        },
+        "paperFormatDistribution": {
+          "title": "Paper Format Distribution",
+          "description": "Distribution of A4, A3 and simplex/duplex printing",
+          "labels": {
+            "a4": "A4",
+            "a3": "A3",
+            "duplex": "Duplex",
+            "simplex": "Simplex"
+          },
+          "tooltip": {
+            "pages": "Pages",
+            "percentage": "Percentage"
+          },
+          "noData": "Paper format distribution data not available"
+        },
+        "revenueBreakdown": {
+          "title": "Revenue Breakdown",
+          "description": "Detailed revenue sources",
+          "labels": {
+            "printRevenue": "Print Revenue",
+            "depositAmount": "Deposits",
+            "bonusGiven": "Bonuses",
+            "refundAmount": "Refunds"
+          },
+          "tooltip": {
+            "amount": "Amount",
+            "percentage": "Percentage"
+          }
+        },
+        "printerEvents": {
+          "title": "Printer Events",
+          "description": "Printer event statistics",
+          "labels": {
+            "maintenance": "Maintenance",
+            "paperJam": "Paper Jam",
+            "outOfPaper": "Out of Paper"
+          },
+          "legend": {
+            "events": "Events"
+          }
         },
         "noData": "No data available"
       },

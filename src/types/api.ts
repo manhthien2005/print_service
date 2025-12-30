@@ -171,6 +171,22 @@ export interface PageSizeResponse {
   heightMm: number;
 }
 
+export interface ClassResponse {
+  classId: string; // UUID as string
+  majorId: string; // UUID as string
+  majorName: string;
+  majorCode: string;
+  departmentId: string; // UUID as string
+  departmentName: string;
+  academicYearId: string; // UUID as string
+  academicYearName: string;
+  className: string;
+  classCode: string;
+  yearLevel: number;
+  maxStudents: number;
+  createdAt: string; // ISO LocalDateTime string
+}
+
 // Bulk delete request
 export interface IdListRequest {
   ids: string[]; // UUIDs as strings

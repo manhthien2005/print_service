@@ -35,8 +35,15 @@ export function PrintPreviewModal({
     setObjectUrl(undefined);
   }, [uploadedFile.file, uploadedFile.preview_url]);
 
-  const isImage = uploadedFile.file?.type.startsWith('image/');
-  const isPDF = uploadedFile.file?.type === 'application/pdf';
+  // Determine file type from file object or file_type/file_name
+  const isImage =
+    uploadedFile.file?.type.startsWith('image/') ||
+    uploadedFile.file_type?.startsWith('image/') ||
+    /\.(jpg|jpeg|png|gif|webp|bmp)$/i.test(uploadedFile.file_name || '');
+  const isPDF =
+    uploadedFile.file?.type === 'application/pdf' ||
+    uploadedFile.file_type === 'application/pdf' ||
+    /\.pdf$/i.test(uploadedFile.file_name || '');
 
   return (
     <Modal
@@ -55,9 +62,9 @@ export function PrintPreviewModal({
             />
           )}
 
-          {isPDF && objectUrl && (
+          {isPDF && (uploadedFile.preview_url || objectUrl) && (
             <iframe
-              src={objectUrl}
+              src={uploadedFile.preview_url || objectUrl}
               title="PDF preview"
               className="h-[720px] w-full"
             />
@@ -67,9 +74,9 @@ export function PrintPreviewModal({
             <div className="flex flex-col items-center gap-3 p-6 text-center text-sm text-muted-foreground dark:text-muted-foreground">
               <FileIcon fileName={uploadedFile.file_name} size={64} />
               <p>{t('previewUnavailable')}</p>
-              {objectUrl && (
+              {(uploadedFile.preview_url || objectUrl) && (
                 <a
-                  href={objectUrl}
+                  href={uploadedFile.preview_url || objectUrl}
                   target="_blank"
                   rel="noreferrer"
                   className="text-primary hover:underline dark:text-primary"

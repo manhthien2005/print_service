@@ -401,12 +401,12 @@ export const UserHistoryModal: React.FC<UserHistoryModalProps> = ({
                 {/* Monthly Stats */}
                 <div className="rounded-lg border border-slate-200/50 bg-slate-50/50 p-4 dark:border-white/10 dark:bg-white/5">
                   <div className="mb-3 text-sm font-semibold text-slate-900 dark:text-white">
-                    Thống kê tháng này
+                    {t('printStats.thisMonth')}
                   </div>
                   <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
                     <div>
                       <div className="text-xs text-slate-500 dark:text-white/50">
-                        Lệnh in
+                        {t('printStats.jobsThisMonth')}
                       </div>
                       <div className="mt-1 text-lg font-semibold text-slate-900 dark:text-white">
                         {printStats.printJobsThisMonth || 0}
@@ -414,7 +414,7 @@ export const UserHistoryModal: React.FC<UserHistoryModalProps> = ({
                     </div>
                     <div>
                       <div className="text-xs text-slate-500 dark:text-white/50">
-                        Số trang
+                        {t('printStats.pagesThisMonth')}
                       </div>
                       <div className="mt-1 text-lg font-semibold text-slate-900 dark:text-white">
                         {printStats.pagesThisMonth || 0}
@@ -422,7 +422,7 @@ export const UserHistoryModal: React.FC<UserHistoryModalProps> = ({
                     </div>
                     <div>
                       <div className="text-xs text-slate-500 dark:text-white/50">
-                        Chi phí
+                        {t('printStats.costThisMonth')}
                       </div>
                       <div className="mt-1 text-lg font-semibold text-blue-600 dark:text-blue-400">
                         {formatCurrency(printStats.amountThisMonth || 0)}
@@ -438,7 +438,7 @@ export const UserHistoryModal: React.FC<UserHistoryModalProps> = ({
                       {printStats.lastPrintAt && (
                         <div className="flex justify-between">
                           <span className="text-slate-600 dark:text-white/70">
-                            Lần in gần nhất:
+                            {t('printStats.lastPrint')}:
                           </span>
                           <span className="font-semibold text-slate-900 dark:text-white">
                             {formatDate(printStats.lastPrintAt)}
@@ -448,7 +448,7 @@ export const UserHistoryModal: React.FC<UserHistoryModalProps> = ({
                       {printStats.mostUsedPrinterName && (
                         <div className="flex justify-between">
                           <span className="text-slate-600 dark:text-white/70">
-                            Máy in hay dùng:
+                            {t('printStats.mostUsedPrinter')}:
                           </span>
                           <span className="font-semibold text-slate-900 dark:text-white">
                             {printStats.mostUsedPrinterName}
