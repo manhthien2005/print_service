@@ -19,6 +19,7 @@ import {
   type AdminUserDetailResponse,
   type AdminResetPasswordRequest,
 } from '@/lib/api/services/adminUsers';
+import { useAllClasses } from '@/lib/api/services/references';
 import { CreditBalanceModal } from './CreditBalanceModal';
 import { DebitBalanceModal } from './DebitBalanceModal';
 import { toast } from '@/components/ui/Toast';
@@ -48,6 +49,7 @@ export const EditUserModal: React.FC<EditUserModalProps> = ({
   const { data: printStatsResponse, isLoading: isLoadingPrintStats } =
     usePrintStats(userId);
   const resetPassword = useResetPassword();
+  const { data: classesData, isLoading: isLoadingClasses } = useAllClasses();
 
   const userDetail: AdminUserDetailResponse | undefined =
     userDetailResponse?.data?.data;
@@ -83,6 +85,15 @@ export const EditUserModal: React.FC<EditUserModalProps> = ({
   const [temporaryPassword, setTemporaryPassword] = useState<string | null>(
     null
   );
+
+  // Character limits
+  const MAX_LENGTHS = {
+    fullName: 50,
+    studentCode: 10,
+    phoneNumber: 11,
+    citizenId: 12,
+    address: 100,
+  };
 
   // Initialize form data when user detail loads
   useEffect(() => {
@@ -123,6 +134,38 @@ export const EditUserModal: React.FC<EditUserModalProps> = ({
     field: keyof UpdateUserRequest,
     value: string | undefined
   ) => {
+    // Apply character limits and filters
+    if (value !== undefined) {
+      const maxLength = MAX_LENGTHS[field as keyof typeof MAX_LENGTHS];
+
+      // Filter invalid characters based on field type
+      let filteredValue = value;
+
+      if (field === 'fullName') {
+        // Only allow letters, spaces, and Vietnamese characters (no numbers, no special chars except spaces)
+        filteredValue = value.replace(
+          /[^a-zA-ZÀÁẢÃẠĂẰẮẲẴẶÂẦẤẨẪẬÈÉẺẼẸÊỀẾỂỄỆÌÍỈĨỊÒÓỎÕỌÔỒỐỔỖỘƠỜỚỞỠỢÙÚỦŨỤƯỪỨỬỮỰỲÝỶỸỴĐàáảãạăằắẳẵặâầấẩẫậèéẻẽẹêềếểễệìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵđ\s]/g,
+          ''
+        );
+      } else if (field === 'studentCode') {
+        // Only allow alphanumeric (no special characters)
+        filteredValue = value.replace(/[^a-zA-Z0-9]/g, '');
+      } else if (field === 'phoneNumber') {
+        // Only allow numbers
+        filteredValue = value.replace(/[^0-9]/g, '');
+      } else if (field === 'citizenId') {
+        // Only allow numbers
+        filteredValue = value.replace(/[^0-9]/g, '');
+      }
+
+      // Apply max length
+      if (maxLength && filteredValue.length > maxLength) {
+        filteredValue = filteredValue.substring(0, maxLength);
+      }
+
+      value = filteredValue;
+    }
+
     setFormData(prev => ({ ...prev, [field]: value }));
     // Clear error when user starts typing
     if (errors[field]) {
@@ -137,8 +180,62 @@ export const EditUserModal: React.FC<EditUserModalProps> = ({
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
 
-    if (formData.fullName && formData.fullName.length > 100) {
-      newErrors.fullName = t('editUserModal.validation.fullNameMaxLength');
+    // Full name validation
+    if (formData.fullName && formData.fullName.trim()) {
+      // Check for numbers or special characters
+      if (/[0-9]/.test(formData.fullName)) {
+        newErrors.fullName = 'Họ tên không được chứa số';
+      } else if (
+        /[^a-zA-ZÀÁẢÃẠĂẰẮẲẴẶÂẦẤẨẪẬÈÉẺẼẸÊỀẾỂỄỆÌÍỈĨỊÒÓỎÕỌÔỒỐỔỖỘƠỜỚỞỠỢÙÚỦŨỤƯỪỨỬỮỰỲÝỶỸỴĐàáảãạăằắẳẵặâầấẩẫậèéẻẽẹêềếểễệìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵđ\s]/.test(
+          formData.fullName
+        )
+      ) {
+        newErrors.fullName = 'Họ tên không được chứa ký tự đặc biệt';
+      } else if (formData.fullName.length > MAX_LENGTHS.fullName) {
+        newErrors.fullName = `Họ tên không được vượt quá ${MAX_LENGTHS.fullName} ký tự`;
+      }
+    }
+
+    // Student code validation
+    if (formData.studentCode && formData.studentCode.trim()) {
+      // Check for special characters
+      if (/[^a-zA-Z0-9]/.test(formData.studentCode)) {
+        newErrors.studentCode = 'Mã sinh viên không được chứa ký tự đặc biệt';
+      } else if (formData.studentCode.length > MAX_LENGTHS.studentCode) {
+        newErrors.studentCode = `Mã sinh viên không được vượt quá ${MAX_LENGTHS.studentCode} ký tự`;
+      }
+    }
+
+    // Phone number validation
+    if (formData.phoneNumber && formData.phoneNumber.trim()) {
+      const phoneRegex = /^[0-9]+$/;
+      if (!phoneRegex.test(formData.phoneNumber)) {
+        newErrors.phoneNumber = t(
+          'editUserModal.validation.phoneNumberNumericOnly'
+        );
+      } else if (formData.phoneNumber.length > MAX_LENGTHS.phoneNumber) {
+        newErrors.phoneNumber = t(
+          'editUserModal.validation.phoneNumberMaxLength',
+          {
+            max: MAX_LENGTHS.phoneNumber,
+          }
+        );
+      }
+    }
+
+    // Citizen ID validation
+    if (formData.citizenId && formData.citizenId.trim()) {
+      const citizenIdRegex = /^[0-9]+$/;
+      if (!citizenIdRegex.test(formData.citizenId)) {
+        newErrors.citizenId = 'CMND/CCCD chỉ được chứa số';
+      } else if (formData.citizenId.length > MAX_LENGTHS.citizenId) {
+        newErrors.citizenId = `CMND/CCCD không được vượt quá ${MAX_LENGTHS.citizenId} ký tự`;
+      }
+    }
+
+    // Address validation
+    if (formData.address && formData.address.length > MAX_LENGTHS.address) {
+      newErrors.address = `Địa chỉ không được vượt quá ${MAX_LENGTHS.address} ký tự`;
     }
 
     setErrors(newErrors);
@@ -358,7 +455,7 @@ export const EditUserModal: React.FC<EditUserModalProps> = ({
               {userDetail?.studentCode && (
                 <div className="flex justify-between">
                   <span className="text-slate-600 dark:text-white/70">
-                    Mã sinh viên:
+                    {t('editUserModal.studentCodeLabel')}:
                   </span>
                   <span className="font-semibold text-slate-900 dark:text-white">
                     {userDetail.studentCode}
@@ -395,6 +492,7 @@ export const EditUserModal: React.FC<EditUserModalProps> = ({
                   value={formData.fullName || ''}
                   onChange={e => handleInputChange('fullName', e.target.value)}
                   placeholder="Nguyễn Văn A"
+                  maxLength={MAX_LENGTHS.fullName}
                   error={!!errors.fullName}
                   className="rounded-lg border-slate-200/50 bg-white/50 text-slate-900 backdrop-blur-sm placeholder:text-slate-400 focus-visible:ring-slate-400 dark:border-white/10 dark:bg-slate-800/30 dark:text-white dark:placeholder:text-slate-500 dark:focus-visible:ring-white/30"
                 />
@@ -424,8 +522,15 @@ export const EditUserModal: React.FC<EditUserModalProps> = ({
                           handleInputChange('studentCode', e.target.value)
                         }
                         placeholder="21520001"
+                        maxLength={MAX_LENGTHS.studentCode}
+                        error={!!errors.studentCode}
                         className="rounded-lg border-slate-200/50 bg-white/50 text-slate-900 backdrop-blur-sm placeholder:text-slate-400 focus-visible:ring-slate-400 dark:border-white/10 dark:bg-slate-800/30 dark:text-white dark:placeholder:text-slate-500 dark:focus-visible:ring-white/30"
                       />
+                      {errors.studentCode && (
+                        <p className="text-sm text-red-600 dark:text-red-400">
+                          {errors.studentCode}
+                        </p>
+                      )}
                     </div>
 
                     {/* Student Status */}
@@ -493,7 +598,7 @@ export const EditUserModal: React.FC<EditUserModalProps> = ({
                       />
                     </div>
 
-                    {/* Class ID */}
+                    {/* Class ID - Dropdown */}
                     <div className="space-y-2">
                       <label
                         htmlFor="classId"
@@ -501,15 +606,35 @@ export const EditUserModal: React.FC<EditUserModalProps> = ({
                       >
                         {t('editUserModal.classIdLabel')}
                       </label>
-                      <Input
+                      <Select
                         id="classId"
                         value={formData.classId || ''}
                         onChange={e =>
                           handleInputChange('classId', e.target.value)
                         }
-                        placeholder={t('editUserModal.classIdPlaceholder')}
-                        className="rounded-lg border-slate-200/50 bg-white/50 text-slate-900 backdrop-blur-sm placeholder:text-slate-400 focus-visible:ring-slate-400 dark:border-white/10 dark:bg-slate-800/30 dark:text-white dark:placeholder:text-slate-500 dark:focus-visible:ring-white/30"
-                      />
+                        disabled={isLoadingClasses}
+                        error={!!errors.classId}
+                        className="rounded-lg border-slate-200/50 bg-white/50 text-slate-900 backdrop-blur-sm focus-visible:ring-slate-400 dark:border-white/10 dark:bg-slate-800/30 dark:text-white dark:focus-visible:ring-white/30"
+                      >
+                        <option value="">
+                          {isLoadingClasses
+                            ? 'Đang tải...'
+                            : t('editUserModal.classIdPlaceholder')}
+                        </option>
+                        {classesData?.data?.data?.map(classItem => (
+                          <option
+                            key={classItem.classId}
+                            value={classItem.classId}
+                          >
+                            {classItem.className}
+                          </option>
+                        ))}
+                      </Select>
+                      {errors.classId && (
+                        <p className="text-sm text-red-600 dark:text-red-400">
+                          {errors.classId}
+                        </p>
+                      )}
                     </div>
                   </div>
                 </>
@@ -527,13 +652,21 @@ export const EditUserModal: React.FC<EditUserModalProps> = ({
                   </label>
                   <Input
                     id="phoneNumber"
+                    type="tel"
                     value={formData.phoneNumber || ''}
                     onChange={e =>
                       handleInputChange('phoneNumber', e.target.value)
                     }
                     placeholder="0123456789"
+                    maxLength={MAX_LENGTHS.phoneNumber}
+                    error={!!errors.phoneNumber}
                     className="rounded-lg border-slate-200/50 bg-white/50 text-slate-900 backdrop-blur-sm placeholder:text-slate-400 focus-visible:ring-slate-400 dark:border-white/10 dark:bg-slate-800/30 dark:text-white dark:placeholder:text-slate-500 dark:focus-visible:ring-white/30"
                   />
+                  {errors.phoneNumber && (
+                    <p className="text-sm text-red-600 dark:text-red-400">
+                      {errors.phoneNumber}
+                    </p>
+                  )}
                 </div>
 
                 {/* Date of Birth */}
@@ -603,13 +736,21 @@ export const EditUserModal: React.FC<EditUserModalProps> = ({
                   </label>
                   <Input
                     id="citizenId"
+                    type="text"
                     value={formData.citizenId || ''}
                     onChange={e =>
                       handleInputChange('citizenId', e.target.value)
                     }
                     placeholder="012345678901"
+                    maxLength={MAX_LENGTHS.citizenId}
+                    error={!!errors.citizenId}
                     className="rounded-lg border-slate-200/50 bg-white/50 text-slate-900 backdrop-blur-sm placeholder:text-slate-400 focus-visible:ring-slate-400 dark:border-white/10 dark:bg-slate-800/30 dark:text-white dark:placeholder:text-slate-500 dark:focus-visible:ring-white/30"
                   />
+                  {errors.citizenId && (
+                    <p className="text-sm text-red-600 dark:text-red-400">
+                      {errors.citizenId}
+                    </p>
+                  )}
                 </div>
               </div>
 
@@ -626,8 +767,15 @@ export const EditUserModal: React.FC<EditUserModalProps> = ({
                   value={formData.address || ''}
                   onChange={e => handleInputChange('address', e.target.value)}
                   placeholder="123 Đường ABC, Quận 1, TP.HCM"
+                  maxLength={MAX_LENGTHS.address}
+                  error={!!errors.address}
                   className="rounded-lg border-slate-200/50 bg-white/50 text-slate-900 backdrop-blur-sm placeholder:text-slate-400 focus-visible:ring-slate-400 dark:border-white/10 dark:bg-slate-800/30 dark:text-white dark:placeholder:text-slate-500 dark:focus-visible:ring-white/30"
                 />
+                {errors.address && (
+                  <p className="text-sm text-red-600 dark:text-red-400">
+                    {errors.address}
+                  </p>
+                )}
               </div>
 
               {/* Error Message */}

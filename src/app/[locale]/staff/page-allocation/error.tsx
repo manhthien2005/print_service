@@ -19,9 +19,9 @@ export default function Error({
         {t('error') || 'Something went wrong'}
       </h2>
       <p className="mb-4 text-muted-foreground">
-        {error.message || 'An unexpected error occurred'}
+        {error.message || t('unexpectedError')}
       </p>
-      <Button onClick={reset}>{t('tryAgain') || 'Try again'}</Button>
+      <Button onClick={reset}>{t('tryAgain')}</Button>
     </div>
   );
 }

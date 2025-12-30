@@ -22,6 +22,7 @@ export const BalanceWidget: React.FC<BalanceWidgetProps> = ({
   onDebitClick,
 }) => {
   const t = useTranslations('staff.manageStudents.modal.balance');
+  const tWidget = useTranslations('staff.manageStudents.balanceWidget');
   const { data: balanceResponse, isLoading, isError } = useGetBalance(userId);
   const balance: UserBalanceResponse | undefined = balanceResponse?.data?.data;
 
@@ -29,7 +30,7 @@ export const BalanceWidget: React.FC<BalanceWidgetProps> = ({
     return (
       <div className="flex items-center justify-center py-8">
         <div className="text-slate-500 dark:text-slate-400">
-          {t('balanceWidget.loading')}
+          {tWidget('loading')}
         </div>
       </div>
     );
@@ -38,7 +39,7 @@ export const BalanceWidget: React.FC<BalanceWidgetProps> = ({
   if (isError || !balance) {
     return (
       <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-center text-red-600 dark:border-red-800 dark:bg-red-900/20 dark:text-red-400">
-        {t('balanceWidget.loadFailed')}
+        {tWidget('loadFailed')}
       </div>
     );
   }
@@ -55,7 +56,7 @@ export const BalanceWidget: React.FC<BalanceWidgetProps> = ({
         </div>
         {balance.lastUpdatedAt && (
           <div className="mt-2 text-xs text-slate-500 dark:text-slate-400">
-            {t('balanceWidget.lastUpdated')}:{' '}
+            {tWidget('lastUpdated')}:{' '}
             {new Date(balance.lastUpdatedAt).toLocaleString('vi-VN')}
           </div>
         )}

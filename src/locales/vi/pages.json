@@ -249,6 +249,9 @@
       }
     }
   },
+  "Balance": {
+    "defaultUserName": "Sinh viên"
+  },
   "student": {
     "printers": {
       "title": "Thông tin máy in",
@@ -752,7 +755,71 @@
     },
     "recharge": {
       "title": "Nạp tiền",
-      "description": "Nạp tiền vào tài khoản của bạn"
+      "description": "Nạp tiền vào tài khoản của bạn",
+      "packages": {
+        "title": "Chọn gói nạp tiền",
+        "description": "Chọn một gói nạp tiền phù hợp với nhu cầu của bạn",
+        "popular": "Phổ biến",
+        "selectPackage": "Chọn gói",
+        "depositAmount": "Số tiền nạp",
+        "bonusAmount": "Bonus",
+        "totalReceived": "Tổng nhận được",
+        "savings": "Tiết kiệm",
+        "packageName": "Tên gói",
+        "noPackages": "Không có gói nạp tiền nào"
+      },
+      "custom": {
+        "title": "Nạp số tiền tùy chọn",
+        "description": "Nhập số tiền bạn muốn nạp",
+        "amountLabel": "Số tiền (VND)",
+        "amountPlaceholder": "Nhập số tiền",
+        "depositAmount": "Số tiền nạp",
+        "pay": "Nạp tiền",
+        "creating": "Đang tạo..."
+      },
+      "qrModal": {
+        "title": "Thanh toán QR Code",
+        "packageInfo": "Thông tin gói đã chọn",
+        "amount": "Số tiền",
+        "expiresIn": "Hết hạn sau",
+        "cancelOrder": "Hủy đơn",
+        "expired": "Đã hết hạn",
+        "reused": "Đã sử dụng",
+        "newOrder": "Đơn mới",
+        "scanQR": "Quét mã QR để thanh toán",
+        "transferContent": "Nội dung chuyển khoản",
+        "copyContent": "Sao chép nội dung",
+        "copied": "Đã sao chép",
+        "instructions": "Hướng dẫn thanh toán",
+        "step1": "Mở ứng dụng ngân hàng trên điện thoại",
+        "step2": "Quét mã QR hoặc chuyển khoản với nội dung: {content}",
+        "step3": "Nhập số tiền chính xác: {amount}",
+        "step4": "Xác nhận thanh toán và chờ hệ thống cập nhật"
+      },
+      "errors": {
+        "createFailed": "Không thể tạo đơn nạp tiền",
+        "cancelFailed": "Không thể hủy đơn nạp tiền",
+        "minAmount": "Số tiền tối thiểu là 10,000 VND",
+        "mustBeMultipleOf1000": "Số tiền phải là bội số của 1,000 VND"
+      },
+      "cancelModal": {
+        "title": "Xác nhận hủy đơn nạp tiền",
+        "reason": "Lý do hủy (tùy chọn)",
+        "reasonPlaceholder": "Nhập lý do hủy đơn...",
+        "confirm": "Xác nhận hủy",
+        "cancel": "Hủy",
+        "cancelling": "Đang hủy..."
+      },
+      "successModal": {
+        "title": "Nạp tiền thành công",
+        "message": "Bạn đã nạp tiền thành công!",
+        "amount": "Số tiền đã nạp",
+        "close": "Đóng",
+        "rechargeMore": "Nạp thêm"
+      },
+      "messages": {
+        "cancelSuccess": "Đã hủy đơn nạp tiền"
+      }
     },
     "topUp": {
       "title": "Nạp tiền",
@@ -954,6 +1021,7 @@
         "currentPassword": "Mật khẩu hiện tại",
         "newPassword": "Mật khẩu mới",
         "confirmPassword": "Xác nhận mật khẩu mới",
+        "cancel": "Hủy",
         "submit": "Đổi mật khẩu",
         "submitting": "Đang xử lý...",
         "success": "Đổi mật khẩu thành công",
@@ -1169,7 +1237,8 @@
         "confirmDeletePrinter": "Bạn có chắc chắn muốn xóa máy in này?",
         "cannotUndo": "Hành động này không thể hoàn tác.",
         "deleting": "Đang xóa...",
-        "delete": "Xóa"
+        "delete": "Xóa",
+        "cancel": "Hủy"
       },
       "modals": {
         "editModel": {
@@ -1289,6 +1358,9 @@
         "addBrandSuccess": "Đã thêm hãng mới thành công!",
         "updatePrinterSuccess": "Đã cập nhật máy in thành công!",
         "addPrinterSuccess": "Đã thêm máy in mới thành công!",
+        "enablePrinterSuccess": "Đã bật máy in \"{name}\" thành công!",
+        "disablePrinterSuccess": "Đã tắt máy in \"{name}\" thành công!",
+        "updateStatusError": "Có lỗi xảy ra khi cập nhật trạng thái. Vui lòng thử lại.",
         "deleteBrandSuccess": "Đã xóa hãng \"{name}\" thành công!",
         "deleteModelSuccess": "Đã xóa model \"{name}\" thành công!",
         "deletePrinterSuccess": "Đã xóa máy in \"{name}\" thành công!",
@@ -1315,10 +1387,14 @@
       "title": "Quản lý người dùng",
       "description": "Xem và quản lý tài khoản người dùng",
       "stats": {
+        "totalUsers": "Tổng người dùng",
         "totalStudents": "Tổng người dùng",
-        "activeStudents": "Đang hoạt động",
+        "activeUsers": "Người dùng hoạt động",
+        "activeStudents": "Sinh viên đang học",
+        "suspendedUsers": "Người dùng tạm dừng",
         "suspendedStudents": "Tạm dừng",
         "graduatedStudents": "Đã tốt nghiệp",
+        "withdrawnStudents": "Thôi học/Đình chỉ",
         "fromFaculties": "Từ {count} khoa",
         "studentsStudying": "Người dùng đang hoạt động",
         "needsAttention": "Cần theo dõi",
@@ -1379,6 +1455,8 @@
           "personalInfo": "Thông tin cá nhân",
           "academicInfo": "Thông tin học tập",
           "email": "Email",
+          "phoneNumber": "Số điện thoại",
+          "currentBalance": "Số dư",
           "enrollmentDate": "Ngày nhập học",
           "expectedGraduate": "Dự kiến tốt nghiệp",
           "faculty": "Khoa",
@@ -1558,8 +1636,8 @@
         "enrollmentDateLabel": "Ngày nhập học",
         "enrollmentDatePlaceholder": "Chọn ngày nhập học",
         "classIdLabel": "Lớp học",
-        "classIdPlaceholder": "UUID của lớp học",
-        "classIdHint": "(Tùy chọn) Nhập UUID của lớp học",
+        "classIdPlaceholder": "Chọn lớp học",
+        "classIdHint": "(Tùy chọn) Chọn lớp học cho sinh viên",
         "phoneNumberLabel": "Số điện thoại",
         "dateOfBirthLabel": "Ngày sinh",
         "dateOfBirthPlaceholder": "Chọn ngày sinh",
@@ -1579,7 +1657,9 @@
           "passwordRequired": "Vui lòng nhập mật khẩu",
           "passwordMinLength": "Mật khẩu phải có ít nhất 6 ký tự",
           "userTypeRequired": "Vui lòng chọn loại người dùng",
-          "studentCodeRequired": "Vui lòng nhập mã sinh viên"
+          "studentCodeRequired": "Vui lòng nhập mã sinh viên",
+          "phoneNumberNumericOnly": "Số điện thoại chỉ được chứa số",
+          "phoneNumberMaxLength": "Số điện thoại không được vượt quá {max} ký tự"
         }
       },
       "editUserModal": {
@@ -1601,7 +1681,7 @@
         "enrollmentDateLabel": "Ngày nhập học",
         "enrollmentDatePlaceholder": "Chọn ngày nhập học",
         "classIdLabel": "Lớp học",
-        "classIdPlaceholder": "UUID của lớp học",
+        "classIdPlaceholder": "Chọn lớp học",
         "phoneNumberLabel": "Số điện thoại",
         "dateOfBirthLabel": "Ngày sinh",
         "dateOfBirthPlaceholder": "Chọn ngày sinh",
@@ -1618,7 +1698,9 @@
         "validation": {
           "fullNameMaxLength": "Họ và tên không được vượt quá 100 ký tự",
           "passwordMinLength": "Mật khẩu phải có ít nhất 8 ký tự",
-          "passwordMaxLength": "Mật khẩu không được vượt quá 100 ký tự"
+          "passwordMaxLength": "Mật khẩu không được vượt quá 100 ký tự",
+          "phoneNumberNumericOnly": "Số điện thoại chỉ được chứa số",
+          "phoneNumberMaxLength": "Số điện thoại không được vượt quá {max} ký tự"
         }
       },
       "userHistoryModal": {
@@ -1653,7 +1735,26 @@
           "pending": "Đang chờ",
           "color": "In màu",
           "blackWhite": "Đen trắng",
-          "duplex": "In 2 mặt"
+          "duplex": "In 2 mặt",
+          "thisMonth": "Thống kê tháng này",
+          "jobsThisMonth": "Lệnh in",
+          "pagesThisMonth": "Số trang",
+          "costThisMonth": "Chi phí",
+          "lastPrint": "Lần in gần nhất",
+          "mostUsedPrinter": "Máy in hay dùng"
+        },
+        "errors": {
+          "noUserSelected": "Không có thông tin người dùng. Vui lòng chọn người dùng để xem thông tin số dư.",
+          "noUserForHistory": "Không có thông tin người dùng. Vui lòng chọn người dùng để xem lịch sử số dư.",
+          "noUserForStats": "Không có thông tin người dùng. Vui lòng chọn người dùng để xem thống kê in ấn.",
+          "loadBalanceFailed": "Không thể tải thông tin số dư",
+          "loadBalanceHistoryFailed": "Không thể tải lịch sử số dư. Vui lòng thử lại sau.",
+          "loadPrintStatsFailed": "Không thể tải thống kê in ấn. Vui lòng thử lại sau."
+        },
+        "loading": {
+          "balanceInfo": "Đang tải thông tin số dư...",
+          "balanceHistory": "Đang tải lịch sử số dư...",
+          "printStats": "Đang tải thống kê in ấn..."
         }
       },
       "balanceWidget": {
@@ -1874,16 +1975,20 @@
         "threshold": "Ngưỡng cảnh báo",
         "status": "Trạng thái",
         "lastUpdated": "Cập nhật lần cuối",
+        "updatedBy": "Người cập nhật",
         "actions": "Thao tác",
         "lowStock": "Tồn kho thấp",
         "normal": "Bình thường",
-        "noData": "Không có dữ liệu"
+        "noData": "Không có dữ liệu",
+        "by": "bởi",
+        "unknown": "Không xác định"
       },
       "actions": {
         "addPages": "Thêm trang",
         "update": "Cập nhật",
         "checkAvailability": "Kiểm tra khả dụng",
         "initialize": "Khởi tạo phân bổ",
+        "initializeSuccess": "Khởi tạo phân bổ thành công",
         "viewLowStock": "Xem tồn kho thấp",
         "refresh": "Làm mới",
         "retry": "Thử lại"
@@ -1988,12 +2093,20 @@
         "totalRevenue": "Tổng doanh thu",
         "averageJobsPerDay": "TB công việc/ngày",
         "successRate": "Tỷ lệ thành công",
+        "totalActiveStudents": "Tổng sinh viên hoạt động",
+        "newRegistrations": "Đăng ký mới",
+        "activePrinters": "Máy in hoạt động",
+        "avgUtilizationRate": "Tỷ lệ sử dụng TB",
         "caption": {
           "inSelectedPeriod": "Trong khoảng thời gian đã chọn",
           "includingColorAndBW": "Bao gồm màu và đen trắng",
           "fromPagePurchases": "Từ mua trang in",
           "dailyAverage": "Trung bình hàng ngày",
-          "completedOverTotal": "Hoàn tất / Tổng số"
+          "completedOverTotal": "Hoàn tất / Tổng số",
+          "activeStudents": "Sinh viên đang hoạt động",
+          "newRegistrations": "Số đăng ký mới trong kỳ",
+          "activePrinters": "Số máy in đang hoạt động",
+          "avgUtilizationRate": "Tỷ lệ sử dụng trung bình"
         },
         "trend": {
           "stable": "Ổn định"
@@ -2088,6 +2201,47 @@
             "count": "Số lượng"
           },
           "noData": "Dữ liệu phân bố khổ giấy không khả dụng"
+        },
+        "paperFormatDistribution": {
+          "title": "Phân bố định dạng giấy",
+          "description": "Phân bố A4, A3 và in 1 mặt/2 mặt",
+          "labels": {
+            "a4": "A4",
+            "a3": "A3",
+            "duplex": "In 2 mặt",
+            "simplex": "In 1 mặt"
+          },
+          "tooltip": {
+            "pages": "Số trang",
+            "percentage": "Tỷ lệ"
+          },
+          "noData": "Dữ liệu phân bố định dạng giấy không khả dụng"
+        },
+        "revenueBreakdown": {
+          "title": "Phân tích doanh thu",
+          "description": "Chi tiết các nguồn doanh thu",
+          "labels": {
+            "printRevenue": "Doanh thu in",
+            "depositAmount": "Tiền nạp",
+            "bonusGiven": "Tiền thưởng",
+            "refundAmount": "Tiền hoàn lại"
+          },
+          "tooltip": {
+            "amount": "Số tiền",
+            "percentage": "Tỷ lệ"
+          }
+        },
+        "printerEvents": {
+          "title": "Sự kiện máy in",
+          "description": "Thống kê các sự kiện máy in",
+          "labels": {
+            "maintenance": "Bảo trì",
+            "paperJam": "Kẹt giấy",
+            "outOfPaper": "Hết giấy"
+          },
+          "legend": {
+            "events": "Số sự kiện"
+          }
         },
         "noData": "Không có dữ liệu"
       },

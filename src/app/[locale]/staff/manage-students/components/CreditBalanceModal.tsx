@@ -27,6 +27,7 @@ export const CreditBalanceModal: React.FC<CreditBalanceModalProps> = ({
   currentBalance,
 }) => {
   const t = useTranslations('staff.manageStudents.modal.creditBalance');
+  const tCommon = useTranslations('Balance');
   const creditBalance = useCreditBalance();
 
   const [formData, setFormData] = useState<BalanceTransactionRequest>({
@@ -128,7 +129,7 @@ export const CreditBalanceModal: React.FC<CreditBalanceModalProps> = ({
     <Modal
       isOpen={isOpen}
       onClose={handleClose}
-      title={t('title', { userName: userName || 'User' })}
+      title={t('title', { userName: userName || tCommon('defaultUserName') })}
       size="md"
     >
       <form onSubmit={handleSubmit} className="p-6">

@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { formatDistanceToNow } from 'date-fns';
+import { useParams } from 'next/navigation';
 import { Button } from '@/components/ui/Button';
 import { Card, CardContent, CardHeader } from '@/components/ui/Card';
 import { formatNumber } from '@/lib/utils/format';
@@ -27,10 +28,13 @@ interface PageAllocationTableProps {
       threshold: string;
       status: string;
       lastUpdated: string;
+      updatedBy: string;
       actions: string;
       lowStock: string;
       normal: string;
       noData: string;
+      by: string;
+      unknown: string;
     };
     actions: {
       addPages: string;
@@ -47,6 +51,19 @@ export default function PageAllocationTable({
   onCheckAvailability,
   translations,
 }: PageAllocationTableProps) {
+  const params = useParams();
+  const locale = (params?.locale as string) || 'vi';
+
+  const formatDate = (date: Date) => {
+    return date.toLocaleString(locale === 'vi' ? 'vi-VN' : 'en-US', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  };
+
   if (allocations.length === 0) {
     return (
       <Card className="border-white/10 bg-white/5 backdrop-blur-md">
@@ -94,6 +111,9 @@ export default function PageAllocationTable({
                 </th>
                 <th className="px-4 py-3 text-left text-sm font-medium text-foreground dark:text-foreground">
                   {translations.table.lastUpdated}
+                </th>
+                <th className="px-4 py-3 text-left text-sm font-medium text-foreground dark:text-foreground">
+                  {translations.table.updatedBy}
                 </th>
                 <th className="px-4 py-3 text-center text-sm font-medium text-slate-700 dark:text-slate-300">
                   {translations.table.actions}
@@ -144,11 +164,42 @@ export default function PageAllocationTable({
                     </span>
                   </td>
                   <td className="px-4 py-3 text-sm text-muted-foreground dark:text-muted-foreground">
-                    {allocation.updatedAt
-                      ? formatDistanceToNow(new Date(allocation.updatedAt), {
-                          addSuffix: true,
-                        })
-                      : '-'}
+                    <div className="flex flex-col">
+                      {allocation.updatedAt ? (
+                        <span>
+                          {formatDistanceToNow(new Date(allocation.updatedAt), {
+                            addSuffix: true,
+                          })}
+                        </span>
+                      ) : (
+                        <span>-</span>
+                      )}
+                      {allocation.updatedAt && (
+                        <span className="text-xs opacity-70">
+                          {formatDate(new Date(allocation.updatedAt))}
+                        </span>
+                      )}
+                    </div>
+                  </td>
+                  <td className="px-4 py-3 text-sm text-muted-foreground dark:text-muted-foreground">
+                    {allocation.updatedByName || allocation.updatedByEmail ? (
+                      <div className="flex flex-col">
+                        {allocation.updatedByName && (
+                          <span className="text-foreground dark:text-foreground">
+                            {allocation.updatedByName}
+                          </span>
+                        )}
+                        {allocation.updatedByEmail && (
+                          <span className="text-xs opacity-70">
+                            {allocation.updatedByEmail}
+                          </span>
+                        )}
+                      </div>
+                    ) : (
+                      <span className="text-xs opacity-50">
+                        {translations.table.unknown}
+                      </span>
+                    )}
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center justify-center gap-2">

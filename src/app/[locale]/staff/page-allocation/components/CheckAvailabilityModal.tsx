@@ -29,6 +29,7 @@ export default function CheckAvailabilityModal({
   const t = useTranslations('staff.pageAllocation.modals.checkAvailability');
   const tValidation = useTranslations('staff.pageAllocation.validation');
   const tCommon = useTranslations('common');
+  const tErrors = useTranslations('staff.pageAllocation.errors');
   const [pagesNeeded, setPagesNeeded] = useState<number | null>(null);
   const [shouldCheck, setShouldCheck] = useState(false);
 
@@ -74,7 +75,7 @@ export default function CheckAvailabilityModal({
           <div className="space-y-2">
             <label
               htmlFor="pagesNeeded"
-              className="text-sm font-medium text-foreground dark:text-foreground"
+              className="text-sm font-medium text-slate-900 dark:text-white"
             >
               {t('pagesNeeded')} <span className="text-destructive">*</span>
             </label>
@@ -95,11 +96,20 @@ export default function CheckAvailabilityModal({
           </div>
 
           {/* Check Button */}
-          <div className="flex justify-end gap-3">
-            <Button type="button" variant="outline" onClick={onClose}>
+          <div className="flex justify-end gap-3 border-t border-slate-200/50 pt-4 dark:border-white/10">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onClose}
+              className="border border-slate-300 bg-slate-200 text-slate-900 hover:border-slate-400 hover:bg-slate-300 dark:border-white/20 dark:bg-slate-700 dark:text-white dark:hover:border-white/30 dark:hover:bg-slate-600"
+            >
               {tCommon('cancel')}
             </Button>
-            <Button type="submit" variant="default" disabled={isLoading}>
+            <Button
+              type="submit"
+              disabled={isLoading}
+              className="border border-blue-700 bg-blue-700/80 text-white hover:border-blue-800 hover:bg-blue-800/90 dark:border-blue-600 dark:bg-blue-600/80 dark:hover:border-blue-700 dark:hover:bg-blue-700/90"
+            >
               {isLoading ? t('checking') : t('check')}
             </Button>
           </div>
@@ -133,7 +143,7 @@ export default function CheckAvailabilityModal({
                       <span className="text-muted-foreground">
                         {t('result.currentQuantity')}:
                       </span>
-                      <span className="text-white">
+                      <span className="text-slate-900 dark:text-white">
                         {formatNumber(checkResult.currentQuantity)}
                       </span>
                     </div>
@@ -151,7 +161,7 @@ export default function CheckAvailabilityModal({
                       <div className="text-xs text-muted-foreground">
                         {t('result.message')}:
                       </div>
-                      <div className="mt-1 text-sm text-foreground">
+                      <div className="mt-1 text-sm text-slate-900 dark:text-white">
                         {checkResult.message}
                       </div>
                     </div>
@@ -166,9 +176,7 @@ export default function CheckAvailabilityModal({
         {error && (
           <div className="border-destructive/30 bg-destructive/10 mt-4 rounded-lg border p-4">
             <p className="text-sm text-destructive">
-              {error instanceof Error
-                ? error.message
-                : 'An error occurred while checking availability'}
+              {error instanceof Error ? error.message : tErrors('checkFailed')}
             </p>
           </div>
         )}

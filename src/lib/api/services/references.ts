@@ -6,6 +6,7 @@ import type {
   PaginatedApiResponse,
   ApiResponse,
   PricingConfigResponse,
+  ClassResponse,
 } from '@/types/api';
 
 /**
@@ -21,6 +22,14 @@ export const referenceKeys = {
   }) => [...referenceKeys.all, 'rooms', params] as const,
   buildings: (params?: { page?: number; limit?: number; keyword?: string }) =>
     [...referenceKeys.all, 'buildings', params] as const,
+  classes: (params?: {
+    page?: number;
+    limit?: number;
+    keyword?: string;
+    majorId?: string;
+    academicYearId?: string;
+    yearLevel?: number;
+  }) => [...referenceKeys.all, 'classes', params] as const,
   pageSizes: () => [...referenceKeys.all, 'pageSizes'] as const,
   pricingConfig: () => [...referenceKeys.all, 'pricing-config'] as const,
 };
@@ -100,6 +109,47 @@ export function usePageSizes() {
   return useApiQuery<ApiResponse<PageSizeResponse[]>>(
     referenceKeys.pageSizes(),
     '/page-sizes'
+  );
+}
+
+/**
+ * Hook to fetch classes
+ */
+export function useClasses(params?: {
+  page?: number;
+  limit?: number;
+  keyword?: string;
+  majorId?: string;
+  academicYearId?: string;
+  yearLevel?: number;
+}) {
+  const queryParams = new URLSearchParams();
+  if (params?.page !== undefined)
+    queryParams.append('page', params.page.toString());
+  if (params?.limit !== undefined)
+    queryParams.append('limit', params.limit.toString());
+  if (params?.keyword) queryParams.append('keyword', params.keyword);
+  if (params?.majorId) queryParams.append('majorId', params.majorId);
+  if (params?.academicYearId)
+    queryParams.append('academicYearId', params.academicYearId);
+  if (params?.yearLevel !== undefined)
+    queryParams.append('yearLevel', params.yearLevel.toString());
+
+  const url = `/classes${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
+
+  return useApiQuery<PaginatedApiResponse<ClassResponse>>(
+    referenceKeys.classes(params),
+    url
+  );
+}
+
+/**
+ * Hook to fetch all classes for dropdown (no pagination)
+ */
+export function useAllClasses() {
+  return useApiQuery<PaginatedApiResponse<ClassResponse>>(
+    [...referenceKeys.all, 'classes', 'all'],
+    '/classes?page=0&limit=1000'
   );
 }
 

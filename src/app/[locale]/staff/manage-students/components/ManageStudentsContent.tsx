@@ -216,7 +216,8 @@ export function ManageStudentsContent() {
   } = useGetUserDetail(selectedUserId);
   const selectedUserDetail = selectedUserDetailResponse?.data?.data;
 
-  // Use API to fetch users instead of mock data
+  // Use API to fetch users with global stats
+  // BE now returns UserListWithStatsResponse which includes globalStats and paginated users
   const { data: usersResponse, isLoading: isLoadingUsers } = useAdminUsers({
     search: search || undefined,
     accountStatus:
@@ -233,17 +234,23 @@ export function ManageStudentsContent() {
     sortDirection: sortDirection || 'desc',
   });
 
-  // Fetch total stats (without filters) for widgets - these should not change when filtering
-  // We fetch with a large limit to get all users for accurate stats
-  const { data: totalStatsResponse, isLoading: isLoadingTotalStats } =
-    useAdminUsers({
-      page: 0,
-      limit: 10000, // Large limit to get all users for stats calculation
-    });
+  // Extract data from new response structure
+  const usersListWithStats = usersResponse?.data?.data;
+  const users: AdminUserListItem[] = usersListWithStats?.users || [];
+  const globalStats = usersListWithStats?.globalStats;
+  const paginationMetadata = usersListWithStats?.pagination;
 
-  const users: AdminUserListItem[] = usersResponse?.data?.data || [];
-  const pagination = usersResponse?.data?.pagination;
-  const totalPagination = totalStatsResponse?.data?.pagination;
+  // Map PaginationMetadata to PageResponse format for compatibility
+  const pagination = paginationMetadata
+    ? {
+        page: paginationMetadata.currentPage,
+        limit: paginationMetadata.pageSize,
+        totalItems: paginationMetadata.totalElements,
+        totalPages: paginationMetadata.totalPages,
+        first: !paginationMetadata.hasPrevious,
+        last: !paginationMetadata.hasNext,
+      }
+    : undefined;
 
   // Convert API response to StudentItem format for compatibility
   const filtered = useMemo(() => {
@@ -264,13 +271,44 @@ export function ManageStudentsContent() {
     }));
   }, [users]);
 
+  // Apply client-side filtering for filters not supported by BE
+  // Note: These filters only work on the current page's data, not across all pages
+  // For full functionality, these filters should be implemented on the backend
+  const clientFiltered = useMemo(() => {
+    let result = filtered;
+
+    if (faculty) {
+      result = result.filter(item => item.faculty === faculty);
+    }
+    if (yearLevel && yearLevel !== 'all') {
+      result = result.filter(
+        item => item.yearLevel === parseInt(yearLevel, 10)
+      );
+    }
+    if (startDate) {
+      result = result.filter(item => {
+        if (!item.enrollmentDate) return false;
+        return new Date(item.enrollmentDate) >= new Date(startDate);
+      });
+    }
+    if (endDate) {
+      result = result.filter(item => {
+        if (!item.enrollmentDate) return false;
+        return new Date(item.enrollmentDate) <= new Date(endDate);
+      });
+    }
+
+    return result;
+  }, [filtered, faculty, yearLevel, startDate, endDate]);
+
   // Reset to page 1 when filters change
   useEffect(() => {
     setPage(1);
   }, [search, faculty, status, yearLevel, startDate, endDate]);
 
-  // API handles sorting and pagination, so we use filtered directly
-  const paginated = filtered;
+  // API handles sorting and pagination for BE-supported filters
+  // Client-side filters (faculty, yearLevel, enrollmentDate) are applied after pagination
+  const paginated = clientFiltered;
 
   const toggleSort = (column: Exclude<SortColumn, null>) => {
     if (sortColumn === column) {
@@ -362,22 +400,13 @@ export function ManageStudentsContent() {
     setSelectedItems(new Set());
   };
 
-  // Calculate stats from total users (without filters) - these should not change when filtering
-  const totalUsers: AdminUserListItem[] = useMemo(() => {
-    return totalStatsResponse?.data?.data || [];
-  }, [totalStatsResponse?.data?.data]);
-
-  const totalActiveCount = useMemo(() => {
-    return totalUsers.filter(
-      u => u.studentStatus === 'active' || u.accountStatus === 'active'
-    ).length;
-  }, [totalUsers]);
-
-  const totalSuspendedCount = useMemo(() => {
-    return totalUsers.filter(
-      u => u.studentStatus === 'suspended' || u.accountStatus === 'suspended'
-    ).length;
-  }, [totalUsers]);
+  // Get stats from globalStats in the response (BE calculates these efficiently)
+  const totalUsersCount = globalStats?.totalUsers || 0;
+  const totalActiveUsersCount = globalStats?.activeUsers || 0; // All active users (students + staff)
+  const totalSuspendedUsersCount = globalStats?.suspendedUsers || 0; // All suspended users
+  const activeStudentsCount = globalStats?.activeStudents || 0; // Students with active status
+  const graduatedStudentsCount = globalStats?.graduatedStudents || 0; // Students who graduated
+  const withdrawnStudentsCount = globalStats?.withdrawnStudents || 0; // Students who withdrew
 
   const isAllSelected =
     paginated.length > 0 && paginated.every(item => selectedItems.has(item.id));
@@ -385,24 +414,42 @@ export function ManageStudentsContent() {
   return (
     <div className="flex flex-col gap-6">
       {/* Summary Cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
         <SummaryCard
-          title={t('stats.totalStudents')}
-          useCountUp={!isLoadingTotalStats}
-          countUpValue={totalPagination?.totalItems || totalUsers.length}
-          isLoading={isLoadingTotalStats}
+          title={t('stats.totalUsers')}
+          useCountUp={!isLoadingUsers}
+          countUpValue={totalUsersCount}
+          isLoading={isLoadingUsers}
+        />
+        <SummaryCard
+          title={t('stats.activeUsers')}
+          useCountUp={!isLoadingUsers}
+          countUpValue={totalActiveUsersCount}
+          isLoading={isLoadingUsers}
         />
         <SummaryCard
           title={t('stats.activeStudents')}
-          useCountUp={!isLoadingTotalStats}
-          countUpValue={totalActiveCount}
-          isLoading={isLoadingTotalStats}
+          useCountUp={!isLoadingUsers}
+          countUpValue={activeStudentsCount}
+          isLoading={isLoadingUsers}
         />
         <SummaryCard
-          title={t('stats.suspendedStudents')}
-          useCountUp={!isLoadingTotalStats}
-          countUpValue={totalSuspendedCount}
-          isLoading={isLoadingTotalStats}
+          title={t('stats.graduatedStudents')}
+          useCountUp={!isLoadingUsers}
+          countUpValue={graduatedStudentsCount}
+          isLoading={isLoadingUsers}
+        />
+        <SummaryCard
+          title={t('stats.withdrawnStudents')}
+          useCountUp={!isLoadingUsers}
+          countUpValue={withdrawnStudentsCount}
+          isLoading={isLoadingUsers}
+        />
+        <SummaryCard
+          title={t('stats.suspendedUsers')}
+          useCountUp={!isLoadingUsers}
+          countUpValue={totalSuspendedUsersCount}
+          isLoading={isLoadingUsers}
         />
       </div>
 
@@ -830,10 +877,10 @@ export function ManageStudentsContent() {
                               if (isValidUUID(item.id)) {
                                 setSelected(item);
                               } else {
-                                toast.error('ID người dùng không hợp lệ');
+                                toast.error(t('errors.invalidUserId'));
                               }
                             }}
-                            title="Xem chi tiết"
+                            title={t('actions.view')}
                           >
                             <svg
                               xmlns="http://www.w3.org/2000/svg"
@@ -993,7 +1040,7 @@ export function ManageStudentsContent() {
                   {selectedUserDetail.phoneNumber && (
                     <div className="flex justify-between">
                       <span className="text-slate-600 dark:text-white/70">
-                        Số điện thoại:
+                        {t('modal.detail.phoneNumber')}:
                       </span>
                       <span className="font-semibold text-slate-900 dark:text-white">
                         {selectedUserDetail.phoneNumber}
@@ -1023,7 +1070,7 @@ export function ManageStudentsContent() {
                   {selectedUserDetail.currentBalance !== undefined && (
                     <div className="flex justify-between">
                       <span className="text-slate-600 dark:text-white/70">
-                        Số dư:
+                        {t('modal.detail.currentBalance')}:
                       </span>
                       <span className="font-semibold text-blue-600 dark:text-blue-400">
                         {new Intl.NumberFormat('vi-VN', {

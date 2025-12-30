@@ -31,6 +31,11 @@ function SummaryCard({
       ? undefined
       : value;
 
+  // Show 0 if countUpValue is 0, undefined means no data yet
+  const shouldShowCountUp = useCountUp && countUpValue !== undefined;
+  const shouldShowValue =
+    !isLoading && !shouldShowCountUp && value !== undefined;
+
   return (
     <div className="relative rounded-2xl border border-slate-200/70 bg-white/80 p-5 shadow-[0_10px_40px_rgba(15,23,42,0.08)] backdrop-blur dark:border-white/10 dark:bg-white/5 dark:shadow-[0_20px_60px_rgba(0,0,0,0.35)]">
       <div className="text-sm font-semibold text-slate-500 dark:text-white/60">
@@ -40,10 +45,12 @@ function SummaryCard({
         <Skeleton className="mt-3 h-9 w-24" variant="shimmer" />
       ) : (
         <div className="mt-3 text-3xl font-bold text-slate-900 dark:text-white">
-          {useCountUp && countUpValue !== undefined ? (
+          {shouldShowCountUp ? (
             <CountUp to={countUpValue} separator="." duration={2} />
-          ) : (
+          ) : shouldShowValue ? (
             displayValue
+          ) : (
+            <span className="text-slate-400">-</span>
           )}
         </div>
       )}

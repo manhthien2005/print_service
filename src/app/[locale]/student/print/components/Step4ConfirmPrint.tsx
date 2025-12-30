@@ -431,7 +431,11 @@ export function Step4ConfirmPrint({
                   <Button
                     size="sm"
                     onClick={() => setShowPreview(true)}
-                    disabled={!uploadedFile.file && !uploadedFile.preview_url}
+                    disabled={
+                      !uploadedFile.preview_url &&
+                      !uploadedFile.file &&
+                      !uploadedFile.uploaded_file_id
+                    }
                     className="flex items-center gap-2 border-2 border-blue-500 bg-blue-500 text-white hover:bg-blue-600 dark:border-blue-400 dark:bg-blue-500 dark:hover:bg-blue-600"
                   >
                     <svg

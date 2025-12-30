@@ -27,6 +27,7 @@ export const DebitBalanceModal: React.FC<DebitBalanceModalProps> = ({
   currentBalance,
 }) => {
   const t = useTranslations('staff.manageStudents.modal.debitBalance');
+  const tCommon = useTranslations('Balance');
   const debitBalance = useDebitBalance();
 
   const [formData, setFormData] = useState<BalanceTransactionRequest>({
@@ -138,7 +139,7 @@ export const DebitBalanceModal: React.FC<DebitBalanceModalProps> = ({
     <Modal
       isOpen={isOpen}
       onClose={handleClose}
-      title={t('title', { userName: userName || t('defaultUserName') })}
+      title={t('title', { userName: userName || tCommon('defaultUserName') })}
       size="md"
     >
       <form onSubmit={handleSubmit} className="p-6">
